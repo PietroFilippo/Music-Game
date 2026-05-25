@@ -1,0 +1,91 @@
+import type { Language } from '../types';
+
+type Dict = Record<string, string>;
+
+const pt: Dict = {
+  'menu.title': 'musicgame',
+  'menu.subtitle': 'Treino de leitura — guitarra elétrica',
+  'menu.module': 'Módulo 1',
+  'games.pauta-i': 'Pauta I — Linhas e Espaços',
+  'games.pauta-ii': 'Pauta II — Notas na Pauta',
+  'games.claves': 'Claves',
+  'games.clave-sol': 'Clave de Sol — 3 Notas',
+  'common.start': 'Jogar',
+  'common.back': 'Voltar',
+  'common.next': 'Próxima',
+  'common.again': 'Jogar novamente',
+  'common.exit': 'Sair',
+  'common.check': 'Conferir',
+  'common.score': 'Pontuação',
+  'common.complete': 'Jogo completo!',
+  'common.accuracy': 'Acerto',
+  'common.best': 'Melhor',
+  'common.last': 'Último',
+  'common.plays': 'Partidas',
+  'common.round': 'Rodada',
+  'common.of': 'de',
+  'common.line': 'linha',
+  'common.space': 'espaço',
+  'common.guitar': 'guitarra',
+  'common.fretboard': 'Braço',
+  'common.tab': 'Tablatura',
+  'settings.language': 'Idioma',
+  'settings.notation': 'Notação',
+  'notation.letter': 'Letra (C-D-E)',
+  'notation.solfege': 'Solfejo (Dó-Ré-Mi)',
+  'notation.both': 'Ambos',
+  'prompts.pauta-i': 'Que linha ou espaço está marcado?',
+  'prompts.pauta-ii.up': 'Conte {n} ASCENDENTE. Qual a nota?',
+  'prompts.pauta-ii.down': 'Conte {n} DESCENDENTE. Qual a nota?',
+  'prompts.claves': 'Qual nota esta clave fixa na pauta?',
+  'prompts.clave-sol': 'Qual nota está na pauta?',
+};
+
+const en: Dict = {
+  'menu.title': 'musicgame',
+  'menu.subtitle': 'Sight-reading practice — electric guitar',
+  'menu.module': 'Module 1',
+  'games.pauta-i': 'Staff I — Lines & Spaces',
+  'games.pauta-ii': 'Staff II — Notes on Staff',
+  'games.claves': 'Clefs',
+  'games.clave-sol': 'Treble Clef — 3 Notes',
+  'common.start': 'Play',
+  'common.back': 'Back',
+  'common.next': 'Next',
+  'common.again': 'Play again',
+  'common.exit': 'Exit',
+  'common.check': 'Check',
+  'common.score': 'Score',
+  'common.complete': 'Game complete!',
+  'common.accuracy': 'Accuracy',
+  'common.best': 'Best',
+  'common.last': 'Last',
+  'common.plays': 'Plays',
+  'common.round': 'Round',
+  'common.of': 'of',
+  'common.line': 'line',
+  'common.space': 'space',
+  'common.guitar': 'guitar',
+  'common.fretboard': 'Fretboard',
+  'common.tab': 'Tab',
+  'settings.language': 'Language',
+  'settings.notation': 'Notation',
+  'notation.letter': 'Letter (C-D-E)',
+  'notation.solfege': 'Solfège (Dó-Ré-Mi)',
+  'notation.both': 'Both',
+  'prompts.pauta-i': 'Which line or space is marked?',
+  'prompts.pauta-ii.up': 'Count {n} positions UP. What note?',
+  'prompts.pauta-ii.down': 'Count {n} positions DOWN. What note?',
+  'prompts.claves': 'Which note does this clef anchor?',
+  'prompts.clave-sol': 'Which note is on the staff?',
+};
+
+const DICTS: Record<Language, Dict> = { pt, en };
+
+export function t(key: string, lang: Language, vars?: Record<string, string | number>): string {
+  let s = DICTS[lang][key] ?? key;
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v));
+  }
+  return s;
+}
