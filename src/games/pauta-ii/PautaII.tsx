@@ -57,10 +57,14 @@ export function PautaII({ onExit }: { onExit: () => void }) {
           <Staff noteVexKey={q.start.vexKey} />
         </div>
         <p style={{ color: 'var(--fg-muted)', fontSize: 13, marginBottom: 22 }}>
-          {t('common.round') /* reuse */}: {noteLabel(q.start.letter, settings.notation)}
+          {t('common.round') /* reuse */}:{' '}
+          {noteLabel(q.start.letter, settings.notation, settings.language)}
         </p>
         <AnswerBank
-          choices={q.choices.map(l => ({ value: l, label: noteLabel(l, settings.notation) }))}
+          choices={q.choices.map(l => ({
+            value: l,
+            label: noteLabel(l, settings.notation, settings.language),
+          }))}
           onPick={onPick}
           disabled={!!picked}
           lastPick={picked ?? undefined}
@@ -77,7 +81,7 @@ export function PautaII({ onExit }: { onExit: () => void }) {
                 marginBottom: 6,
               }}
             >
-              {noteLabel(q.target.letter, settings.notation)} — {t('common.fretboard')}
+              {noteLabel(q.target.letter, settings.notation, settings.language)} — {t('common.fretboard')}
             </div>
             <Fretboard positions={fretsForVexKey(q.target.vexKey).slice(0, 1)} />
           </div>

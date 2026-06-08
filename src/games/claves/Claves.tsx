@@ -41,7 +41,10 @@ export function Claves({ onExit }: { onExit: () => void }) {
           <Staff clef={q.clef.vexClef} />
         </div>
         <AnswerBank
-          choices={q.choices.map(l => ({ value: l, label: noteLabel(l, settings.notation) }))}
+          choices={q.choices.map(l => ({
+            value: l,
+            label: noteLabel(l, settings.notation, settings.language),
+          }))}
           onPick={onPick}
           disabled={!!picked}
           lastPick={picked ?? undefined}

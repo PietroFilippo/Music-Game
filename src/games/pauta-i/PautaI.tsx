@@ -70,7 +70,7 @@ export function PautaI({ onExit }: { onExit: () => void }) {
                 marginBottom: 6,
               }}
             >
-              {noteLabel(q.target.letter, settings.notation)} — {t('common.fretboard')}
+              {noteLabel(q.target.letter, settings.notation, settings.language)} — {t('common.fretboard')}
             </div>
             <Fretboard positions={fretsForVexKey(q.target.vexKey).slice(0, 1)} />
           </div>

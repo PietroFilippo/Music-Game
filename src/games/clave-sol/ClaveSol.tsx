@@ -60,7 +60,10 @@ export function ClaveSol({ onExit }: { onExit: () => void }) {
           {picked && frets.length > 0 && <GuitarTab positions={frets.slice(0, 1)} />}
         </div>
         <AnswerBank
-          choices={q.choices.map(l => ({ value: l, label: noteLabel(l, settings.notation) }))}
+          choices={q.choices.map(l => ({
+            value: l,
+            label: noteLabel(l, settings.notation, settings.language),
+          }))}
           onPick={onPick}
           disabled={!!picked}
           lastPick={picked ?? undefined}
@@ -77,7 +80,7 @@ export function ClaveSol({ onExit }: { onExit: () => void }) {
                 marginBottom: 6,
               }}
             >
-              {noteLabel(q.target.letter, settings.notation)} — {t('common.fretboard')}
+              {noteLabel(q.target.letter, settings.notation, settings.language)} — {t('common.fretboard')}
             </div>
             <Fretboard positions={frets.slice(0, 1)} />
           </div>
