@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { recordScore } from '../store/scores';
 import type { GameId } from '../types';
 
@@ -13,28 +13,31 @@ export interface GameProgress {
 }
 
 export function useGameProgress(gameId: GameId, totalRounds: number): GameProgress {
-  const [round, setRound] = useState(0);
   const [history, setHistory] = useState<boolean[]>([]);
-  const [done, setDone] = useState(false);
+  const scoreRecorded = useRef(false);
+
+  const done = history.length >= totalRounds;
+  const correctCount = history.filter(Boolean).length;
+  const round = Math.min(history.length, Math.max(totalRounds - 1, 0));
+
+  useEffect(() => {
+    if (!done || scoreRecorded.current) return;
+    const pct = Math.round((correctCount / totalRounds) * 100);
+    recordScore(gameId, pct);
+    scoreRecorded.current = true;
+  }, [correctCount, done, gameId, totalRounds]);
 
   const submit = (correct: boolean) => {
     setHistory(prev => {
+      if (prev.length >= totalRounds) return prev;
       const next = [...prev, correct];
-      if (next.length >= totalRounds) {
-        const pct = Math.round((next.filter(Boolean).length / totalRounds) * 100);
-        recordScore(gameId, pct);
-        setDone(true);
-      } else {
-        setRound(r => r + 1);
-      }
       return next;
     });
   };
 
   const restart = () => {
-    setRound(0);
+    scoreRecorded.current = false;
     setHistory([]);
-    setDone(false);
   };
 
   return {
@@ -42,7 +45,7 @@ export function useGameProgress(gameId: GameId, totalRounds: number): GameProgre
     totalRounds,
     history,
     done,
-    correctCount: history.filter(Boolean).length,
+    correctCount,
     submit,
     restart,
   };
