@@ -1,6 +1,7 @@
 import { useSettings } from '../SettingsContext';
 import { useI18n } from '../hooks/useI18n';
-import type { Language, Notation } from '../types';
+import type { CSSProperties } from 'react';
+import type { AdvanceMode, Language, Notation } from '../types';
 
 const ctrlStyle = {
   background: 'var(--bg-card)',
@@ -11,11 +12,41 @@ const ctrlStyle = {
   fontSize: 13,
 };
 
+const segmentStyle: CSSProperties = {
+  display: 'inline-flex',
+  border: '1px solid var(--border)',
+  borderRadius: 6,
+  overflow: 'hidden',
+};
+
+function segmentButtonStyle(active: boolean): CSSProperties {
+  return {
+    background: active ? 'var(--accent-strong)' : 'var(--bg-card)',
+    color: active ? '#0f0f0f' : 'var(--fg)',
+    border: 'none',
+    borderRight: '1px solid var(--border)',
+    padding: '5px 9px',
+    fontSize: 13,
+    fontWeight: active ? 700 : 500,
+  };
+}
+
 export function SettingsBar() {
-  const { settings, setLanguage, setNotation } = useSettings();
+  const { settings, setLanguage, setNotation, setAdvanceMode } = useSettings();
   const { t } = useI18n();
+  const advanceModes: AdvanceMode[] = ['auto', 'manual'];
+
   return (
-    <div style={{ display: 'flex', gap: 18, marginTop: 14, fontSize: 13, color: 'var(--fg-muted)' }}>
+    <div
+      style={{
+        display: 'flex',
+        gap: 18,
+        marginTop: 14,
+        fontSize: 13,
+        color: 'var(--fg-muted)',
+        flexWrap: 'wrap',
+      }}
+    >
       <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         {t('settings.language')}:
         <select
@@ -39,6 +70,28 @@ export function SettingsBar() {
           <option value="both">{t('notation.both')}</option>
         </select>
       </label>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        {t('settings.advance')}:
+        <div style={segmentStyle}>
+          {advanceModes.map((mode, index) => {
+            const active = settings.advanceMode === mode;
+            const style = segmentButtonStyle(active);
+            if (index === advanceModes.length - 1) style.borderRight = 'none';
+
+            return (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setAdvanceMode(mode)}
+                style={style}
+              >
+                {t(`advance.${mode}`)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

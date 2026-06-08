@@ -5,6 +5,7 @@ import { useSettings } from '../../SettingsContext';
 import { GameShell } from '../../components/GameShell';
 import { Staff } from '../../components/Staff';
 import { AnswerBank } from '../../components/AnswerBank';
+import { ContinueButton } from '../../components/ContinueButton';
 import { CLEFS, pickRandom, shuffle } from '../../music/theory';
 import { noteLabel, type LetterNote } from '../../music/notes';
 
@@ -24,13 +25,17 @@ export function Claves({ onExit }: { onExit: () => void }) {
   const q = useMemo(makeQuestion, [progress.round]);
   const [picked, setPicked] = useState<LetterNote | null>(null);
 
+  const finishRound = (answer: LetterNote) => {
+    progress.submit(answer === q.clef.anchorLetter);
+    setPicked(null);
+  };
+
   const onPick = (val: LetterNote) => {
     if (picked) return;
     setPicked(val);
-    window.setTimeout(() => {
-      progress.submit(val === q.clef.anchorLetter);
-      setPicked(null);
-    }, 900);
+    if (settings.advanceMode === 'auto') {
+      window.setTimeout(() => finishRound(val), 900);
+    }
   };
 
   return (
@@ -50,6 +55,9 @@ export function Claves({ onExit }: { onExit: () => void }) {
           lastPick={picked ?? undefined}
           correctValue={q.clef.anchorLetter}
         />
+        {picked && settings.advanceMode === 'manual' && (
+          <ContinueButton onClick={() => finishRound(picked)} />
+        )}
       </div>
     </GameShell>
   );

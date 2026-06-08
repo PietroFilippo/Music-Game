@@ -6,6 +6,7 @@ import { GameShell } from '../../components/GameShell';
 import { Staff } from '../../components/Staff';
 import { AnswerBank } from '../../components/AnswerBank';
 import { Fretboard } from '../../components/Fretboard';
+import { ContinueButton } from '../../components/ContinueButton';
 import { fretsForVexKey } from '../../music/guitar';
 import { TREBLE_POSITIONS, pickRandom, shuffle, type StaffPosition } from '../../music/theory';
 import { noteLabel } from '../../music/notes';
@@ -31,15 +32,19 @@ export function PautaI({ onExit }: { onExit: () => void }) {
   const q = useMemo(makeQuestion, [progress.round]);
   const [picked, setPicked] = useState<StaffPosition | null>(null);
 
+  const finishRound = (answer: StaffPosition) => {
+    progress.submit(keyOf(answer) === keyOf(q.target));
+    setPicked(null);
+  };
+
   const onPick = (val: string) => {
     if (picked) return;
     const found = q.choices.find(c => keyOf(c) === val);
     if (!found) return;
     setPicked(found);
-    window.setTimeout(() => {
-      progress.submit(keyOf(found) === keyOf(q.target));
-      setPicked(null);
-    }, 900);
+    if (settings.advanceMode === 'auto') {
+      window.setTimeout(() => finishRound(found), 900);
+    }
   };
 
   const labelFor = (p: StaffPosition) =>
@@ -74,6 +79,9 @@ export function PautaI({ onExit }: { onExit: () => void }) {
             </div>
             <Fretboard positions={fretsForVexKey(q.target.vexKey).slice(0, 1)} />
           </div>
+        )}
+        {picked && settings.advanceMode === 'manual' && (
+          <ContinueButton onClick={() => finishRound(picked)} />
         )}
       </div>
     </GameShell>

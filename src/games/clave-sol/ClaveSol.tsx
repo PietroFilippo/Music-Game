@@ -7,6 +7,7 @@ import { Staff } from '../../components/Staff';
 import { AnswerBank } from '../../components/AnswerBank';
 import { Fretboard } from '../../components/Fretboard';
 import { GuitarTab } from '../../components/GuitarTab';
+import { ContinueButton } from '../../components/ContinueButton';
 import { fretsForVexKey } from '../../music/guitar';
 import { TREBLE_POSITIONS, pickRandom, shuffle } from '../../music/theory';
 import { noteLabel, type LetterNote } from '../../music/notes';
@@ -31,13 +32,17 @@ export function ClaveSol({ onExit }: { onExit: () => void }) {
   const q = useMemo(makeQuestion, [progress.round]);
   const [picked, setPicked] = useState<LetterNote | null>(null);
 
+  const finishRound = (answer: LetterNote) => {
+    progress.submit(answer === q.target.letter);
+    setPicked(null);
+  };
+
   const onPick = (val: LetterNote) => {
     if (picked) return;
     setPicked(val);
-    window.setTimeout(() => {
-      progress.submit(val === q.target.letter);
-      setPicked(null);
-    }, 900);
+    if (settings.advanceMode === 'auto') {
+      window.setTimeout(() => finishRound(val), 900);
+    }
   };
 
   const frets = fretsForVexKey(q.target.vexKey);
@@ -84,6 +89,9 @@ export function ClaveSol({ onExit }: { onExit: () => void }) {
             </div>
             <Fretboard positions={frets.slice(0, 1)} />
           </div>
+        )}
+        {picked && settings.advanceMode === 'manual' && (
+          <ContinueButton onClick={() => finishRound(picked)} />
         )}
       </div>
     </GameShell>
