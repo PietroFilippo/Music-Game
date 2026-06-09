@@ -43,7 +43,7 @@ export function PautaI({ onExit }: { onExit: () => void }) {
     if (!found) return;
     setPicked(found);
     if (settings.advanceMode === 'auto') {
-      window.setTimeout(() => finishRound(found), 900);
+      window.setTimeout(() => finishRound(found), settings.autoAdvanceDelayMs);
     }
   };
 

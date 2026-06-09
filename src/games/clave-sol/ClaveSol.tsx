@@ -41,7 +41,7 @@ export function ClaveSol({ onExit }: { onExit: () => void }) {
     if (picked) return;
     setPicked(val);
     if (settings.advanceMode === 'auto') {
-      window.setTimeout(() => finishRound(val), 900);
+      window.setTimeout(() => finishRound(val), settings.autoAdvanceDelayMs);
     }
   };
 
