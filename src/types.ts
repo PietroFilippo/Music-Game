@@ -14,4 +14,5 @@ export interface Settings {
   language: Language;
   notation: Notation;
   advanceMode: AdvanceMode;
+  autoAdvanceDelayMs: number;
 }

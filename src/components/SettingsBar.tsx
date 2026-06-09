@@ -31,10 +31,16 @@ function segmentButtonStyle(active: boolean): CSSProperties {
   };
 }
 
+function secondsLabel(ms: number): string {
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
 export function SettingsBar() {
-  const { settings, setLanguage, setNotation, setAdvanceMode } = useSettings();
+  const { settings, setLanguage, setNotation, setAdvanceMode, setAutoAdvanceDelayMs } =
+    useSettings();
   const { t } = useI18n();
   const advanceModes: AdvanceMode[] = ['auto', 'manual'];
+  const autoAdvance = settings.advanceMode === 'auto';
 
   return (
     <div
@@ -92,6 +98,29 @@ export function SettingsBar() {
           })}
         </div>
       </div>
+      <label
+        style={{
+          display: 'flex',
+          gap: 8,
+          alignItems: 'center',
+          opacity: autoAdvance ? 1 : 0.5,
+        }}
+      >
+        {t('settings.autoDelay')}:
+        <input
+          type="range"
+          min={500}
+          max={2000}
+          step={100}
+          value={settings.autoAdvanceDelayMs}
+          disabled={!autoAdvance}
+          onChange={e => setAutoAdvanceDelayMs(Number(e.target.value))}
+          style={{ width: 110, accentColor: 'var(--accent-strong)' }}
+        />
+        <span style={{ minWidth: 34, color: 'var(--fg)' }}>
+          {secondsLabel(settings.autoAdvanceDelayMs)}
+        </span>
+      </label>
     </div>
   );
 }
