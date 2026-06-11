@@ -1,7 +1,8 @@
 import { useSettings } from '../SettingsContext';
 import { useI18n } from '../hooks/useI18n';
+import { DIFFICULTY_SECONDS } from '../hooks/useAnswerTimer';
 import type { CSSProperties } from 'react';
-import type { AdvanceMode, Language, Notation } from '../types';
+import type { AdvanceMode, Difficulty, Language, Notation } from '../types';
 
 const ctrlStyle = {
   background: 'var(--bg-card)',
@@ -36,10 +37,11 @@ function secondsLabel(ms: number): string {
 }
 
 export function SettingsBar() {
-  const { settings, setLanguage, setNotation, setAdvanceMode, setAutoAdvanceDelayMs } =
+  const { settings, setLanguage, setNotation, setAdvanceMode, setAutoAdvanceDelayMs, setDifficulty } =
     useSettings();
   const { t } = useI18n();
   const advanceModes: AdvanceMode[] = ['auto', 'manual'];
+  const difficulties: Difficulty[] = ['none', 'easy', 'medium', 'hard'];
   const autoAdvance = settings.advanceMode === 'auto';
 
   return (
@@ -98,6 +100,23 @@ export function SettingsBar() {
           })}
         </div>
       </div>
+      <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        {t('settings.difficulty')}:
+        <select
+          style={ctrlStyle}
+          value={settings.difficulty}
+          onChange={e => setDifficulty(e.target.value as Difficulty)}
+        >
+          {difficulties.map(d => {
+            const s = DIFFICULTY_SECONDS[d];
+            return (
+              <option key={d} value={d}>
+                {t(`difficulty.${d}`, s === null ? undefined : { s })}
+              </option>
+            );
+          })}
+        </select>
+      </label>
       <label
         style={{
           display: 'flex',

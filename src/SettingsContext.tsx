@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type { AdvanceMode, Settings, Language, Notation } from './types';
+import type { AdvanceMode, Difficulty, Settings, Language, Notation } from './types';
 
 const DEFAULTS: Settings = {
   language: 'pt',
   notation: 'both',
   advanceMode: 'auto',
   autoAdvanceDelayMs: 900,
+  difficulty: 'none',
 };
 const KEY = 'musicgame.settings';
 
@@ -15,6 +16,7 @@ interface Ctx {
   setNotation: (n: Notation) => void;
   setAdvanceMode: (m: AdvanceMode) => void;
   setAutoAdvanceDelayMs: (ms: number) => void;
+  setDifficulty: (d: Difficulty) => void;
 }
 
 const SettingsContext = createContext<Ctx | null>(null);
@@ -39,6 +41,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setNotation: n => setSettings(s => ({ ...s, notation: n })),
     setAdvanceMode: m => setSettings(s => ({ ...s, advanceMode: m })),
     setAutoAdvanceDelayMs: ms => setSettings(s => ({ ...s, autoAdvanceDelayMs: ms })),
+    setDifficulty: d => setSettings(s => ({ ...s, difficulty: d })),
   };
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
