@@ -11,6 +11,7 @@ interface Props<V extends string | number> {
   disabled?: boolean;
   lastPick?: V;
   correctValue?: V;
+  reveal?: boolean;
 }
 
 export function AnswerBank<V extends string | number>({
@@ -19,6 +20,7 @@ export function AnswerBank<V extends string | number>({
   disabled,
   lastPick,
   correctValue,
+  reveal: forceReveal,
 }: Props<V>) {
   return (
     <div
@@ -30,7 +32,7 @@ export function AnswerBank<V extends string | number>({
       }}
     >
       {choices.map(c => {
-        const reveal = lastPick !== undefined;
+        const reveal = forceReveal || lastPick !== undefined;
         const isCorrect = reveal && c.value === correctValue;
         const isWrongPick = reveal && c.value === lastPick && lastPick !== correctValue;
         const style: CSSProperties = {
