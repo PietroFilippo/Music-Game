@@ -6,6 +6,8 @@ import { GameShell } from '../../components/GameShell';
 import { Staff } from '../../components/Staff';
 import { AnswerBank } from '../../components/AnswerBank';
 import { ContinueButton } from '../../components/ContinueButton';
+import { TimerBar } from '../../components/TimerBar';
+import { useAnswerTimer, DIFFICULTY_SECONDS } from '../../hooks/useAnswerTimer';
 import { CLEFS, pickRandom, shuffle } from '../../music/theory';
 import { noteLabel, type LetterNote } from '../../music/notes';
 
@@ -24,19 +26,35 @@ export function Claves({ onExit }: { onExit: () => void }) {
   const { settings } = useSettings();
   const q = useMemo(makeQuestion, [progress.round]);
   const [picked, setPicked] = useState<LetterNote | null>(null);
+  const [expired, setExpired] = useState(false);
+  const answered = !!picked || expired;
 
-  const finishRound = (answer: LetterNote) => {
+  const finishRound = (answer: LetterNote | null) => {
     progress.submit(answer === q.clef.anchorLetter);
     setPicked(null);
+    setExpired(false);
   };
 
   const onPick = (val: LetterNote) => {
-    if (picked) return;
+    if (answered) return;
     setPicked(val);
     if (settings.advanceMode === 'auto') {
       window.setTimeout(() => finishRound(val), settings.autoAdvanceDelayMs);
     }
   };
+
+  const seconds = DIFFICULTY_SECONDS[settings.difficulty];
+  const timer = useAnswerTimer({
+    seconds,
+    running: !answered && !progress.done,
+    resetKey: progress.round,
+    onExpire: () => {
+      setExpired(true);
+      if (settings.advanceMode === 'auto') {
+        window.setTimeout(() => finishRound(null), settings.autoAdvanceDelayMs);
+      }
+    },
+  });
 
   return (
     <GameShell title={t('games.claves')} onExit={onExit} progress={progress}>
@@ -45,17 +63,19 @@ export function Claves({ onExit }: { onExit: () => void }) {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
           <Staff clef={q.clef.vexClef} />
         </div>
+        {seconds !== null && <TimerBar fraction={timer.fraction} />}
         <AnswerBank
           choices={q.choices.map(l => ({
             value: l,
             label: noteLabel(l, settings.notation, settings.language),
           }))}
           onPick={onPick}
-          disabled={!!picked}
+          disabled={answered}
           lastPick={picked ?? undefined}
           correctValue={q.clef.anchorLetter}
+          reveal={expired}
         />
-        {picked && settings.advanceMode === 'manual' && (
+        {answered && settings.advanceMode === 'manual' && (
           <ContinueButton onClick={() => finishRound(picked)} />
         )}
       </div>

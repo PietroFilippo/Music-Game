@@ -7,6 +7,8 @@ import { Staff } from '../../components/Staff';
 import { AnswerBank } from '../../components/AnswerBank';
 import { Fretboard } from '../../components/Fretboard';
 import { ContinueButton } from '../../components/ContinueButton';
+import { TimerBar } from '../../components/TimerBar';
+import { useAnswerTimer, DIFFICULTY_SECONDS } from '../../hooks/useAnswerTimer';
 import { fretsForVexKey } from '../../music/guitar';
 import { TREBLE_POSITIONS, pickRandom, shuffle, type StaffPosition } from '../../music/theory';
 import { noteLabel } from '../../music/notes';
@@ -31,14 +33,17 @@ export function PautaI({ onExit }: { onExit: () => void }) {
   const { settings } = useSettings();
   const q = useMemo(makeQuestion, [progress.round]);
   const [picked, setPicked] = useState<StaffPosition | null>(null);
+  const [expired, setExpired] = useState(false);
+  const answered = !!picked || expired;
 
-  const finishRound = (answer: StaffPosition) => {
-    progress.submit(keyOf(answer) === keyOf(q.target));
+  const finishRound = (answer: StaffPosition | null) => {
+    progress.submit(answer ? keyOf(answer) === keyOf(q.target) : false);
     setPicked(null);
+    setExpired(false);
   };
 
   const onPick = (val: string) => {
-    if (picked) return;
+    if (answered) return;
     const found = q.choices.find(c => keyOf(c) === val);
     if (!found) return;
     setPicked(found);
@@ -46,6 +51,19 @@ export function PautaI({ onExit }: { onExit: () => void }) {
       window.setTimeout(() => finishRound(found), settings.autoAdvanceDelayMs);
     }
   };
+
+  const seconds = DIFFICULTY_SECONDS[settings.difficulty];
+  const timer = useAnswerTimer({
+    seconds,
+    running: !answered && !progress.done,
+    resetKey: progress.round,
+    onExpire: () => {
+      setExpired(true);
+      if (settings.advanceMode === 'auto') {
+        window.setTimeout(() => finishRound(null), settings.autoAdvanceDelayMs);
+      }
+    },
+  });
 
   const labelFor = (p: StaffPosition) =>
     `${p.kind === 'line' ? t('common.line') : t('common.space')} ${p.index}`;
@@ -57,14 +75,16 @@ export function PautaI({ onExit }: { onExit: () => void }) {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
           <Staff noteVexKey={q.target.vexKey} />
         </div>
+        {seconds !== null && <TimerBar fraction={timer.fraction} />}
         <AnswerBank
           choices={q.choices.map(c => ({ value: keyOf(c), label: labelFor(c) }))}
           onPick={onPick}
-          disabled={!!picked}
+          disabled={answered}
           lastPick={picked ? keyOf(picked) : undefined}
           correctValue={keyOf(q.target)}
+          reveal={expired}
         />
-        {picked && (
+        {answered && (
           <div style={{ marginTop: 28 }}>
             <div
               style={{
@@ -80,7 +100,7 @@ export function PautaI({ onExit }: { onExit: () => void }) {
             <Fretboard positions={fretsForVexKey(q.target.vexKey).slice(0, 1)} />
           </div>
         )}
-        {picked && settings.advanceMode === 'manual' && (
+        {answered && settings.advanceMode === 'manual' && (
           <ContinueButton onClick={() => finishRound(picked)} />
         )}
       </div>
