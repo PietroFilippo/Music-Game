@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { recordScore } from '../store/scores';
+import { useSettings } from '../SettingsContext';
 import type { GameId } from '../types';
 
 export interface GameProgress {
@@ -13,6 +14,7 @@ export interface GameProgress {
 }
 
 export function useGameProgress(gameId: GameId, totalRounds: number): GameProgress {
+  const { settings } = useSettings();
   const [history, setHistory] = useState<boolean[]>([]);
   const scoreRecorded = useRef(false);
 
@@ -23,9 +25,9 @@ export function useGameProgress(gameId: GameId, totalRounds: number): GameProgre
   useEffect(() => {
     if (!done || scoreRecorded.current) return;
     const pct = Math.round((correctCount / totalRounds) * 100);
-    recordScore(gameId, pct);
+    recordScore(gameId, pct, settings.difficulty);
     scoreRecorded.current = true;
-  }, [correctCount, done, gameId, totalRounds]);
+  }, [correctCount, done, gameId, totalRounds, settings.difficulty]);
 
   const submit = (correct: boolean) => {
     setHistory(prev => {
