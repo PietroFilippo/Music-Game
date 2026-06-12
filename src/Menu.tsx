@@ -1,25 +1,26 @@
 import { useI18n } from './hooks/useI18n';
 import { getScore } from './store/scores';
 import { SettingsBar } from './components/SettingsBar';
+import { NavTabs } from './components/NavTabs';
 import { hasLesson } from './lessons';
-import type { GameId } from './types';
-
-const GAMES: GameId[] = ['pauta-i', 'pauta-ii', 'claves', 'clave-sol'];
+import { GAME_IDS, type GameId } from './types';
 
 interface Props {
   onPlay: (id: GameId) => void;
   onLearn: (id: GameId) => void;
+  onStats: () => void;
 }
 
-export function Menu({ onPlay, onLearn }: Props) {
+export function Menu({ onPlay, onLearn, onStats }: Props) {
   const { t } = useI18n();
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
-      <header style={{ marginBottom: 36 }}>
+      <header style={{ marginBottom: 24 }}>
         <h1 style={{ margin: 0, fontSize: 38, letterSpacing: -0.5 }}>{t('menu.title')}</h1>
         <p style={{ color: 'var(--fg-muted)', marginTop: 6 }}>{t('menu.subtitle')}</p>
         <SettingsBar />
       </header>
+      <NavTabs active="games" onGames={() => {}} onStats={onStats} />
       <section>
         <h2
           style={{
@@ -39,7 +40,7 @@ export function Menu({ onPlay, onLearn }: Props) {
             gap: 14,
           }}
         >
-          {GAMES.map(id => {
+          {GAME_IDS.map(id => {
             const score = getScore(id);
             return (
               <div
