@@ -1,9 +1,26 @@
+import { useState } from 'react';
 import { useI18n } from './hooks/useI18n';
 import { getScore } from './store/scores';
 import { SettingsBar } from './components/SettingsBar';
 import { NavTabs } from './components/NavTabs';
 import { hasLesson } from './lessons';
-import { GAME_IDS, type GameId } from './types';
+import type { GameId } from './types';
+import { COURSE_MODULES } from './curriculum';
+
+const EXPANSION_KEY = 'musicgame.modules';
+
+function loadExpanded(): Record<string, boolean> {
+  const defaults = Object.fromEntries(COURSE_MODULES.map(module => [module.id, module.games.length > 0]));
+  try {
+    const saved: unknown = JSON.parse(localStorage.getItem(EXPANSION_KEY) ?? '{}');
+    if (saved && typeof saved === 'object') {
+      for (const [id, value] of Object.entries(saved)) {
+        if (id in defaults && typeof value === 'boolean') defaults[id] = value;
+      }
+    }
+  } catch { /* Use defaults if storage is unavailable or contains invalid data. */ }
+  return defaults;
+}
 
 interface Props {
   onPlay: (id: GameId) => void;
@@ -13,6 +30,12 @@ interface Props {
 
 export function Menu({ onPlay, onLearn, onStats }: Props) {
   const { t } = useI18n();
+  const [expanded, setExpanded] = useState(loadExpanded);
+  const toggle = (id: string) => {
+    const next = { ...expanded, [id]: !expanded[id] };
+    setExpanded(next);
+    try { localStorage.setItem(EXPANSION_KEY, JSON.stringify(next)); } catch { /* Toggling still works without persistence. */ }
+  };
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
       <header style={{ marginBottom: 24 }}>
@@ -21,26 +44,26 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
         <SettingsBar />
       </header>
       <NavTabs active="games" onGames={() => {}} onStats={onStats} />
-      <section>
-        <h2
-          style={{
-            color: 'var(--fg-muted)',
-            fontSize: 12,
-            letterSpacing: 2,
-            textTransform: 'uppercase',
-            marginBottom: 14,
-          }}
-        >
-          {t('menu.module')}
+      {COURSE_MODULES.map(module => (
+      <section key={module.id} className="course-module" aria-labelledby={`module-heading-${module.id}`}>
+        <h2 className="module-heading">
+          <button type="button" className="module-toggle" id={`module-heading-${module.id}`}
+            aria-expanded={expanded[module.id]} aria-controls={`module-content-${module.id}`}
+            onClick={() => toggle(module.id)}>
+            <span className="module-chevron" aria-hidden="true">{expanded[module.id] ? '▾' : '▸'}</span>
+            <span className="module-heading-text">
+              <span className="module-number">{t('course.number', { n: module.number })}</span>
+              <span>{t(`course.${module.id}.title`)}</span>
+            </span>
+            <span className={`module-status ${module.games.length ? 'module-available' : ''}`}>
+              {module.games.length ? t('course.lessonCount', { n: module.games.length }) : t('course.planned')}
+            </span>
+          </button>
         </h2>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))',
-            gap: 14,
-          }}
-        >
-          {GAME_IDS.map(id => {
+        <div id={`module-content-${module.id}`} hidden={!expanded[module.id]} className="module-content">
+          <p className="module-description">{t(`course.${module.id}.description`)}</p>
+          {module.games.length > 0 ? <div className="game-grid">
+          {module.games.map(id => {
             const score = getScore(id);
             return (
               <article
@@ -95,8 +118,13 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
               </article>
             );
           })}
+          </div> : <div className="module-roadmap">
+            <ul>{module.topicKeys.map(key => <li key={key}>{t(`course.topics.${key}`)}</li>)}</ul>
+            <p>{t('course.plannedNote')}</p>
+          </div>}
         </div>
       </section>
+      ))}
     </div>
   );
 }
