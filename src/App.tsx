@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { SettingsProvider } from './SettingsContext';
 import { Menu } from './Menu';
-import { Stats } from './Stats';
-import { PautaI } from './games/pauta-i/PautaI';
-import { PautaII } from './games/pauta-ii/PautaII';
-import { Claves } from './games/claves/Claves';
-import { ClaveSol } from './games/clave-sol/ClaveSol';
+import { GAMES } from './games';
 import { LESSONS } from './lessons';
+import { useI18n } from './hooks/useI18n';
 import type { GameId } from './types';
 
 type Route = 'menu' | 'stats' | GameId | `learn:${GameId}`;
+
+const Stats = lazy(() => import('./Stats').then(m => ({ default: m.Stats })));
+
+function Loading() {
+  const { t } = useI18n();
+  return <p role="status" style={{ padding: 40, textAlign: 'center' }}>{t('common.loading')}</p>;
+}
 
 export default function App() {
   const [route, setRoute] = useState<Route>('menu');
@@ -19,24 +23,24 @@ export default function App() {
   if (route.startsWith('learn:')) {
     const gameId = route.slice('learn:'.length) as GameId;
     const Lesson = LESSONS[gameId];
-    if (Lesson) lesson = <Lesson onExit={back} onPractice={() => setRoute(gameId)} />;
+    if (Lesson) lesson = <Lesson key={route} onExit={back} onPractice={() => setRoute(gameId)} />;
   }
+  const Game = route in GAMES ? GAMES[route as GameId] : null;
 
   return (
     <SettingsProvider>
-      {route === 'menu' && (
-        <Menu
-          onPlay={setRoute}
-          onLearn={id => setRoute(`learn:${id}`)}
-          onStats={() => setRoute('stats')}
-        />
-      )}
-      {route === 'stats' && <Stats onGames={back} />}
-      {route === 'pauta-i' && <PautaI onExit={back} />}
-      {route === 'pauta-ii' && <PautaII onExit={back} />}
-      {route === 'claves' && <Claves onExit={back} />}
-      {route === 'clave-sol' && <ClaveSol onExit={back} />}
-      {lesson}
+      <Suspense fallback={<Loading />}>
+        {route === 'menu' && (
+          <Menu
+            onPlay={setRoute}
+            onLearn={id => setRoute(`learn:${id}`)}
+            onStats={() => setRoute('stats')}
+          />
+        )}
+        {route === 'stats' && <Stats onGames={back} />}
+        {Game && <Game key={route} onExit={back} />}
+        {lesson}
+      </Suspense>
     </SettingsProvider>
   );
 }

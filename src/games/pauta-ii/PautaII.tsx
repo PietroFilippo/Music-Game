@@ -80,7 +80,7 @@ export function PautaII({ onExit }: { onExit: () => void }) {
           <Staff noteVexKey={q.start.vexKey} />
         </div>
         <p style={{ color: 'var(--fg-muted)', fontSize: 13, marginBottom: 22 }}>
-          {t('common.round') /* reuse */}:{' '}
+          {t('common.startNote')}:{' '}
           {noteLabel(q.start.letter, settings.notation, settings.language)}
         </p>
         {seconds !== null && <TimerBar fraction={timer.fraction} />}

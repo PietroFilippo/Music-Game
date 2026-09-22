@@ -1,77 +1,91 @@
 # musicgame
 
-Sight-reading practice app for electric guitar.
+Sight-reading practice for electric guitar, built with React, TypeScript, Vite and VexFlow. The exercise structure is inspired by [jogosdemusica.com.br](https://jogosdemusica.com.br); lessons and questions in this repository are written for this app.
 
-The project is a Vite + React + TypeScript web app with short music-reading lessons and quiz games. It focuses on beginner staff-reading exercises, uses VexFlow for notation rendering, and ties every concept back to the guitar fretboard. Exercise structure is inspired by [jogosdemusica.com.br](https://jogosdemusica.com.br).
+## Module 1
 
-## Current Features
+All ten topics have a six-step lesson and a ten-round quiz, in Portuguese and English.
 
-- Four learn/practice pairs — each game has a stepped theory lesson (Aprender) and a 10-round quiz (Praticar):
-  - Staff I: identify staff lines and spaces
-  - Staff II: count up/down staff positions to find notes
-  - Clefs: identify treble, alto, and bass clef anchor notes
-  - Treble Clef: identify G, A, and B on the staff
-- Lessons end with a Practice button that jumps straight into the matching game
-- Electric guitar feedback with fretboard and tablature helpers
-- Portuguese and English UI and lesson content
-- Letter, solfege, or combined note labels
-- Auto or manual advance after each answer, with configurable delay
-- Local best/last score tracking through `localStorage`
+| Topic | Practice |
+| --- | --- |
+| Staff I | Identify the five lines and four spaces |
+| Staff II | Count positions up or down to find a note |
+| Clefs | Identify treble, alto and bass clef anchor notes |
+| Treble Clef | Read G, A and B |
+| Note Names | Read every line and space in treble clef, E4–F5 |
+| Alphabetical Notation | Translate letters and solfege in both directions |
+| Rhythm Note Names | Identify whole through sixty-fourth notes |
+| Descending Notes | Count backward through natural-note names, including C → B |
+| Sound Properties | Classify written scenarios as pitch, duration, loudness or timbre |
+| Keyboard Notes | Identify the seven white keys using black-key groups |
 
-## Tech Stack
+Lessons end with a Practice button. Guitar fretboard illustrations connect the concepts to the instrument; Treble Clef also shows tablature feedback. The sound-properties quiz uses text scenarios, not audio or microphone input. Keyboard exercises cover natural notes only.
 
-- React 18
-- TypeScript
-- Vite
-- VexFlow
+## Settings and progress
 
-## Getting Started
+- Portuguese or English; letter names, solfege, or both.
+- Fixed note-name mapping: C = Dó/Do and B = Si (PT) / Ti (EN). Alphabetical Notation uses the question's requested format so the answer is not revealed by the notation preference.
+- Automatic advance with a configurable 0.5–2 second delay, or manual Continue.
+- Untimed practice, or 15-second Easy, 8-second Medium, and 4-second Hard rounds. Difficulty changes the time limit, not the question bank. A timeout counts as incorrect and the next round receives a fresh timer.
+- Local best/last scores, completed play counts, and per-play date/difficulty history.
+- Stats summarizes plays, averages, best and last scores. Per-game and global reset controls ask for confirmation and preserve settings.
 
-Install dependencies:
+Progress lives in `localStorage` under `musicgame.scores`, with settings under `musicgame.settings`. Existing scores from before play-history support are preserved; averages use only plays with recorded history. There is no account or cloud sync. Leaving an unfinished quiz does not record a score.
+
+## Development
+
+Use Node.js 22 (also used by CI) and npm.
 
 ```sh
 npm install
-```
-
-Run the development server:
-
-```sh
 npm run dev
 ```
 
-Build for production:
+The development server uses port 5173. To preview a production build:
 
 ```sh
 npm run build
-```
-
-Preview the production build:
-
-```sh
 npm run preview
 ```
 
-Run TypeScript checks:
+Run all checks:
+
+```sh
+npm run check
+```
+
+Individual commands:
 
 ```sh
 npm run typecheck
+npm test
+npm run test:watch
 ```
 
-## Project Structure
+Tests use Vitest and React Testing Library. They cover timeout-to-next-round behavior, automatic/manual advancement in the original games, new quiz completion/restart, question-bank validity across languages/notation modes, and score compatibility. Music rendering is checked in a real browser rather than simulated by jsdom. GitHub Actions runs type checking, tests and a production build on pushes and pull requests.
+
+## Project structure
 
 ```text
 src/
-  components/   Reusable UI and music display components
-  games/        Quiz games (Praticar)
-  lessons/      Stepped theory lessons (Aprender), one file per game
-  hooks/        Shared React hooks
-  i18n/         Translation dictionaries for UI chrome
-  music/        Guitar and music-theory helpers
-  store/        Browser-local score persistence
+  components/          Shared UI, notation, keyboard, rhythm and fretboard diagrams
+  games/index.tsx      Lazy-loaded game registry
+  games/module-one/    Six additional quizzes and pure question generators
+  lessons/index.ts    Lazy-loaded lesson registry
+  lessons/module-one.tsx  Six additional bilingual lessons
+  hooks/              Progress, timers and translations
+  i18n/               Shared UI strings
+  music/              Notes, rhythm values and guitar helpers
+  store/              Browser-local scores
+  test/               Test environment setup
 ```
 
-Lesson copy lives inside each lesson file (`Record<Language, StepCopy[]>`); the i18n dictionaries hold only shared UI strings. To add a lesson, create `src/lessons/<game-id>.tsx` and register it in `src/lessons/index.ts` — the menu's Learn button enables itself.
+To add a topic, register its ID in `src/types.ts`, its title in both i18n dictionaries, and its game and lesson in their registries. The menu and Stats derive their entries from that list. Keep question generation independent from presentation, and add gameplay tests for new behavior.
 
-## Development Status
+Games and lessons load on demand. VexFlow remains a relatively large shared chunk, but it is not part of the initial menu download.
 
-In active development. Next up: the remaining six games of module 1 (note names, alphabetical notation, figure names, descending notes, sound properties, keyboard notes), then modules 2–4.
+## Current status
+
+Module 1's ten planned lesson/quiz pairs are implemented. Modules 2–4 remain future work. Other possible extensions are a visible play-history view, audio-based exercises, and progress export/sync; these are not implemented.
+
+Rhythm examples use a quarter-note beat; the displayed beat counts are not universal across all meters. English rhythm names follow American terminology.

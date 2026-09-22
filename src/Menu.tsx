@@ -36,15 +36,16 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))',
             gap: 14,
           }}
         >
           {GAME_IDS.map(id => {
             const score = getScore(id);
             return (
-              <div
+              <article
                 key={id}
+                aria-label={t(`games.${id}`)}
                 style={{
                   textAlign: 'left',
                   padding: 20,
@@ -91,7 +92,7 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
                     {t('common.practice')}
                   </button>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

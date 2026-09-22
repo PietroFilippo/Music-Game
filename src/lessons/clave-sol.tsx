@@ -52,11 +52,11 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'B: one more step',
-      text: 'One more position up, on line 3, sits B (si). G on a line, A in a space, B on the next line: line, space, line.',
+      text: 'One more position up, on line 3, sits B (ti). G on a line, A in a space, B on the next line: line, space, line.',
     },
     {
       title: 'The three together',
-      text: 'G (sol) on line 2 — the line the clef curls around. A (la) in the 2nd space. B (si) on line 3, right in the middle of the staff. When in doubt, count from G.',
+      text: 'G (sol) on line 2 — the line the clef curls around. A (la) in the 2nd space. B (ti) on line 3, right in the middle of the staff. When in doubt, count from G.',
     },
     {
       title: 'On the guitar',
@@ -64,7 +64,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'How to play',
-      text: "In Treble Clef, one of the three notes appears on the staff: say whether it's G (sol), A (la) or B (si). Use the anchor: the curl line is always G.",
+      text: "In Treble Clef, one of the three notes appears on the staff: say whether it's G (sol), A (la) or B (ti). Use the anchor: the curl line is always G.",
     },
   ],
 };

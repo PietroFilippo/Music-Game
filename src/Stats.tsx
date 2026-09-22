@@ -61,6 +61,7 @@ export function Stats({ onGames }: { onGames: () => void }) {
         <p style={{ color: 'var(--fg-muted)', marginTop: 6 }}>{t('menu.subtitle')}</p>
       </header>
       <NavTabs active="stats" onGames={onGames} onStats={() => {}} />
+      <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
@@ -105,6 +106,7 @@ export function Stats({ onGames }: { onGames: () => void }) {
           </tr>
         </tbody>
       </table>
+      </div>
       <div style={{ marginTop: 28 }}>
         <button
           onClick={() => setPending('all')}

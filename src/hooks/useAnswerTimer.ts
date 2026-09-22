@@ -19,30 +19,37 @@ interface Options {
 
 export function useAnswerTimer({ seconds, running, resetKey, onExpire }: Options) {
   const totalMs = seconds === null ? null : seconds * 1000;
-  const [remainingMs, setRemainingMs] = useState(totalMs);
+  const [clock, setClock] = useState({ resetKey, seconds, remainingMs: totalMs });
+  const currentRound = Object.is(clock.resetKey, resetKey) && clock.seconds === seconds;
+  const remainingMs = currentRound ? clock.remainingMs : totalMs;
   const expireRef = useRef(onExpire);
   expireRef.current = onExpire;
   const firedRef = useRef(false);
 
   useEffect(() => {
     firedRef.current = false;
-    setRemainingMs(seconds === null ? null : seconds * 1000);
+    setClock({ resetKey, seconds, remainingMs: seconds === null ? null : seconds * 1000 });
   }, [resetKey, seconds]);
 
   useEffect(() => {
     if (!running || seconds === null) return;
     const id = window.setInterval(() => {
-      setRemainingMs(prev => (prev === null ? prev : Math.max(prev - TICK_MS, 0)));
+      setClock(prev => ({
+        ...prev,
+        remainingMs: prev.remainingMs === null ? null : Math.max(prev.remainingMs - TICK_MS, 0),
+      }));
     }, TICK_MS);
     return () => window.clearInterval(id);
   }, [running, seconds, resetKey]);
 
   useEffect(() => {
-    if (remainingMs === 0 && running && !firedRef.current) {
+    // A reset effect does not update state until the next render. Never expire
+    // the new round using the previous round's remaining time.
+    if (currentRound && remainingMs === 0 && running && !firedRef.current) {
       firedRef.current = true;
       expireRef.current();
     }
-  }, [remainingMs, running]);
+  }, [currentRound, remainingMs, running]);
 
   const fraction = totalMs === null || remainingMs === null ? 1 : remainingMs / totalMs;
   return { fraction };

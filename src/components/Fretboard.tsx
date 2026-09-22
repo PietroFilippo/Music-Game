@@ -1,7 +1,6 @@
 import type { FretPosition } from '../music/guitar';
 
 const STRING_LABELS = ['E', 'B', 'G', 'D', 'A', 'E'];
-const NUM_FRETS = 12;
 const MARKERS_SINGLE = [3, 5, 7, 9];
 const MARKER_DOUBLE = 12;
 
@@ -11,6 +10,7 @@ interface Props {
 }
 
 export function Fretboard({ positions, highlightFirst = true }: Props) {
+  const numFrets = Math.max(12, ...positions.map(p => p.fret));
   const width = 560;
   const height = 150;
   const padL = 36;
@@ -20,7 +20,7 @@ export function Fretboard({ positions, highlightFirst = true }: Props) {
   const usableW = width - padL - padR;
   const usableH = height - padT - padB;
   const stringGap = usableH / 5;
-  const fretGap = usableW / NUM_FRETS;
+  const fretGap = usableW / numFrets;
 
   return (
     <svg
@@ -39,7 +39,7 @@ export function Fretboard({ positions, highlightFirst = true }: Props) {
         />
       ))}
       <line x1={padL} x2={padL} y1={padT} y2={height - padB} stroke="var(--fg)" strokeWidth={3} />
-      {Array.from({ length: NUM_FRETS }, (_, f) => (
+      {Array.from({ length: numFrets }, (_, f) => (
         <line
           key={'f' + f}
           x1={padL + (f + 1) * fretGap}
