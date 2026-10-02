@@ -1,6 +1,6 @@
 # Guitar curriculum roadmap
 
-Updated 2026-09-22. Guitar and electric guitar are the primary instruments for this project.
+Updated 2026-10-02. Guitar and electric guitar are the primary instruments for this project.
 
 ## Original plan and present scope
 
@@ -14,6 +14,16 @@ The README at commit `09d4ca7` planned **four modules**: complete the remaining 
 | 4 | Tetrads/seventh chords, four-note arpeggios and harmonic application | Proposed topics; lessons/games not implemented |
 
 All four sections can be expanded or collapsed independently. Module 1 opens by default, future modules start collapsed, and the browser remembers the selection. Future modules display topic previews and a Planned label.
+
+## Next milestone: proposed, not started
+
+Use feedback from testing Module 1 to refine explanations, difficulty and navigation where needed. The next proposed implementation is:
+
+1. A reusable interactive guitar fretboard. Players select string/fret positions, reveal note names and highlight roots or intervals, with connections to tablature and staff notation. The current fretboard component is display-only; selection and exploration are not implemented.
+2. Module 2's first two bilingual lesson/quiz pairs: **string numbering and standard tuning**, then **natural notes across the first 12 frets**. Reuse the existing practice settings and score tracking. Include a short exercise to play on a real guitar alongside each lesson's screen-based practice; microphone grading is outside this milestone.
+3. Test this first part before implementing the remaining sequence: **sharps/flats and semitone movement → octaves and repeated notes → intervals and scale degrees → major and natural minor scales**.
+
+This is the recommended next step from the project discussion, not completed content or a commitment to implement the entire module at once. The same fretboard interactions should support later triad and tetrad exercises.
 
 ## Module 2: fretboard and intervals
 

@@ -93,4 +93,6 @@ Games and lessons load on demand. VexFlow remains a relatively large shared chun
 
 Module 1's ten planned lesson/quiz pairs are implemented. Modules 2–4 have expandable topic previews; their lessons and games remain future work. Their proposed progression is guitar fretboard/intervals, triads/arpeggios, then seventh chords and harmonic application. Other possible extensions are a visible play-history view, audio-based exercises, and progress export/sync; these are not implemented.
 
+The proposed next milestone is a reusable interactive guitar fretboard plus Module 2's first two lesson/quiz pairs: string numbering and standard tuning, then natural notes across the first 12 frets. This work has not started; the current fretboard is a display-only illustration. See the [next milestone](docs/ROADMAP.md#next-milestone-proposed-not-started) for scope and the remaining sequence.
+
 Rhythm examples use a quarter-note beat; the displayed beat counts are not universal across all meters. English rhythm names follow American terminology.
