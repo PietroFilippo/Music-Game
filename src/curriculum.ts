@@ -22,8 +22,8 @@ export const COURSE_MODULES: readonly CourseModule[] = [
     topicKeys: [],
   },
   {
-    id: 'fretboard', number: 2, games: ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois'],
-    topicKeys: ['fretboard.octaves', 'fretboard.intervals', 'fretboard.scales', 'fretboard.reading'],
+    id: 'fretboard', number: 2, games: ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois', 'oitavas'],
+    topicKeys: ['fretboard.intervals', 'fretboard.scales', 'fretboard.reading'],
   },
   {
     id: 'triads', number: 3, games: [],

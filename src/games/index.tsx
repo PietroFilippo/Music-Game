@@ -31,4 +31,5 @@ export const GAMES: Record<GameId, ComponentType<GameProps>> = {
   'cordas-afinacao': moduleTwoGame('cordas-afinacao'),
   'notas-braco': moduleTwoGame('notas-braco'),
   'sustenidos-bemois': moduleTwoGame('sustenidos-bemois'),
+  oitavas: moduleTwoGame('oitavas'),
 };

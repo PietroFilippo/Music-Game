@@ -3,12 +3,13 @@ import type { Language, Notation } from '../../types';
 import { accidentalQuestions } from './accidentals';
 import { createCopy, type ModuleTwoQuestion } from './model';
 import { naturalNoteQuestions } from './naturals';
+import { octaveQuestions } from './octaves';
 import { stringQuestions } from './strings';
 
 export { NECK_FRETS } from './model';
 export type { BoardView, ModuleTwoQuestion, NotatedPosition, QuestionAnswer, QuestionVisual } from './model';
 
-export const MODULE_TWO_IDS = ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois'] as const;
+export const MODULE_TWO_IDS = ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois', 'oitavas'] as const;
 export type ModuleTwoId = typeof MODULE_TWO_IDS[number];
 
 const ROUNDS = 10;
@@ -20,6 +21,7 @@ export function createQuestionGroups(id: ModuleTwoId, language: Language, notati
     case 'cordas-afinacao': return stringQuestions(copy);
     case 'notas-braco': return naturalNoteQuestions(copy);
     case 'sustenidos-bemois': return accidentalQuestions(copy);
+    case 'oitavas': return octaveQuestions(copy);
   }
 }
 

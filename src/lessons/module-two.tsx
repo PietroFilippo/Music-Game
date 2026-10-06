@@ -149,6 +149,39 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
         'On string 6, play one fret at a time from the open string to fret 12, naming every note: going up, use sharps (E, F, F♯, G…); coming down, use flats (E, E♭, D, D♭…). Then repeat on string 5.',
         <>{sequence(chromatic(5, '#'))}{sequence(chromatic(5, 'b'))}</>),
     ],
+    oitavas: [
+      step('O que é uma oitava', 'What an octave is',
+        'Duas notas a 12 semitons de distância têm o mesmo nome: a mais aguda vibra duas vezes mais rápido. Essa distância é a oitava. Numa mesma corda, a casa 12 é a oitava da corda solta.',
+        'Two notes 12 semitones apart share the same name: the higher one vibrates twice as fast. That distance is an octave. On one string, fret 12 is the octave of the open string.',
+        <Fretboard stringLabels="name" showFretNumbers highlightStrings={[4]}
+          markers={[at(4, 0, 'root'), at(4, 12, 'accent')]} />),
+      step('Duas cordas, duas casas', 'Two strings over, two frets up',
+        'A partir das cordas 6 e 5, a oitava fica duas cordas na direção das cordas finas e duas casas à frente. Sol na 6ª corda, casa 3, tem a oitava na 4ª corda, casa 5; Dó na 5ª corda, casa 3, tem a oitava na 3ª corda, casa 5.',
+        'From strings 6 and 5, the octave is two strings toward the thin strings and two frets up. G at fret 3 of string 6 has its octave at fret 5 of string 4; C at fret 3 of string 5 has its octave at fret 5 of string 3.',
+        <Fretboard frets={7} stringLabels="name" showFretNumbers
+          markers={[at(5, 3, 'root'), at(3, 5, 'accent'), at(4, 3, 'root'), at(2, 5, 'accent')]} />),
+      step('Atenção à 2ª corda', 'Mind the 2nd string',
+        'Quando o desenho passa da 3ª para a 2ª corda, ele anda uma casa a mais, porque essas duas cordas são afinadas a 4 casas de distância, não 5. Da 4ª corda para a 2ª, e da 3ª para a 1ª, a oitava fica três casas à frente: Sol na 4ª corda, casa 5, tem a oitava na 2ª corda, casa 8.',
+        'When a shape crosses from string 3 to string 2, it moves one fret further, because those strings are tuned 4 frets apart instead of 5. From string 4 to string 2, and from string 3 to string 1, the octave is three frets up: G at fret 5 of string 4 has its octave at fret 8 of string 2.',
+        <Fretboard frets={9} stringLabels="name" showFretNumbers
+          markers={[at(3, 5, 'root'), at(1, 8, 'accent'), at(2, 2, 'root'), at(0, 5, 'accent')]} />),
+      step('O mesmo som em dois lugares', 'One pitch, two places',
+        'A mesma nota, na mesma altura, também aparece em outra corda: cinco casas para trás na corda vizinha mais aguda, ou quatro casas da 3ª para a 2ª corda. Dó na 6ª corda, casa 8, soa igual à 5ª corda, casa 3.',
+        'The very same pitch also appears on another string: five frets lower on the next higher string, or four frets from string 3 to string 2. C at fret 8 of string 6 sounds the same as fret 3 of string 5.',
+        <Fretboard frets={9} stringLabels="name" showFretNumbers highlightStrings={[5, 4]}
+          markers={[at(5, 8, 'root'), at(4, 3, 'accent')]} />),
+      step('Encontre todas as oitavas', 'Find every octave',
+        'Toque em uma posição: o explorador destaca a mesma nota em todas as oitavas entre as casas 0 e 12. Procure os desenhos de oitava e os sons repetidos.',
+        'Tap a position: the explorer highlights the same note in every octave between frets 0 and 12. Look for the octave shapes and the repeated pitches.',
+        <FretboardExplorer initial={{ string: 5, fret: 3 }} showSameNote />),
+      step('No seu instrumento', 'On your guitar',
+        'Toque Sol na 6ª corda, casa 3, depois a oitava na 4ª corda, casa 5, e a seguinte na 2ª corda, casa 8. Repita a partir de Lá: 6ª corda, casa 5 → 4ª corda, casa 7 → 2ª corda, casa 10. Ouça as três soarem como a mesma nota, cada vez mais aguda.',
+        'Play G at fret 3 of string 6, then its octave at fret 5 of string 4, then the next one at fret 8 of string 2. Repeat from A: string 6 fret 5 → string 4 fret 7 → string 2 fret 10. Listen to all three sound like the same note, higher each time.',
+        <Fretboard frets={12} stringLabels="name" showFretNumbers markers={[
+          at(5, 3, 'accent'), at(3, 5, 'accent'), at(1, 8, 'accent'),
+          at(5, 5, 'root'), at(3, 7, 'root'), at(1, 10, 'root'),
+        ]} />),
+    ],
   };
 
   return <LessonShell title={t(`games.${id}`)} steps={lessons[id]} onExit={onExit} onPractice={onPractice} />;

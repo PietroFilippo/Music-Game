@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fretsForVexKey, naturalAt, pitchClassAt } from '../../music/guitar';
+import { fretsForVexKey, naturalAt, pitchClassAt, soundingMidi } from '../../music/guitar';
+import { relationOf } from './octaves';
 import { spelledPitchClass, type Accidental, type LetterNote } from '../../music/notes';
 import { createQuestionDeck, createQuestionGroups, createQuestionPool, MODULE_TWO_IDS, NECK_FRETS } from './questions';
 
@@ -132,5 +133,44 @@ describe('sharps and flats question bank', () => {
       expect(p.string).toBe(Number(string));
       expect(pitchClassAt(p)).toBe(pitchOf(name));
     }
+  });
+});
+
+describe('octaves question bank', () => {
+  const pool = createQuestionPool('oitavas', 'en', 'letter');
+
+  it('accepts the octave two strings over and the same pitch on the next string', () => {
+    for (const question of pool) {
+      if (question.answer.kind !== 'board') continue;
+      const [start] = question.answer.board.markers!;
+      const [target] = question.answer.accepts;
+      const distance = soundingMidi(target) - soundingMidi(start);
+      if (question.id.startsWith('octave-')) {
+        expect(distance).toBe(12);
+        expect(target.string).toBe(start.string - 2);
+      } else {
+        expect(distance).toBe(0);
+        expect(target.string).toBe(start.string - 1);
+      }
+    }
+    expect(pool.find(q => q.id === 'octave-5:3')!.answer).toMatchObject({ accepts: [{ string: 3, fret: 5 }] });
+    expect(pool.find(q => q.id === 'octave-3:5')!.answer).toMatchObject({ accepts: [{ string: 1, fret: 8 }] });
+    expect(pool.find(q => q.id === 'unison-2:4')!.answer).toMatchObject({ accepts: [{ string: 1, fret: 0 }] });
+  });
+
+  it('classifies every pair by the real distance between the two pitches', () => {
+    const pairs = pool.filter(q => q.id.startsWith('pair-'));
+    const seen = new Set<string>();
+    for (const question of pairs) {
+      if (question.answer.kind !== 'choice' || question.answer.visual.kind !== 'board') throw new Error('expected a board pair');
+      const [a, b] = question.answer.visual.board.markers!;
+      for (const p of [a, b]) {
+        expect(p.fret).toBeGreaterThanOrEqual(0);
+        expect(p.fret).toBeLessThanOrEqual(12);
+      }
+      expect(question.answer.correct).toBe(relationOf(a, b));
+      seen.add(question.answer.correct);
+    }
+    expect([...seen].sort()).toEqual(['different', 'octave', 'two-octaves', 'unison']);
   });
 });

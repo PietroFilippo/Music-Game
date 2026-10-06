@@ -27,13 +27,14 @@ Staff notes follow standard guitar notation, which is written one octave above t
 
 ## Module 2 (in progress)
 
-The first three topics of the fretboard module are available in Portuguese and English, each with a six-step lesson and a ten-round quiz. Every lesson ends with a short exercise to play on a real guitar.
+The first four topics of the fretboard module are available in Portuguese and English, each with a six-step lesson and a ten-round quiz. Every lesson ends with a short exercise to play on a real guitar.
 
 | Topic | Practice |
 | --- | --- |
 | Strings and Tuning | Name the highlighted string, name open-string notes, find the string tuned to a note, and tap a string on the fretboard |
 | Natural Notes on the Neck | Name a marked position or a tab number, and tap a requested note on a given string, frets 0–12 |
 | Sharps and Flats | Name the frets between natural notes (with both spellings); name the note one or two frets up (with sharps) or down (with flats); find a sharp or flat on a string; read sharps and flats on the staff |
+| Octaves on the Neck | Tap the octave two strings over (two frets up, or three when crossing the 3rd and 2nd strings); tap the same pitch on the next string; classify two marked positions as one octave, two octaves, the same pitch or different notes |
 
 The fretboard is interactive. Positions can be selected with a pointer, or with the arrow keys, Home, End and Enter. Answers that need a position are given by tapping the board. After each answer, the feedback shows the position as tablature and as written notation. The Natural Notes lesson includes an explorer: select any position to see its name, tab and written note, show every natural note, or highlight one note everywhere it appears. The board accepts labeled markers in several highlight colors, so later root, interval, triad and arpeggio exercises can reuse it.
 
@@ -132,6 +133,6 @@ Games and lessons load on demand. VexFlow is imported with only its Bravura musi
 
 ## Current status
 
-Module 1's ten planned lesson/quiz pairs are implemented. Module 2 has its interactive fretboard and first three lesson/quiz pairs: strings and standard tuning, natural notes across the first 12 frets, then sharps, flats and semitone movement. The remaining sequence is octaves and repeated notes, intervals and scale degrees, then major and natural minor scales. Modules 3–4 have expandable topic previews: triads and arpeggios, then seventh chords and harmonic application. The roadmap also proposes two practice features: [spaced review of weak notes and answering by playing into the microphone](docs/ROADMAP.md#practice-features-across-modules-proposed). A visible play-history view and progress export/sync are other possible extensions. None of these are implemented. See the [roadmap](docs/ROADMAP.md#current-milestone-ready-for-testing) for details.
+Module 1's ten planned lesson/quiz pairs are implemented. Module 2 has its interactive fretboard and first four lesson/quiz pairs: strings and standard tuning, natural notes across the first 12 frets, sharps, flats and semitone movement, then octaves and repeated notes. The remaining sequence is intervals and scale degrees, then major and natural minor scales. Modules 3–4 have expandable topic previews: triads and arpeggios, then seventh chords and harmonic application. The roadmap also proposes two practice features: [spaced review of weak notes and answering by playing into the microphone](docs/ROADMAP.md#practice-features-across-modules-proposed). A visible play-history view and progress export/sync are other possible extensions. None of these are implemented. See the [roadmap](docs/ROADMAP.md#current-milestone-ready-for-testing) for details.
 
 Rhythm examples use a quarter-note beat; the displayed beat counts are not universal across all meters. English rhythm names follow American terminology.

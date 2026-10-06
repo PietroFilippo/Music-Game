@@ -1,7 +1,7 @@
 import type { FretMarker, StringLabelMode } from '../../components/Fretboard';
 import { STRING_COUNT, type FretPosition } from '../../music/guitar';
 import {
-  noteLabel, pitchClassLabel, shortNoteLabel, spelledLabel, type LetterNote, type SpelledNote,
+  noteLabel, pitchClassLabel, shortNoteLabel, shortPitchClassLabel, spelledLabel, type LetterNote, type SpelledNote,
 } from '../../music/notes';
 import { shuffle } from '../../music/theory';
 import type { Language, Notation } from '../../types';
@@ -58,6 +58,8 @@ export function createCopy(language: Language, notation: Notation) {
     shortSpelled: (note: SpelledNote) => spelledLabel(note, notation === 'solfege' ? 'solfege' : 'letter', language),
     /** Both names of a note between naturals, e.g. "F♯ / G♭". */
     dual: (pitchClass: number) => pitchClassLabel(pitchClass, notation, language),
+    /** Short marker label for any pitch class, e.g. "G" or "F♯". */
+    shortPitch: (pitchClass: number) => shortPitchClassLabel(pitchClass, notation, language),
     where: (p: FretPosition) => (p.fret === 0
       ? text(`${p.string + 1}ª corda solta`, `open string ${p.string + 1}`)
       : text(`${p.string + 1}ª corda, casa ${p.fret}`, `string ${p.string + 1}, fret ${p.fret}`)),

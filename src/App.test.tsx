@@ -40,14 +40,15 @@ describe('menu', () => {
     localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en' }));
     render(<App />);
     const toggle = screen.getByRole('button', { name: /Module 2/ });
-    expect(toggle.textContent).toContain('3 lessons + games · in progress');
+    expect(toggle.textContent).toContain('4 lessons + games · in progress');
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     const section = within(document.getElementById('module-content-fretboard')!);
     expect(section.getByRole('article', { name: 'Strings and Tuning' })).toBeDefined();
     expect(section.getByRole('article', { name: 'Natural Notes on the Neck' })).toBeDefined();
     expect(section.getByRole('article', { name: 'Sharps and Flats' })).toBeDefined();
+    expect(section.getByRole('article', { name: 'Octaves on the Neck' })).toBeDefined();
     expect(section.getByRole('heading', { name: 'Coming next' })).toBeDefined();
-    expect(section.getByText('Octaves and repeated notes across the neck')).toBeDefined();
+    expect(section.getByText('Intervals and scale degrees')).toBeDefined();
     expect(screen.getByRole('button', { name: /Module 3/ }).textContent).toContain('Planned');
   });
 });

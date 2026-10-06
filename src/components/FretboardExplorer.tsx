@@ -15,12 +15,12 @@ function allPositions(): FretPosition[] {
 
 // Free exploration: select any position to see its name, tab and written note,
 // optionally with every natural note or every repeat of the selected note.
-export function FretboardExplorer({ initial }: { initial?: FretPosition }) {
+export function FretboardExplorer({ initial, showSameNote = false }: { initial?: FretPosition; showSameNote?: boolean }) {
   const { t } = useI18n();
   const { settings } = useSettings();
   const [selected, setSelected] = useState<FretPosition | null>(initial ?? null);
   const [showNaturals, setShowNaturals] = useState(false);
-  const [showSame, setShowSame] = useState(false);
+  const [showSame, setShowSame] = useState(showSameNote);
   const short = (p: FretPosition) => shortPitchClassLabel(pitchClassAt(p), settings.notation, settings.language);
 
   const markers: FretMarker[] = [];
