@@ -48,7 +48,7 @@ Each quiz deck draws evenly from its question types. Answers are checked on scre
 - Local best/last scores, completed play counts, and per-play date/difficulty history.
 - Stats summarizes plays, averages, best and last scores. Per-game and global reset controls ask for confirmation and preserve settings.
 
-Progress lives in `localStorage` under `musicgame.scores`, with settings under `musicgame.settings`. Existing scores from before play-history support are preserved; averages use only plays with recorded history. Saved settings with unknown values fall back to the defaults. There is no account or cloud sync. Leaving an unfinished quiz does not record a score, and any pending automatic advance is cancelled.
+Progress lives in `localStorage` under `musicgame.scores`, with settings under `musicgame.settings`. Every answer is also recorded per question under `musicgame.attempts`: times seen, times correct, current correct streak, last result and average answer time. A future review of weak spots will use this history; Stats resets clear it too. Existing scores from before play-history support are preserved; averages use only plays with recorded history. Saved settings with unknown values fall back to the defaults. There is no account or cloud sync. Leaving an unfinished quiz does not record a score, and any pending automatic advance is cancelled.
 
 Expanded module sections are stored separately under `musicgame.modules`. Score resets preserve this preference.
 

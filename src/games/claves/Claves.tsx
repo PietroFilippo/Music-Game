@@ -20,7 +20,7 @@ function makeQuestion() {
 }
 
 export function Claves({ onExit }: { onExit: () => void }) {
-  const quiz = useQuizRound<LetterNote>('claves', ROUNDS);
+  const quiz = useQuizRound<LetterNote>('claves', ROUNDS, { itemId: (): string => q.clef.id });
   const { t } = useI18n();
   const { settings } = useSettings();
   const q = useMemo(makeQuestion, [quiz.progress.round]);

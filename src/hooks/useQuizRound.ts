@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { playEffect, type SoundEffect } from '../audio/sound';
 import { useSettings } from '../SettingsContext';
+import { recordAttempt, type AttemptResult } from '../store/attempts';
 import type { GameId } from '../types';
 import { DIFFICULTY_SECONDS, useAnswerTimer } from './useAnswerTimer';
 import { useGameProgress, type GameProgress } from './useGameProgress';
@@ -24,11 +25,18 @@ export interface QuizRound<V> {
   next: () => void;
 }
 
+interface Options {
+  /** Stable ID of the question shown in the current round, for answer history. */
+  itemId?: () => string;
+  onRestart?: () => void;
+}
+
 // One answer or timeout per round, then the round is submitted once: after the
 // configured delay in automatic mode, or by `next` in manual mode. Pending
 // timers are cleared when the round changes or the game unmounts. Answers,
 // timeouts and the finished quiz play feedback sounds unless sound is off.
-export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () => void): QuizRound<V> {
+// Each answer or timeout is recorded against the question's stable ID.
+export function useQuizRound<V>(gameId: GameId, rounds: number, options: Options = {}): QuizRound<V> {
   const { settings } = useSettings();
   const progress = useGameProgress(gameId, rounds);
   const [answer, setAnswer] = useState<Answer<V> | null>(null);
@@ -42,6 +50,18 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () =
   };
   const soundRef = useRef(sound);
   soundRef.current = sound;
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+  const roundStartedAt = useRef(Date.now());
+
+  useEffect(() => {
+    roundStartedAt.current = Date.now();
+  }, [progress.round]);
+
+  const record = (result: AttemptResult) => {
+    const itemId = optionsRef.current.itemId?.();
+    if (itemId) recordAttempt(gameId, itemId, result, Date.now() - roundStartedAt.current);
+  };
 
   useEffect(() => {
     if (progress.done) soundRef.current('complete');
@@ -73,6 +93,7 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () =
       locked.current = true;
       setExpired(true);
       sound('wrong');
+      record('timeout');
     },
   });
 
@@ -81,6 +102,7 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () =
     locked.current = true;
     setAnswer({ value, correct });
     sound(correct ? 'correct' : 'wrong');
+    record(correct ? 'correct' : 'wrong');
   };
 
   const restart = () => {
@@ -88,7 +110,8 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () =
     setExpired(false);
     locked.current = false;
     submittedRound.current = null;
-    onRestart?.();
+    roundStartedAt.current = Date.now();
+    optionsRef.current.onRestart?.();
     progress.restart();
   };
 

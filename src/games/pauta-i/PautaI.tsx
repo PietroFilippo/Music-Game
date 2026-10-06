@@ -27,7 +27,7 @@ function makeQuestion() {
 const keyOf = (p: StaffPosition) => `${p.kind}-${p.index}`;
 
 export function PautaI({ onExit }: { onExit: () => void }) {
-  const quiz = useQuizRound<string>('pauta-i', ROUNDS);
+  const quiz = useQuizRound<string>('pauta-i', ROUNDS, { itemId: (): string => q.target.vexKey });
   const { t } = useI18n();
   const { settings } = useSettings();
   const q = useMemo(makeQuestion, [quiz.progress.round]);

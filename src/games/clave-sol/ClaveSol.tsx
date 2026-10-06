@@ -27,7 +27,7 @@ function makeQuestion() {
 }
 
 export function ClaveSol({ onExit }: { onExit: () => void }) {
-  const quiz = useQuizRound<LetterNote>('clave-sol', ROUNDS);
+  const quiz = useQuizRound<LetterNote>('clave-sol', ROUNDS, { itemId: (): string => q.target.vexKey });
   const { t } = useI18n();
   const { settings } = useSettings();
   const q = useMemo(makeQuestion, [quiz.progress.round]);

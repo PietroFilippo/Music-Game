@@ -33,7 +33,10 @@ export function ModuleOneGame({ id, onExit }: { id: ModuleOneId; onExit: () => v
   const { t } = useI18n();
   const newDeck = () => createQuestionDeck(id, settings.language, settings.notation);
   const [deck, setDeck] = useState(newDeck);
-  const quiz = useQuizRound<string>(id, 10, () => setDeck(newDeck()));
+  const quiz = useQuizRound<string>(id, 10, {
+    itemId: (): string => deck[quiz.progress.round].id,
+    onRestart: () => setDeck(newDeck()),
+  });
   const question = deck[quiz.progress.round];
 
   return (

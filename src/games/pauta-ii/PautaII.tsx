@@ -32,7 +32,9 @@ function makeQuestion() {
 }
 
 export function PautaII({ onExit }: { onExit: () => void }) {
-  const quiz = useQuizRound<LetterNote>('pauta-ii', ROUNDS);
+  const quiz = useQuizRound<LetterNote>('pauta-ii', ROUNDS, {
+    itemId: (): string => `${q.start.vexKey}:${q.direction}${q.offset}`,
+  });
   const { t } = useI18n();
   const { settings } = useSettings();
   const q = useMemo(makeQuestion, [quiz.progress.round]);

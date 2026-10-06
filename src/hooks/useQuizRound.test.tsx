@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { playEffect } from '../audio/sound';
 import { SettingsProvider } from '../SettingsContext';
+import { getAttempts } from '../store/attempts';
 import { useQuizRound } from './useQuizRound';
 
 vi.mock('../audio/sound', () => ({ playEffect: vi.fn() }));
@@ -35,6 +36,22 @@ describe('quiz round sounds', () => {
     renderHook(() => useQuizRound<string>('pauta-i', 10), { wrapper });
     act(() => vi.advanceTimersByTime(4000));
     expect(effects()).toEqual(['wrong']);
+  });
+
+  it('records each answer and timeout against the question ID', () => {
+    vi.useFakeTimers();
+    saveSettings({ difficulty: 'hard' });
+    let item = 'q1';
+    const { result } = renderHook(() => useQuizRound<string>('pauta-i', 10, { itemId: () => item }), { wrapper });
+    act(() => vi.advanceTimersByTime(1500));
+    act(() => result.current.pick('a', true));
+    act(() => result.current.next());
+    item = 'q2';
+    act(() => vi.advanceTimersByTime(4000));
+    expect(getAttempts('pauta-i')).toMatchObject({
+      q1: { seen: 1, correct: 1, last: 'correct', avgMs: 1500 },
+      q2: { seen: 1, correct: 0, last: 'timeout', avgMs: 4000 },
+    });
   });
 
   it('stays silent when sounds are off', () => {

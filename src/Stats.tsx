@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import { useI18n } from './hooks/useI18n';
 import { getScore, resetScore, resetAllScores } from './store/scores';
+import { resetAttempts } from './store/attempts';
 import { NavTabs } from './components/NavTabs';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { GAME_IDS, type GameId, type PlayRecord } from './types';
@@ -46,8 +47,13 @@ export function Stats({ onGames }: { onGames: () => void }) {
   const overallAvg = average(played.flatMap(s => s.rec?.history ?? []));
 
   const confirmReset = () => {
-    if (pending === 'all') resetAllScores();
-    else if (pending) resetScore(pending);
+    if (pending === 'all') {
+      resetAllScores();
+      resetAttempts();
+    } else if (pending) {
+      resetScore(pending);
+      resetAttempts(pending);
+    }
     setPending(null);
     refresh();
   };

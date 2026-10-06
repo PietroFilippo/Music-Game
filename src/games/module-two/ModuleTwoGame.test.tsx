@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { FretPosition } from '../../music/guitar';
 import { SettingsProvider } from '../../SettingsContext';
+import { getAttempts } from '../../store/attempts';
 import { getScore } from '../../store/scores';
 import { ModuleTwoGame } from './ModuleTwoGame';
 import { createQuestionDeck, MODULE_TWO_IDS, type ModuleTwoQuestion } from './questions';
@@ -46,6 +47,9 @@ describe('module 2 games', () => {
     expect(screen.getByRole('heading', { name: 'Game complete!' })).toBeDefined();
     expect(getScore(id)).toMatchObject({ plays: 1, last: 100, best: 100 });
     expect(getScore(id)!.history).toHaveLength(1);
+    const attempts = getAttempts(id);
+    expect(Object.keys(attempts).sort()).toEqual(deck.map(q => q.id).sort());
+    expect(Object.values(attempts).every(a => a.seen === 1 && a.last === 'correct')).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
     expect(screen.getByText('Round 1 / 10')).toBeDefined();
     expect(getScore(id)!.plays).toBe(1);

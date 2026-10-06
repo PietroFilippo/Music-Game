@@ -50,6 +50,8 @@ describe('module 1 games', () => {
     expect(screen.queryByRole('status')).toBeNull();
     act(() => vi.advanceTimersByTime(100));
     expect(screen.getByRole('status').textContent).toContain('Time is up');
+    // jsdom queues a zero-delay timer for each localStorage write; flush those.
+    act(() => vi.advanceTimersByTime(0));
     unmount();
     expect(vi.getTimerCount()).toBe(0);
     expect(getScore('notacao-alfabetica')).toBeUndefined();

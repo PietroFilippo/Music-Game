@@ -74,7 +74,7 @@ These features change how every module is practiced rather than adding curriculu
 
 Track which notes and positions a player misses, and bring those back more often until they stick. Today every quiz deck is random or evenly balanced, and saved progress holds only a score per game.
 
-- **Record results per question.** Store each answer with the question's stable ID, the result and the time to answer. Module 1 and Module 2 questions already have stable IDs. The four original games (Staff I, Staff II, Clefs, Treble Clef) create questions on the fly; they would first need question banks like the newer games. Recording costs little and can start early, so history builds up before any scheduling exists.
+- **Record results per question** (implemented 2026-10-06). Every quiz stores each answer or timeout under its question's stable ID: times seen, times correct, correct streak, last result and average answer time. The four original games derive IDs from the note, clef or counting step asked. To schedule reviews, those four games will still need question banks like the newer games.
 - **Schedule with Leitner boxes.** A correct answer moves an item up a box and shows it less often; a miss or timeout sends it back to the first box. Full algorithms such as SM-2 or FSRS are more than ten-round quizzes need.
 - **Add a separate "Review weak spots" mode** rather than changing the normal quizzes. Their scores then stay comparable over time.
 - **Group weakness by note as well as by question.** Missing B on the 2nd string in several games should count together. That also enables a fretboard accuracy map in Stats.
@@ -105,7 +105,7 @@ The quizzes already play short plucked-string sound effects for right and wrong 
 
 ### Recommended order
 
-1. Start recording per-question results soon, alongside the learner testing of Module 2's first part.
+1. ~~Start recording per-question results~~ (done).
 2. Build the tuner as a contained prototype of pitch detection.
 3. Add the "Review weak spots" mode once enough history exists.
 4. Add the play-to-answer mode to reading quizzes if the tuner works reliably on real setups.
