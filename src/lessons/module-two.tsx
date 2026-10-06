@@ -6,9 +6,11 @@ import { HearButton } from '../components/HearButton';
 import { LessonShell, type LessonStep } from '../components/LessonShell';
 import { StaffDiagram } from '../components/StaffDiagram';
 import type { ModuleTwoId } from '../games/module-two/questions';
+import { scaleShape } from '../games/module-two/scales';
 import { useI18n } from '../hooks/useI18n';
-import { naturalAt, naturalFrets, OPEN_STRING_LETTERS, pitchClassAt, writtenVexKey } from '../music/guitar';
+import { naturalAt, naturalFrets, OPEN_STRING_LETTERS, pitchClassAt, soundingMidi, writtenVexKey, type FretPosition } from '../music/guitar';
 import { INTERVALS } from '../music/intervals';
+import { scaleNotes, type ScaleKind } from '../music/scales';
 import { shortNoteLabel, spell, spelledLabel, type SpelledNote } from '../music/notes';
 import { useSettings } from '../SettingsContext';
 import type { LessonProps } from './index';
@@ -50,6 +52,15 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
     ({ string, fret, label, tone });
   const listen = (...buttons: { notes: number[]; label?: string; spacing?: number }[]) =>
     <div className="lesson-visual">{buttons.map((b, i) => <HearButton key={i} {...b} />)}</div>;
+
+  // A scale shape labeled with degrees, and the same notes as sounding pitches for playback.
+  const shape = (root: FretPosition, kind: ScaleKind) => scaleShape(root, kind).map(({ position, degree: label }, i) =>
+    degree(position.string, position.fret, i === 0 ? 'R' : label, i === 0 ? 'root' : 'accent'));
+  const shapeMidi = (root: FretPosition, kind: ScaleKind) => scaleShape(root, kind).map(s => soundingMidi(s.position));
+  const keyLabel = (letter: 'C' | 'G' | 'D' | 'F', accidental: '' | 'b' = '') => {
+    const relative = scaleNotes({ letter, accidental }, 'major')[5];
+    return `${shortSpelled({ letter, accidental })} ${text('maior', 'major')} ↔ ${shortSpelled(relative)} ${text('menor', 'minor')}`;
+  };
 
   const lessons: Record<ModuleTwoId, LessonStep[]> = {
     'cordas-afinacao': [
@@ -246,6 +257,46 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
           degree(5, 3, 'R', 'root'), degree(4, 3, '4'), degree(4, 5, '5'), degree(3, 5, '8'),
           degree(5, 5, 'R', 'root'), degree(4, 4, '3', 'plain'),
         ]} />),
+    ],
+    escalas: [
+      step('Uma escala é um padrão de passos', 'A scale is a pattern of steps',
+        'A escala maior sobe em tons (T, duas casas) e semitons (S, uma casa) nesta ordem: T T S T T T S. Na 6ª corda, a partir do Mi solto: Mi, Fá♯, Sol♯, Lá, Si, Dó♯, Ré♯ e Mi de novo na casa 12.',
+        'The major scale climbs in whole steps (W, two frets) and half steps (H, one fret) in this order: W W H W W W H. On string 6 from open E: E, F♯, G♯, A, B, C♯, D♯ and E again at fret 12.',
+        <>
+          <Fretboard stringLabels="name" showFretNumbers highlightStrings={[5]}
+            markers={[0, 2, 4, 5, 7, 9, 11, 12].map((fret, i) => degree(5, fret, i === 0 ? 'R' : String(i + 1), i === 0 ? 'root' : 'accent'))} />
+          {listen({ notes: [40, 42, 44, 45, 47, 49, 51, 52], spacing: 0.3 })}
+        </>),
+      step('Os graus da escala maior', 'Degrees of the major scale',
+        'Cada nota da escala é um grau, de 1 a 7. Os semitons ficam entre os graus 3–4 e 7–8. Dó maior usa só notas naturais — Dó, Ré, Mi, Fá, Sol, Lá, Si —, por isso Mi–Fá e Si–Dó caem exatamente nesses lugares.',
+        'Each note of the scale is a degree, from 1 to 7. The half steps fall between degrees 3–4 and 7–8. C major uses only natural notes — C, D, E, F, G, A, B — which is why E–F and B–C land exactly there.',
+        <>
+          {sequence(scaleNotes({ letter: 'C', accidental: '' }, 'major').map((n, i) => `${i + 1} ${shortSpelled(n)}`))}
+          {listen({ notes: [48, 50, 52, 53, 55, 57, 59, 60], spacing: 0.3 })}
+        </>),
+      step('Uma forma no braço', 'A shape on the neck',
+        'Com três notas por corda, Dó maior começa na 5ª corda, casa 3, e cabe numa região do braço. A mesma forma, a partir de outra fundamental na 5ª corda, toca outra escala maior: na casa 5, Ré maior.',
+        'With three notes per string, C major starts at fret 3 of string 5 and fits in one area of the neck. The same shape started from another root on string 5 plays another major scale: at fret 5, D major.',
+        <>
+          <Fretboard frets={9} stringLabels="name" showFretNumbers markers={shape({ string: 4, fret: 3 }, 'major')} />
+          {listen({ notes: shapeMidi({ string: 4, fret: 3 }, 'major'), spacing: 0.3 })}
+        </>),
+      step('A escala menor natural', 'The natural minor scale',
+        'A escala menor natural segue T S T T S T T. Comparada à maior, ela tem a 3ª, a 6ª e a 7ª abaixadas: graus 1, 2, ♭3, 4, 5, ♭6, ♭7. Lá menor natural também usa só notas naturais: Lá, Si, Dó, Ré, Mi, Fá, Sol.',
+        'The natural minor scale follows W H W W H W W. Compared with major, its 3rd, 6th and 7th are lowered: degrees 1, 2, ♭3, 4, 5, ♭6, ♭7. A natural minor also uses only natural notes: A, B, C, D, E, F, G.',
+        <>
+          <Fretboard frets={9} stringLabels="name" showFretNumbers markers={shape({ string: 5, fret: 5 }, 'minor')} />
+          {listen({ notes: shapeMidi({ string: 5, fret: 5 }, 'minor'), spacing: 0.3 })}
+        </>),
+      step('Escalas relativas', 'Relative scales',
+        'Dó maior e Lá menor natural têm as mesmas notas: a menor relativa começa no 6º grau da maior. Toda escala maior tem uma relativa menor, e vice-versa.',
+        'C major and A natural minor share the same notes: the relative minor starts on degree 6 of the major. Every major scale has a relative minor, and vice versa.',
+        <>{[keyLabel('C'), keyLabel('G'), keyLabel('D'), keyLabel('F')].map(label =>
+          <div className="reference-card" key={label}><strong>{label}</strong></div>)}</>),
+      step('No seu instrumento', 'On your guitar',
+        'Toque Dó maior na forma de três notas por corda, subindo e descendo e dizendo os graus. Depois toque a mesma forma a partir de Sol na 6ª corda, casa 3: é Sol maior. Por fim, toque Lá menor natural a partir da 6ª corda, casa 5.',
+        'Play C major in the three-notes-per-string shape, up and down, saying the degrees. Then play the same shape from G at fret 3 of string 6: that is G major. Finally, play A natural minor from fret 5 of string 6.',
+        <Fretboard frets={9} stringLabels="name" showFretNumbers markers={shape({ string: 5, fret: 3 }, 'major')} />),
     ],
   };
 

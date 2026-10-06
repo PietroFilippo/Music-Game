@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fretsForVexKey, naturalAt, pitchClassAt, soundingMidi } from '../../music/guitar';
 import { relationOf } from './octaves';
+import { SCALES, scaleNotes } from '../../music/scales';
 import { spelledPitchClass, type Accidental, type LetterNote } from '../../music/notes';
 import { createQuestionDeck, createQuestionGroups, createQuestionPool, MODULE_TWO_IDS, NECK_FRETS } from './questions';
 
@@ -208,5 +209,45 @@ describe('intervals question bank', () => {
     const cToEFlat = pool.find(q => q.id === 'spell-C-3')!;
     expect(cToEFlat.prompt).toBe('What interval is it from C up to E♭?');
     expect(cToEFlat.notation).toMatchObject({ flat: true });
+  });
+});
+
+describe('scales question bank', () => {
+  const pool = createQuestionPool('escalas', 'en', 'letter');
+  const keyOf = (id: string) => {
+    const [, root, kind] = id.split('-');
+    return { root: { letter: root[0] as LetterNote, accidental: root.slice(1) as Accidental }, kind: kind as 'major' | 'minor' };
+  };
+
+  it('names each degree from the scale itself', () => {
+    for (const question of pool.filter(q => q.id.startsWith('degree-'))) {
+      const { root, kind } = keyOf(question.id);
+      const degree = Number(question.id.split('-')[3]);
+      const note = scaleNotes(root, kind)[degree - 1];
+      expect(question.answer).toMatchObject({ correct: `${note.letter}${note.accidental}` });
+    }
+    expect(pool.find(q => q.id === 'degree-D-major-3')!.answer).toMatchObject({ correct: 'F#' });
+    expect(pool.find(q => q.id === 'degree-C-minor-3')!.answer).toMatchObject({ correct: 'Eb' });
+  });
+
+  it('accepts every position of the degree above the root, and nothing else', () => {
+    for (const question of pool.filter(q => q.id.startsWith('find-'))) {
+      if (question.answer.kind !== 'board') throw new Error('expected a fretboard answer');
+      const { kind } = keyOf(question.id);
+      const degree = Number(question.id.split('-')[3]);
+      const [root] = question.answer.board.markers!;
+      const semitones = degree === 8 ? 12 : SCALES[kind].semitones[degree - 1];
+      const expected = Array.from({ length: 6 }, (_, string) => ({ string, fret: soundingMidi(root) + semitones - [64, 59, 55, 50, 45, 40][string] }))
+        .filter(p => p.fret >= 0 && p.fret <= 12);
+      expect(question.answer.accepts).toEqual(expected);
+    }
+  });
+
+  it('identifies each scale among its parallel and relative scales', () => {
+    const which = pool.filter(q => q.id.startsWith('which-'));
+    expect(which).toHaveLength(13);
+    expect(pool.find(q => q.id === 'which-C-major')!.answer).toMatchObject({ correct: 'C-major' });
+    const choices = (pool.find(q => q.id === 'which-C-major')!.answer as { choices: { value: string }[] }).choices.map(c => c.value).sort();
+    expect(choices).toEqual(['A-major', 'A-minor', 'C-major', 'C-minor']);
   });
 });

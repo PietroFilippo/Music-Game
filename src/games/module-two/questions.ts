@@ -5,12 +5,13 @@ import { createCopy, type ModuleTwoQuestion } from './model';
 import { intervalQuestions } from './intervals';
 import { naturalNoteQuestions } from './naturals';
 import { octaveQuestions } from './octaves';
+import { scaleQuestions } from './scales';
 import { stringQuestions } from './strings';
 
 export { NECK_FRETS } from './model';
 export type { BoardView, ModuleTwoQuestion, NotatedPosition, QuestionAnswer, QuestionVisual } from './model';
 
-export const MODULE_TWO_IDS = ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois', 'oitavas', 'intervalos'] as const;
+export const MODULE_TWO_IDS = ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois', 'oitavas', 'intervalos', 'escalas'] as const;
 export type ModuleTwoId = typeof MODULE_TWO_IDS[number];
 
 const ROUNDS = 10;
@@ -24,6 +25,7 @@ export function createQuestionGroups(id: ModuleTwoId, language: Language, notati
     case 'sustenidos-bemois': return accidentalQuestions(copy);
     case 'oitavas': return octaveQuestions(copy);
     case 'intervalos': return intervalQuestions(copy);
+    case 'escalas': return scaleQuestions(copy);
   }
 }
 

@@ -5,7 +5,7 @@ import {
   type Accidental, type LetterNote, type SpelledNote,
 } from '../../music/notes';
 import { shuffle } from '../../music/theory';
-import { NECK_FRETS, STRINGS, type BoardView, type Choice, type Copy, type ModuleTwoQuestion } from './model';
+import { NECK_FRETS, noteKey, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from './model';
 
 const ACCIDENTAL_PITCH_CLASSES = [1, 3, 6, 8, 10];
 const MOVES = [1, 2, -1, -2];
@@ -14,26 +14,12 @@ const STAFF_NOTES = ['eb/4', 'f#/4', 'gb/4', 'g#/4', 'ab/4', 'a#/4', 'bb/4', 'c#
 // Rare spellings this topic does not use.
 const UNUSED_SPELLINGS = new Set(['E#', 'B#', 'Fb', 'Cb']);
 
-const noteKey = (n: SpelledNote) => `${n.letter}${n.accidental}`;
 const pc12 = (n: number) => ((n % 12) + 12) % 12;
 
 // Sharps and Flats: the notes between the naturals, moving by semitones, and accidentals on the staff.
 export function accidentalQuestions(c: Copy): ModuleTwoQuestion[][] {
   const { text } = c;
 
-  // Every choice has a different pitch class, so only one answer sounds right.
-  const spelledChoices = (correct: SpelledNote, candidates: SpelledNote[]): Choice[] => {
-    const used = new Set([spelledPitchClass(correct)]);
-    const picked: SpelledNote[] = [];
-    for (const note of shuffle(candidates)) {
-      const pc = spelledPitchClass(note);
-      if (used.has(pc)) continue;
-      used.add(pc);
-      picked.push(note);
-      if (picked.length === 3) break;
-    }
-    return shuffle([correct, ...picked]).map(n => ({ value: noteKey(n), label: c.spelled(n) }));
-  };
   const marker = (string: number, fret: number, note: SpelledNote, tone: MarkerTone = 'plain'): FretMarker =>
     ({ string, fret, label: c.shortSpelled(note), tone });
   const at = (string: number, fret: number, prefer: '#' | 'b' = '#') => spell(pitchClassAt({ string, fret }), prefer);
@@ -116,7 +102,7 @@ export function accidentalQuestions(c: Copy): ModuleTwoQuestion[][] {
             showFretNumbers: true,
           },
         },
-        choices: spelledChoices(target, [-2, -1, 1, 2].map(d => spell(spelledPitchClass(target) + d, prefer))),
+        choices: c.spelledChoices(target, [-2, -1, 1, 2].map(d => spell(spelledPitchClass(target) + d, prefer))),
         correct: noteKey(target),
       },
       explanation: `${route}. ${text(
@@ -161,7 +147,7 @@ export function accidentalQuestions(c: Copy): ModuleTwoQuestion[][] {
     return {
       id: `staff-${vexKey}`,
       prompt: text('Qual é o nome desta nota?', 'Name this note.'),
-      answer: { kind: 'choice', visual: { kind: 'staff', vexKey }, choices: spelledChoices(note, candidates), correct: noteKey(note) },
+      answer: { kind: 'choice', visual: { kind: 'staff', vexKey }, choices: c.spelledChoices(note, candidates), correct: noteKey(note) },
       explanation: text(
         `${c.spelled(note)}: o ${sharp ? 'sustenido' : 'bemol'} antes da nota ${sharp ? 'sobe' : 'desce'} ${c.name(note.letter)} um semitom. Na primeira posição: ${c.where(position)}.`,
         `${c.spelled(note)}: the ${sharp ? 'sharp' : 'flat'} before the note ${sharp ? 'raises' : 'lowers'} ${c.name(note.letter)} one semitone. In first position: ${c.where(position)}.`,

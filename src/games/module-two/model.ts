@@ -1,7 +1,8 @@
 import type { FretMarker, StringLabelMode } from '../../components/Fretboard';
 import { STRING_COUNT, type FretPosition } from '../../music/guitar';
 import {
-  noteLabel, pitchClassLabel, shortNoteLabel, shortPitchClassLabel, spelledLabel, type LetterNote, type SpelledNote,
+  noteLabel, pitchClassLabel, shortNoteLabel, shortPitchClassLabel, spelledLabel, spelledPitchClass,
+  type LetterNote, type SpelledNote,
 } from '../../music/notes';
 import { shuffle } from '../../music/theory';
 import type { Language, Notation } from '../../types';
@@ -48,6 +49,9 @@ export interface ModuleTwoQuestion {
   notation?: NotatedPosition;
 }
 
+/** Choice value for a spelled note, e.g. "F#" or "Bb". */
+export const noteKey = (n: SpelledNote) => `${n.letter}${n.accidental}`;
+
 // Wording helpers shared by the topic question banks.
 export function createCopy(language: Language, notation: Notation) {
   const text = (pt: string, en: string) => (language === 'pt' ? pt : en);
@@ -70,6 +74,19 @@ export function createCopy(language: Language, notation: Notation) {
         .map(n => ({ value: String(n), label: text(`${n + 1}ª corda`, `String ${n + 1}`) })),
     letterChoices: (letters: LetterNote[]): Choice[] =>
       letters.map(value => ({ value, label: noteLabel(value, notation, language) })),
+    /** The answer plus three candidates; every choice sounds different, so only one is right. */
+    spelledChoices: (correct: SpelledNote, candidates: SpelledNote[]): Choice[] => {
+      const used = new Set([spelledPitchClass(correct)]);
+      const picked: SpelledNote[] = [];
+      for (const note of shuffle(candidates)) {
+        const pc = spelledPitchClass(note);
+        if (used.has(pc)) continue;
+        used.add(pc);
+        picked.push(note);
+        if (picked.length === 3) break;
+      }
+      return shuffle([correct, ...picked]).map(n => ({ value: noteKey(n), label: spelledLabel(n, notation, language) }));
+    },
   };
 }
 

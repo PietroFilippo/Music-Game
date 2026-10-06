@@ -9,7 +9,7 @@ The README at commit `09d4ca7` planned **four modules**: complete the remaining 
 | Module | Focus | Status |
 | --- | --- | --- |
 | 1 | Music-reading foundations: staff, clefs, note names, notation, rhythm symbols and sound properties | Ten bilingual lesson/quiz pairs available |
-| 2 | Guitar fretboard, intervals and scale foundations | Interactive fretboard and five bilingual lesson/quiz pairs available; scales proposed |
+| 2 | Guitar fretboard, intervals and scale foundations | Interactive fretboard and six bilingual lesson/quiz pairs available; a reading topic remains proposed |
 | 3 | Triads, chord shapes and triad arpeggios | Proposed topics; lessons/games not implemented |
 | 4 | Tetrads/seventh chords, four-note arpeggios and harmonic application | Proposed topics; lessons/games not implemented |
 
@@ -26,11 +26,12 @@ Implemented on 2026-10-06:
    - **Sharps and Flats** (added later the same day): the frets between natural notes, a sharp as one fret up and a flat as one fret down, two names for one sound, accidentals on the staff, and a chromatic exercise on the 6th string.
    - **Octaves on the Neck** (also added the same day): the octave at fret 12, octave shapes two strings over, the extra fret when crossing the 3rd and 2nd strings, the same pitch on two strings, and an explorer with every octave highlighted.
    - **Intervals** (also added the same day): semitone distances, interval number and quality, interval shapes across strings, major against minor 3rds, and degrees leading to triads. Listen buttons play every example with the plucked-string synth.
+   - **Major and Minor Scales** (also added the same day): the whole/half-step patterns, scale degrees, a three-notes-per-string shape that moves to other roots, the natural minor, and relative scales.
 
    Each lesson ends with a short exercise to play on a real guitar. Microphone grading is outside this milestone; see [practice features](#practice-features-across-modules-proposed).
 3. **Guitar notation correction.** Fretboard and tab feedback now treats the treble staff as written guitar pitch, one octave above the sound. Module 1 lessons that named guitar positions were corrected to match. For example, the E on the bottom line is the 4th string at fret 2, and the open 1st string is the E in the top space.
 
-**Next step:** test this first part with learners, including on a phone, where the fretboard's touch targets are small. Use the feedback to refine explanations, difficulty and navigation in Module 1 and in the new topics. Sharps and Flats, Octaves and Intervals have since been built; **major and natural minor scales** complete Module 2. The same fretboard interactions should support later triad and tetrad exercises.
+**Next step:** test this first part with learners, including on a phone, where the fretboard's touch targets are small. Use the feedback to refine explanations, difficulty and navigation in Module 1 and in the new topics. Sharps and Flats, Octaves, Intervals and Scales have since been built, completing the planned Module 2 sequence. What remains for this module is the reading topic (staff, tab, fretboard and rhythm), followed by testing with learners before Module 3. The same fretboard interactions should support later triad and tetrad exercises.
 
 ## Module 2: fretboard and intervals
 
