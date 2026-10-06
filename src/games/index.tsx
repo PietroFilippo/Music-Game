@@ -1,12 +1,19 @@
 import { lazy, type ComponentType } from 'react';
 import type { GameId } from '../types';
 import type { ModuleOneId } from './module-one/questions';
+import type { ModuleTwoId } from './module-two/questions';
 
 interface GameProps { onExit: () => void }
 
 function moduleGame(id: ModuleOneId) {
   return lazy(() => import('./module-one/ModuleOneGame').then(m => ({
     default: (props: GameProps) => <m.ModuleOneGame {...props} id={id} />,
+  })));
+}
+
+function moduleTwoGame(id: ModuleTwoId) {
+  return lazy(() => import('./module-two/ModuleTwoGame').then(m => ({
+    default: (props: GameProps) => <m.ModuleTwoGame {...props} id={id} />,
   })));
 }
 
@@ -21,4 +28,6 @@ export const GAMES: Record<GameId, ComponentType<GameProps>> = {
   'notas-descendentes': moduleGame('notas-descendentes'),
   'propriedades-som': moduleGame('propriedades-som'),
   'notas-teclado': moduleGame('notas-teclado'),
+  'cordas-afinacao': moduleTwoGame('cordas-afinacao'),
+  'notas-braco': moduleTwoGame('notas-braco'),
 };

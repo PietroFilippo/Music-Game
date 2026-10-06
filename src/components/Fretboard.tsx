@@ -1,5 +1,6 @@
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { useI18n } from '../hooks/useI18n';
-import { OPEN_STRING_LETTERS, STRING_COUNT, type FretPosition } from '../music/guitar';
+import { OPEN_STRING_LETTERS, STRING_COUNT, parsePositionKey, positionKey, type FretPosition } from '../music/guitar';
 import { shortNoteLabel } from '../music/notes';
 import { useSettings } from '../SettingsContext';
 
@@ -23,6 +24,10 @@ interface Props {
   stringLabels?: StringLabelMode;
   highlightStrings?: number[];
   showFretNumbers?: boolean;
+  /** Makes every string/fret position a button. */
+  onSelect?: (position: FretPosition) => void;
+  disabled?: boolean;
+  label?: string;
 }
 
 const TONES: Record<MarkerTone, { fill: string; stroke: string; text: string }> = {
@@ -34,11 +39,16 @@ const TONES: Record<MarkerTone, { fill: string; stroke: string; text: string }> 
 
 const SINGLE_INLAYS = [3, 5, 7, 9, 15, 17, 19, 21];
 const DOUBLE_INLAYS = [12, 24];
+const KEY_MOVES: Record<string, [number, number]> = {
+  ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1],
+};
 
 const WIDTH = 560;
 const OPEN_W = 34;
 const PAD_R = 12;
 const PAD_T = 18;
+
+const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
 export function Fretboard({
   positions = [],
@@ -48,9 +58,15 @@ export function Fretboard({
   stringLabels = 'name',
   highlightStrings = [],
   showFretNumbers = false,
+  onSelect,
+  disabled = false,
+  label,
 }: Props) {
   const { t } = useI18n();
   const { settings } = useSettings();
+  const [cursor, setCursor] = useState<FretPosition>({ string: 0, fret: 0 });
+  const [focused, setFocused] = useState<string | null>(null);
+  const cells = useRef(new Map<string, SVGRectElement>());
 
   const allMarkers: FretMarker[] = [
     ...positions.map((p, i): FretMarker => ({
@@ -59,14 +75,23 @@ export function Fretboard({
     ...markers,
   ];
   const numFrets = frets ?? Math.max(12, ...allMarkers.map(m => m.fret));
+  const interactive = onSelect !== undefined;
   const labelW = stringLabels === 'none' ? 6 : stringLabels === 'both' ? 46 : 26;
   const nutX = labelW + OPEN_W;
   const fretGap = (WIDTH - nutX - PAD_R) / numFrets;
-  const stringGap = 24;
+  // Taller rows give selectable boards bigger touch targets on phones.
+  const stringGap = interactive ? 34 : 24;
   const boardH = stringGap * (STRING_COUNT - 1);
   const height = PAD_T * 2 + boardH + (showFretNumbers ? 18 : 0);
   const y = (string: number) => PAD_T + string * stringGap;
   const x = (fret: number) => (fret === 0 ? labelW + OPEN_W / 2 : nutX + (fret - 0.5) * fretGap);
+  const active = { string: cursor.string, fret: Math.min(cursor.fret, numFrets) };
+  const cellBox = (p: FretPosition) => ({
+    x: p.fret === 0 ? labelW : nutX + (p.fret - 1) * fretGap,
+    y: y(p.string) - stringGap / 2,
+    width: p.fret === 0 ? OPEN_W : fretGap,
+    height: stringGap,
+  });
 
   const stringLabel = (string: number) => {
     const name = shortNoteLabel(OPEN_STRING_LETTERS[string], settings.notation, settings.language);
@@ -75,12 +100,46 @@ export function Fretboard({
     return name;
   };
 
+  const cellLabel = (p: FretPosition) => p.fret === 0
+    ? t('fretboard.openCell', { string: p.string + 1 })
+    : t('fretboard.cell', { string: p.string + 1, fret: p.fret });
+
+  const select = (p: FretPosition) => {
+    if (disabled || !onSelect) return;
+    setCursor(p);
+    onSelect(p);
+  };
+
+  const handleKey = (e: KeyboardEvent<SVGRectElement>, p: FretPosition) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      select(p);
+      return;
+    }
+    const move = KEY_MOVES[e.key];
+    let next: FretPosition | null = null;
+    if (move) {
+      next = { string: clamp(p.string + move[0], 0, STRING_COUNT - 1), fret: clamp(p.fret + move[1], 0, numFrets) };
+    } else if (e.key === 'Home') {
+      next = { ...p, fret: 0 };
+    } else if (e.key === 'End') {
+      next = { ...p, fret: numFrets };
+    }
+    if (!next) return;
+    e.preventDefault();
+    setCursor(next);
+    cells.current.get(positionKey(next))?.focus();
+  };
+
+  const focusBox = focused === null ? null : cellBox(parsePositionKey(focused));
+
   return (
     <svg
       viewBox={`0 0 ${WIDTH} ${height}`}
-      className="fretboard"
-      role="img"
-      aria-label={t('fretboard.label')}
+      className={interactive ? 'fretboard fretboard-interactive' : 'fretboard'}
+      role={interactive ? 'group' : 'img'}
+      aria-label={label ?? t('fretboard.label')}
+      aria-disabled={interactive ? disabled : undefined}
       style={{ width: '100%', maxWidth: WIDTH, height: 'auto' }}
     >
       {Array.from({ length: STRING_COUNT }, (_, s) => {
@@ -154,6 +213,43 @@ export function Fretboard({
           </g>
         );
       })}
+      {interactive && allCells(numFrets).map(p => {
+        const key = positionKey(p);
+        return (
+          <rect
+            key={'c' + key}
+            ref={el => { if (el) cells.current.set(key, el); else cells.current.delete(key); }}
+            className="fret-cell"
+            {...cellBox(p)}
+            role="button"
+            aria-label={cellLabel(p)}
+            aria-disabled={disabled}
+            tabIndex={!disabled && p.string === active.string && p.fret === active.fret ? 0 : -1}
+            onClick={() => select(p)}
+            onKeyDown={e => handleKey(e, p)}
+            onFocus={() => setFocused(key)}
+            onBlur={() => setFocused(current => (current === key ? null : current))}
+          />
+        );
+      })}
+      {focusBox && (
+        <rect
+          x={focusBox.x + 1}
+          y={focusBox.y + 1}
+          width={focusBox.width - 2}
+          height={focusBox.height - 2}
+          rx={6}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth={2}
+          pointerEvents="none"
+        />
+      )}
     </svg>
   );
+}
+
+function allCells(numFrets: number): FretPosition[] {
+  return Array.from({ length: STRING_COUNT }, (_, string) =>
+    Array.from({ length: numFrets + 1 }, (_, fret) => ({ string, fret }))).flat();
 }

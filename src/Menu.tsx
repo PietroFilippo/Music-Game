@@ -34,6 +34,10 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
     setExpanded(next);
     writeStored(EXPANSION_KEY, next);
   };
+  const status = (games: number, upcoming: number) => {
+    if (games === 0) return t('course.planned');
+    return t(upcoming > 0 ? 'course.inProgress' : 'course.lessonCount', { n: games });
+  };
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
       <header style={{ marginBottom: 24 }}>
@@ -54,13 +58,13 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
               <span>{t(`course.${module.id}.title`)}</span>
             </span>
             <span className={`module-status ${module.games.length ? 'module-available' : ''}`}>
-              {module.games.length ? t('course.lessonCount', { n: module.games.length }) : t('course.planned')}
+              {status(module.games.length, module.topicKeys.length)}
             </span>
           </button>
         </h2>
         <div id={`module-content-${module.id}`} hidden={!expanded[module.id]} className="module-content">
           <p className="module-description">{t(`course.${module.id}.description`)}</p>
-          {module.games.length > 0 ? <div className="game-grid">
+          {module.games.length > 0 && <div className="game-grid">
           {module.games.map(id => {
             const score = getScore(id);
             return (
@@ -115,7 +119,9 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
               </article>
             );
           })}
-          </div> : <div className="module-roadmap">
+          </div>}
+          {module.topicKeys.length > 0 && <div className="module-roadmap">
+            {module.games.length > 0 && <h3 className="module-upcoming">{t('course.upcoming')}</h3>}
             <ul>{module.topicKeys.map(key => <li key={key}>{t(`course.topics.${key}`)}</li>)}</ul>
             <p>{t('course.plannedNote')}</p>
           </div>}

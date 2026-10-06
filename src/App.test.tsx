@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { loadSettings } from './SettingsContext';
@@ -32,5 +32,21 @@ describe('settings and storage', () => {
     expect(recordScore('pauta-i', 80, 'none')).toMatchObject({ plays: 1, last: 80 });
     expect(getScore('pauta-i')).toBeUndefined();
     expect(() => resetAllScores()).not.toThrow();
+  });
+});
+
+describe('menu', () => {
+  it('lists module 2 topics alongside the topics still to come', () => {
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en' }));
+    render(<App />);
+    const toggle = screen.getByRole('button', { name: /Module 2/ });
+    expect(toggle.textContent).toContain('2 lessons + games · in progress');
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    const section = within(document.getElementById('module-content-fretboard')!);
+    expect(section.getByRole('article', { name: 'Strings and Tuning' })).toBeDefined();
+    expect(section.getByRole('article', { name: 'Natural Notes on the Neck' })).toBeDefined();
+    expect(section.getByRole('heading', { name: 'Coming next' })).toBeDefined();
+    expect(section.getByText('Sharps, flats and semitone movement')).toBeDefined();
+    expect(screen.getByRole('button', { name: /Module 3/ }).textContent).toContain('Planned');
   });
 });

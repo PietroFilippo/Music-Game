@@ -1,6 +1,6 @@
 # Guitar curriculum roadmap
 
-Updated 2026-10-02. Guitar and electric guitar are the primary instruments for this project.
+Updated 2026-10-06. Guitar and electric guitar are the primary instruments for this project.
 
 ## Original plan and present scope
 
@@ -9,21 +9,25 @@ The README at commit `09d4ca7` planned **four modules**: complete the remaining 
 | Module | Focus | Status |
 | --- | --- | --- |
 | 1 | Music-reading foundations: staff, clefs, note names, notation, rhythm symbols and sound properties | Ten bilingual lesson/quiz pairs available |
-| 2 | Guitar fretboard, intervals and scale foundations | Proposed topics; lessons/games not implemented |
+| 2 | Guitar fretboard, intervals and scale foundations | Interactive fretboard and first two bilingual lesson/quiz pairs available; remaining topics proposed |
 | 3 | Triads, chord shapes and triad arpeggios | Proposed topics; lessons/games not implemented |
 | 4 | Tetrads/seventh chords, four-note arpeggios and harmonic application | Proposed topics; lessons/games not implemented |
 
-All four sections can be expanded or collapsed independently. Module 1 opens by default, future modules start collapsed, and the browser remembers the selection. Future modules display topic previews and a Planned label.
+All four sections can be expanded or collapsed independently. Modules with playable topics open by default, future modules start collapsed, and the browser remembers the selection. Module 2 lists its available topics followed by the topics still to come; modules 3–4 display topic previews and a Planned label.
 
-## Next milestone: proposed, not started
+## Current milestone: ready for testing
 
-Use feedback from testing Module 1 to refine explanations, difficulty and navigation where needed. The next proposed implementation is:
+Implemented on 2026-10-06:
 
-1. A reusable interactive guitar fretboard. Players select string/fret positions, reveal note names and highlight roots or intervals, with connections to tablature and staff notation. The current fretboard component is display-only; selection and exploration are not implemented.
-2. Module 2's first two bilingual lesson/quiz pairs: **string numbering and standard tuning**, then **natural notes across the first 12 frets**. Reuse the existing practice settings and score tracking. Include a short exercise to play on a real guitar alongside each lesson's screen-based practice; microphone grading is outside this milestone.
-3. Test this first part before implementing the remaining sequence: **sharps/flats and semitone movement → octaves and repeated notes → intervals and scale degrees → major and natural minor scales**.
+1. **Interactive guitar fretboard.** Positions can be selected with a pointer or keyboard. Labeled markers can show note names, roots or interval degrees, and strings can be highlighted. The Natural Notes lesson includes an explorer that shows any position's name, tablature and written note, every natural note, or one note repeated across the neck. Interval highlighting is supported by the marker labels, but no interval exercises exist yet.
+2. **Module 2's first two bilingual lesson/quiz pairs**, using the existing practice settings and score tracking:
+   - **Strings and Tuning**: string numbering, tab orientation, standard tuning, checking the tuning at the 5th fret (4th fret on string 3), and open strings on the staff.
+   - **Natural Notes on the Neck**: semitones per fret, counting up from the open string, the octave at fret 12, and landmarks on the E strings.
 
-This is the recommended next step from the project discussion, not completed content or a commitment to implement the entire module at once. The same fretboard interactions should support later triad and tetrad exercises.
+   Each lesson ends with a short exercise to play on a real guitar. Microphone grading is outside this milestone.
+3. **Guitar notation correction.** Fretboard and tab feedback now treats the treble staff as written guitar pitch, one octave above the sound. Module 1 lessons that named guitar positions were corrected to match. For example, the E on the bottom line is the 4th string at fret 2, and the open 1st string is the E in the top space.
+
+**Next step:** test this first part with learners, including on a phone, where the fretboard's touch targets are small. Use the feedback to refine explanations, difficulty and navigation in Module 1 and in the new topics. Only then continue the sequence: **sharps/flats and semitone movement → octaves and repeated notes → intervals and scale degrees → major and natural minor scales**. The same fretboard interactions should support later triad and tetrad exercises.
 
 ## Module 2: fretboard and intervals
 
@@ -68,7 +72,7 @@ Suggested games: identify a seventh-chord quality, find a missing chord tone, ma
 - Explain notes and interval functions alongside finger positions. A fingering pattern should always have a musical meaning.
 - Use both chord accompaniment and melodic applications; arpeggios recur in modules 3 and 4 as the harmony becomes richer.
 - Preserve Portuguese and English support. Explain the equivalence of symbols such as `7M` and `maj7`.
-- Keep written guitar pitch and sounding pitch explicit when extending notation or adding audio: standard guitar notation sounds an octave below the written pitch.
+- Keep written guitar pitch and sounding pitch explicit when extending notation or adding audio: standard guitar notation sounds an octave below the written pitch. `src/music/guitar.ts` maps fretboard positions to written notes on this basis; audio would need the sounding pitch.
 - Treat the teacher PDFs as curriculum references. Their scanned pages have not been embedded in the app or added to the repository; the proposed games above are not yet implemented.
 
 The progression is consistent with the topics in [Berklee's Guitar Fundamentals syllabus](https://online.berklee.edu/courses/guitar-fundamentals), which connects fretboard knowledge, scales, reading, triads and seventh chords. This is supporting background, not the source of the project's original module plan.

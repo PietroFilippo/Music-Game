@@ -1,7 +1,7 @@
 export const GAME_IDS = [
   'pauta-i', 'pauta-ii', 'claves', 'clave-sol', 'nome-notas',
   'notacao-alfabetica', 'nome-figuras', 'notas-descendentes',
-  'propriedades-som', 'notas-teclado',
+  'propriedades-som', 'notas-teclado', 'cordas-afinacao', 'notas-braco',
 ] as const;
 export type GameId = typeof GAME_IDS[number];
 
