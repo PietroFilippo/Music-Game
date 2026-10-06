@@ -95,6 +95,14 @@ Let players answer by playing on the guitar instead of clicking. The browser det
 - **Offer it as an optional answer mode** on existing quizzes; clicking still works. Timed rounds may need longer limits when playing.
 - Test the pitch algorithm with generated waveforms (a fundamental plus harmonics, including low E at 82 Hz) in Vitest. Check microphone handling by hand on real instruments.
 
+### Hear notes and chords
+
+The quizzes already play short plucked-string sound effects for right and wrong answers. The same synthesized pluck can play the music itself, with no audio files:
+
+- Play the note's sounding pitch when feedback appears, an octave below the written note. In Strings and Tuning, play each open string as a reference for tuning by ear.
+- In modules 3 and 4, strum chords and play arpeggios, so players hear major against minor, or 7 against maj7. This enables ear-training questions such as "which chord did you hear?".
+- Follow the existing Sounds setting.
+
 ### Recommended order
 
 1. Start recording per-question results soon, alongside the learner testing of Module 2's first part.

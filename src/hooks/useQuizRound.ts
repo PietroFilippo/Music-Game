@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { playEffect, type SoundEffect } from '../audio/sound';
 import { useSettings } from '../SettingsContext';
 import type { GameId } from '../types';
 import { DIFFICULTY_SECONDS, useAnswerTimer } from './useAnswerTimer';
@@ -25,7 +26,8 @@ export interface QuizRound<V> {
 
 // One answer or timeout per round, then the round is submitted once: after the
 // configured delay in automatic mode, or by `next` in manual mode. Pending
-// timers are cleared when the round changes or the game unmounts.
+// timers are cleared when the round changes or the game unmounts. Answers,
+// timeouts and the finished quiz play feedback sounds unless sound is off.
 export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () => void): QuizRound<V> {
   const { settings } = useSettings();
   const progress = useGameProgress(gameId, rounds);
@@ -35,6 +37,15 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () =
   const submittedRound = useRef<number | null>(null);
   const answered = answer !== null || expired;
   const seconds = DIFFICULTY_SECONDS[settings.difficulty];
+  const sound = (effect: SoundEffect) => {
+    if (settings.sound) playEffect(effect);
+  };
+  const soundRef = useRef(sound);
+  soundRef.current = sound;
+
+  useEffect(() => {
+    if (progress.done) soundRef.current('complete');
+  }, [progress.done]);
 
   const next = () => {
     if (!answered || submittedRound.current === progress.round) return;
@@ -61,6 +72,7 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () =
       if (locked.current) return;
       locked.current = true;
       setExpired(true);
+      sound('wrong');
     },
   });
 
@@ -68,6 +80,7 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, onRestart?: () =
     if (locked.current) return;
     locked.current = true;
     setAnswer({ value, correct });
+    sound(correct ? 'correct' : 'wrong');
   };
 
   const restart = () => {

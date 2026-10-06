@@ -7,10 +7,10 @@ import { getScore, recordScore, resetAllScores } from './store/scores';
 describe('settings and storage', () => {
   it('replaces invalid saved settings with defaults', () => {
     localStorage.setItem('musicgame.settings', JSON.stringify({
-      language: 'fr', notation: 'letter', advanceMode: 7, autoAdvanceDelayMs: 99999, difficulty: 'hard',
+      language: 'fr', notation: 'letter', advanceMode: 7, autoAdvanceDelayMs: 99999, difficulty: 'hard', sound: 'loud',
     }));
     expect(loadSettings()).toEqual({
-      language: 'pt', notation: 'letter', advanceMode: 'auto', autoAdvanceDelayMs: 900, difficulty: 'hard',
+      language: 'pt', notation: 'letter', advanceMode: 'auto', autoAdvanceDelayMs: 900, difficulty: 'hard', sound: true,
     });
     localStorage.setItem('musicgame.settings', 'not json');
     expect(loadSettings().language).toBe('pt');

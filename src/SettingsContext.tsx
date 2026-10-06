@@ -14,6 +14,7 @@ const DEFAULTS: Settings = {
   advanceMode: 'auto',
   autoAdvanceDelayMs: 900,
   difficulty: 'none',
+  sound: true,
 };
 const KEY = 'musicgame.settings';
 
@@ -24,6 +25,7 @@ interface Ctx {
   setAdvanceMode: (m: AdvanceMode) => void;
   setAutoAdvanceDelayMs: (ms: number) => void;
   setDifficulty: (d: Difficulty) => void;
+  setSound: (on: boolean) => void;
 }
 
 const SettingsContext = createContext<Ctx | null>(null);
@@ -45,6 +47,7 @@ export function loadSettings(): Settings {
     autoAdvanceDelayMs: typeof delay === 'number' && delay >= AUTO_DELAY_MIN_MS && delay <= AUTO_DELAY_MAX_MS
       ? delay : DEFAULTS.autoAdvanceDelayMs,
     difficulty: oneOf(s.difficulty, DIFFICULTIES, DEFAULTS.difficulty),
+    sound: typeof s.sound === 'boolean' ? s.sound : DEFAULTS.sound,
   };
 }
 
@@ -60,6 +63,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setAdvanceMode: m => setSettings(s => ({ ...s, advanceMode: m })),
     setAutoAdvanceDelayMs: ms => setSettings(s => ({ ...s, autoAdvanceDelayMs: ms })),
     setDifficulty: d => setSettings(s => ({ ...s, difficulty: d })),
+    setSound: on => setSettings(s => ({ ...s, sound: on })),
   };
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }

@@ -34,4 +34,5 @@ export interface Settings {
   advanceMode: AdvanceMode;
   autoAdvanceDelayMs: number;
   difficulty: Difficulty;
+  sound: boolean;
 }

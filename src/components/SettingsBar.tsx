@@ -37,7 +37,7 @@ function secondsLabel(ms: number): string {
 }
 
 export function SettingsBar() {
-  const { settings, setLanguage, setNotation, setAdvanceMode, setAutoAdvanceDelayMs, setDifficulty } =
+  const { settings, setLanguage, setNotation, setAdvanceMode, setAutoAdvanceDelayMs, setDifficulty, setSound } =
     useSettings();
   const { t } = useI18n();
   const autoAdvance = settings.advanceMode === 'auto';
@@ -93,6 +93,21 @@ export function SettingsBar() {
                 style={style}
               >
                 {t(`advance.${mode}`)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        {t('settings.sound')}:
+        <div style={segmentStyle}>
+          {[true, false].map(on => {
+            const active = settings.sound === on;
+            const style = segmentButtonStyle(active);
+            if (!on) style.borderRight = 'none';
+            return (
+              <button key={String(on)} type="button" aria-pressed={active} onClick={() => setSound(on)} style={style}>
+                {t(on ? 'sound.on' : 'sound.off')}
               </button>
             );
           })}

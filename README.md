@@ -44,6 +44,7 @@ Each quiz deck draws evenly from its question types. Answers are checked on scre
 - Fixed note-name mapping: C = Dó/Do and B = Si (PT) / Ti (EN). Alphabetical Notation uses the question's requested format so the answer is not revealed by the notation preference.
 - Automatic advance with a configurable 0.5–2 second delay, or manual Continue.
 - Untimed practice, or 15-second Easy, 8-second Medium, and 4-second Hard rounds. Difficulty changes the time limit, not the question bank. A timeout counts as incorrect and the next round receives a fresh timer.
+- Sound effects for correct and wrong answers, timeouts and finished quizzes, on by default. They are plucked-string sounds synthesized in the browser, so the app ships no audio files. Browsers usually play sound only after the page has been clicked or tapped.
 - Local best/last scores, completed play counts, and per-play date/difficulty history.
 - Stats summarizes plays, averages, best and last scores. Per-game and global reset controls ask for confirmation and preserve settings.
 
@@ -97,6 +98,7 @@ Music rendering is checked in a real browser rather than simulated by jsdom. Git
 
 ```text
 src/
+  audio/                 Synthesized plucked-string sound effects
   curriculum.ts          Module order, game membership and upcoming topics
   components/            Shared UI, notation, keyboard, rhythm and fretboard diagrams
     Fretboard.tsx        Display and interactive fretboard with labeled markers
