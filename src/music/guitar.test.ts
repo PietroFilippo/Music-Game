@@ -23,6 +23,8 @@ describe('guitar positions', () => {
       .toEqual(['e/3', 'a/3', 'd/4', 'g/4', 'b/4', 'e/5']);
     expect(writtenVexKey({ string: 0, fret: 12 })).toBe('e/6');
     expect(writtenVexKey({ string: 4, fret: 1 })).toBe('a#/3');
+    expect(writtenVexKey({ string: 4, fret: 1 }, 'b')).toBe('bb/3');
+    expect(writtenVexKey({ string: 1, fret: 2 }, 'b')).toBe('db/5');
   });
 
   it('maps every written note, including sharps and flats, back to its position', () => {

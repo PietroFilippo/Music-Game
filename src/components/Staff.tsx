@@ -22,7 +22,8 @@ export function Staff({ clef = 'treble', noteVexKey, width = 280, height = 140 }
     stave.addClef(clef).setContext(ctx).draw();
     if (noteVexKey) {
       const note = new StaveNote({ clef, keys: [noteVexKey], duration: 'w' });
-      if (noteVexKey.includes('#')) note.addModifier(new Accidental('#'), 0);
+      const accidental = noteVexKey.split('/')[0].slice(1);
+      if (accidental) note.addModifier(new Accidental(accidental), 0);
       Formatter.FormatAndDraw(ctx, stave, [note]);
     }
   }, [clef, noteVexKey, width, height]);

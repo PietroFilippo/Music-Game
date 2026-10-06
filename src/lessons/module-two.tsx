@@ -6,8 +6,8 @@ import { LessonShell, type LessonStep } from '../components/LessonShell';
 import { StaffDiagram } from '../components/StaffDiagram';
 import type { ModuleTwoId } from '../games/module-two/questions';
 import { useI18n } from '../hooks/useI18n';
-import { naturalAt, naturalFrets, OPEN_STRING_LETTERS, writtenVexKey } from '../music/guitar';
-import { shortNoteLabel } from '../music/notes';
+import { naturalAt, naturalFrets, OPEN_STRING_LETTERS, pitchClassAt, writtenVexKey } from '../music/guitar';
+import { shortNoteLabel, spell, spelledLabel, type SpelledNote } from '../music/notes';
 import { useSettings } from '../SettingsContext';
 import type { LessonProps } from './index';
 
@@ -28,6 +28,17 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
   const naturals = (string: number, accent: (fret: number) => boolean = () => false) =>
     naturalFrets(string).map(fret => at(string, fret, accent(fret) ? 'accent' : 'plain'));
   const openName = (string: number) => shortNoteLabel(OPEN_STRING_LETTERS[string], settings.notation, lang);
+  const shortSpelled = (note: SpelledNote) =>
+    spelledLabel(note, settings.notation === 'solfege' ? 'solfege' : 'letter', lang);
+  // A marker named with sharps or flats; notes between naturals use the root color.
+  const spelledAt = (string: number, fret: number, prefer: '#' | 'b' = '#', tone?: MarkerTone): FretMarker => {
+    const note = spell(pitchClassAt({ string, fret }), prefer);
+    return { string, fret, label: shortSpelled(note), tone: tone ?? (note.accidental ? 'root' : 'plain') };
+  };
+  const chromatic = (string: number, prefer: '#' | 'b') => {
+    const frets = Array.from({ length: 13 }, (_, fret) => fret);
+    return (prefer === 'b' ? frets.reverse() : frets).map(fret => shortSpelled(spell(pitchClassAt({ string, fret }), prefer)));
+  };
   const sequence = (items: string[]) => <div className="note-sequence">
     {items.map((item, i) => <span key={i}>{i > 0 && '→ '}{item}</span>)}
   </div>;
@@ -101,6 +112,42 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
         'Na 5ª corda, toque Lá, Si, Dó, Ré, Mi, Fá, Sol e Lá, da corda solta até a casa 12, dizendo cada nome em voz alta; depois desça. Repita na 6ª corda, de Mi a Mi. Por fim, encontre todas as notas Dó entre as casas 0 e 12: há uma em cada corda.',
         'On string 5, play A, B, C, D, E, F, G and A from the open string to fret 12, naming each note aloud, then come back down. Repeat on string 6, from E to E. Finally, find every C between frets 0 and 12: there is one on each string.',
         sequence(naturalFrets(4).map(fret => `${at(4, fret).label} ${fret}`))),
+    ],
+    'sustenidos-bemois': [
+      step('Entre as notas naturais', 'Between the natural notes',
+        'A maioria das notas naturais vizinhas fica a duas casas de distância. A casa do meio também tem nome: ela leva um sustenido (♯) ou um bemol (♭). Na 6ª corda, a casa 2 fica entre Fá (casa 1) e Sol (casa 3): é Fá♯, também chamada Sol♭.',
+        'Most neighboring natural notes are two frets apart. The fret in between has a name too, with a sharp (♯) or a flat (♭). On string 6, fret 2 sits between F (fret 1) and G (fret 3): it is F♯, also called G♭.',
+        <Fretboard frets={5} stringLabels="name" showFretNumbers highlightStrings={[5]}
+          markers={[0, 1, 2, 3, 4, 5].map(fret => spelledAt(5, fret))} />),
+      step('Sustenido: uma casa acima', 'Sharp: one fret up',
+        'O sustenido (♯) sobe a nota um semitom: uma casa em direção ao corpo da guitarra. Na 5ª corda, Dó está na casa 3, então Dó♯ fica na casa 4.',
+        'A sharp (♯) raises a note one semitone: one fret toward the body of the guitar. On string 5, C is at fret 3, so C♯ is at fret 4.',
+        <Fretboard frets={5} stringLabels="name" showFretNumbers
+          markers={[spelledAt(4, 3, '#', 'plain'), spelledAt(4, 4, '#', 'accent')]} />),
+      step('Bemol: uma casa abaixo', 'Flat: one fret down',
+        'O bemol (♭) desce a nota um semitom: uma casa em direção à cabeça da guitarra. Na 5ª corda, Si está na casa 2, então Si♭ fica na casa 1.',
+        'A flat (♭) lowers a note one semitone: one fret toward the headstock. On string 5, B is at fret 2, so B♭ is at fret 1.',
+        <Fretboard frets={5} stringLabels="name" showFretNumbers
+          markers={[spelledAt(4, 1, 'b', 'accent'), spelledAt(4, 2, 'b', 'plain')]} />),
+      step('Um som, dois nomes', 'One sound, two names',
+        'Dó♯ e Ré♭ são a mesma casa e o mesmo som. O nome usado depende da tonalidade e do contexto, o que você verá nas escalas. Entre Mi e Fá, e entre Si e Dó, não há casa intermediária: uma casa acima de Mi já é Fá.',
+        'C♯ and D♭ are the same fret and the same sound. Which name is used depends on the key and the context, which you will see with scales. There is no fret between E and F, or between B and C: one fret above E is already F.',
+        <>{[1, 3, 6, 8, 10].map(pc => <div className="reference-card" key={pc}>
+          <strong>{shortSpelled(spell(pc, '#'))} = {shortSpelled(spell(pc, 'b'))}</strong>
+        </div>)}</>),
+      step('Na pauta', 'On the staff',
+        'Na pauta, o acidente fica logo antes da nota, na mesma linha ou espaço. O ♯ sobe, o ♭ desce e o bequadro (♮) cancela os dois. Dentro do compasso, o acidente também vale para as próximas notas na mesma linha ou espaço.',
+        'On the staff, the accidental is written just before the note, on the same line or space. ♯ raises, ♭ lowers, and the natural sign (♮) cancels them. Within a measure, the accidental also applies to later notes on the same line or space.',
+        <StaffDiagram clef="treble" width={420} height={175} notes={[
+          { vexKey: 'f/4', label: shortSpelled({ letter: 'F', accidental: '' }) },
+          { vexKey: 'f#/4', label: shortSpelled({ letter: 'F', accidental: '#' }), highlight: true },
+          { vexKey: 'g/4', label: shortSpelled({ letter: 'G', accidental: '' }) },
+          { vexKey: 'gb/4', label: shortSpelled({ letter: 'G', accidental: 'b' }), highlight: true },
+        ]} />),
+      step('No seu instrumento', 'On your guitar',
+        'Na 6ª corda, toque casa por casa, da corda solta até a casa 12, dizendo o nome de cada nota: subindo, use sustenidos (Mi, Fá, Fá♯, Sol…); descendo, use bemóis (Mi, Mi♭, Ré, Ré♭…). Depois repita na 5ª corda.',
+        'On string 6, play one fret at a time from the open string to fret 12, naming every note: going up, use sharps (E, F, F♯, G…); coming down, use flats (E, E♭, D, D♭…). Then repeat on string 5.',
+        <>{sequence(chromatic(5, '#'))}{sequence(chromatic(5, 'b'))}</>),
     ],
   };
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Renderer, Stave, StaveNote, Formatter } from 'vexflow/bravura';
+import { Accidental, Renderer, Stave, StaveNote, Formatter } from 'vexflow/bravura';
 
 export interface DiagramNote {
   vexKey: string;
@@ -46,6 +46,8 @@ export function StaffDiagram({
     const positionClef = clef === 'none' ? 'treble' : clef;
     const staveNotes = notes.map(n => {
       const note = new StaveNote({ clef: positionClef, keys: [n.vexKey], duration: 'w' });
+      const accidental = n.vexKey.split('/')[0].slice(1);
+      if (accidental) note.addModifier(new Accidental(accidental), 0);
       if (n.highlight) note.setStyle({ fillStyle: HIGHLIGHT, strokeStyle: HIGHLIGHT });
       return note;
     });

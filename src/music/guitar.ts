@@ -1,4 +1,4 @@
-import { naturalForPitchClass, PITCH_CLASS, type LetterNote } from './notes';
+import { naturalForPitchClass, PITCH_CLASS, spell, type LetterNote } from './notes';
 
 // Strings are indexed 0 = 1st string (high E) ... 5 = 6th string (low E), the
 // top-to-bottom order of tablature. Sounding pitches as MIDI numbers:
@@ -16,8 +16,6 @@ export interface FretPosition {
   string: number; // 0 = high E (1st), 5 = low E (6th)
   fret: number;
 }
-
-const SHARP_SPELLING = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
 
 export function samePosition(a: FretPosition, b: FretPosition): boolean {
   return a.string === b.string && a.fret === b.fret;
@@ -45,10 +43,12 @@ export function naturalAt(p: FretPosition): LetterNote | null {
 }
 
 // VexFlow key for how the position is written on a guitar staff, e.g. 'e/3'
-// for the open 6th string. Notes between naturals are spelled with sharps.
-export function writtenVexKey(p: FretPosition): string {
+// for the open 6th string. Notes between naturals use sharps unless flats are
+// preferred.
+export function writtenVexKey(p: FretPosition, prefer: '#' | 'b' = '#'): string {
   const midi = soundingMidi(p) + GUITAR_WRITTEN_OFFSET;
-  return `${SHARP_SPELLING[midi % 12]}/${Math.floor(midi / 12) - 1}`;
+  const note = spell(midi % 12, prefer);
+  return `${note.letter.toLowerCase()}${note.accidental}/${Math.floor(midi / 12) - 1}`;
 }
 
 // Accepts naturals and accidentals, e.g. 'e/4', 'a#/3', 'bb/3'.

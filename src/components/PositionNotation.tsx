@@ -4,7 +4,7 @@ import { GuitarTab } from './GuitarTab';
 import { Staff } from './Staff';
 
 // One fretboard position as tablature and as written guitar notation.
-export function PositionNotation({ position }: { position: FretPosition }) {
+export function PositionNotation({ position, flat = false }: { position: FretPosition; flat?: boolean }) {
   const { t } = useI18n();
   return (
     <div className="notation-pair">
@@ -13,7 +13,7 @@ export function PositionNotation({ position }: { position: FretPosition }) {
         <figcaption>{t('common.tab')}</figcaption>
       </figure>
       <figure>
-        <Staff noteVexKey={writtenVexKey(position)} width={200} height={170} />
+        <Staff noteVexKey={writtenVexKey(position, flat ? 'b' : '#')} width={200} height={170} />
         <figcaption>{t('notation.written')}</figcaption>
       </figure>
     </div>

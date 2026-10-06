@@ -30,4 +30,5 @@ export const GAMES: Record<GameId, ComponentType<GameProps>> = {
   'notas-teclado': moduleGame('notas-teclado'),
   'cordas-afinacao': moduleTwoGame('cordas-afinacao'),
   'notas-braco': moduleTwoGame('notas-braco'),
+  'sustenidos-bemois': moduleTwoGame('sustenidos-bemois'),
 };

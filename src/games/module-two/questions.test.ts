@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { naturalAt } from '../../music/guitar';
+import { fretsForVexKey, naturalAt, pitchClassAt } from '../../music/guitar';
+import { spelledPitchClass, type Accidental, type LetterNote } from '../../music/notes';
 import { createQuestionDeck, createQuestionGroups, createQuestionPool, MODULE_TWO_IDS, NECK_FRETS } from './questions';
 
 describe('module 2 question banks', () => {
@@ -72,5 +73,64 @@ describe('module 2 question banks', () => {
     expect(tap.kind === 'board' && tap.accepts.every(p => p.string === 3)).toBe(true);
     expect(createQuestionPool('cordas-afinacao', 'pt', 'solfege').find(q => q.id === 'tuned-1')!.prompt)
       .toBe('Qual corda solta é afinada em Si?');
+  });
+});
+
+describe('sharps and flats question bank', () => {
+  const pool = createQuestionPool('sustenidos-bemois', 'en', 'letter');
+  const pitchOf = (value: string) => /^\d+$/.test(value)
+    ? Number(value)
+    : spelledPitchClass({ letter: value[0] as LetterNote, accidental: value.slice(1) as Accidental });
+
+  it('never offers a wrong choice that sounds the same as the answer', () => {
+    for (const question of pool) {
+      if (question.answer.kind !== 'choice') continue;
+      const pitches = question.answer.choices.map(c => pitchOf(c.value));
+      expect(new Set(pitches).size).toBe(4);
+    }
+  });
+
+  it('names marked frets and staff notes correctly', () => {
+    for (const question of pool) {
+      if (question.id.startsWith('mark-')) {
+        expect(question.answer).toMatchObject({ correct: String(pitchClassAt(question.notation!)) });
+        expect(naturalAt(question.notation!)).toBeNull();
+      }
+      if (question.id.startsWith('staff-') && question.answer.kind === 'choice') {
+        const position = fretsForVexKey(question.id.slice('staff-'.length))[0];
+        expect(pitchOf(question.answer.correct)).toBe(pitchClassAt(position));
+      }
+    }
+    expect(pool.find(q => q.id === 'staff-f#/4')!.notation).toMatchObject({ string: 3, fret: 4 });
+    expect(pool.find(q => q.id === 'staff-bb/4')!.notation).toMatchObject({ string: 2, fret: 3, flat: true });
+  });
+
+  it('spells semitone moves with sharps going up and flats going down', () => {
+    expect(pool.find(q => q.id === 'move-F+1')!.answer).toMatchObject({ correct: 'F#' });
+    expect(pool.find(q => q.id === 'move-E+1')!.answer).toMatchObject({ correct: 'F' });
+    expect(pool.find(q => q.id === 'move-B-1')!.answer).toMatchObject({ correct: 'Bb' });
+    expect(pool.find(q => q.id === 'move-C-1')!.answer).toMatchObject({ correct: 'B' });
+    expect(pool.find(q => q.id === 'move-C-2')!.answer).toMatchObject({ correct: 'Bb' });
+    for (const question of pool.filter(q => q.id.startsWith('move-'))) {
+      const board = question.answer.kind === 'choice' && question.answer.visual.kind === 'board'
+        ? question.answer.visual.board : null;
+      const [start, end] = board!.markers!;
+      const move = Number(question.id.match(/[+-]\d$/)![0]);
+      expect(end.fret - start.fret).toBe(move);
+      expect(pitchClassAt(end)).toBe(pitchOf(question.answer.kind === 'choice' ? question.answer.correct : ''));
+    }
+  });
+
+  it('accepts the one fret where each sharp or flat sits on the string', () => {
+    const find = pool.filter(q => q.id.startsWith('find-'));
+    expect(find).toHaveLength(30);
+    for (const question of find) {
+      if (question.answer.kind !== 'board') throw new Error('expected a fretboard answer');
+      const [, string, name] = question.id.split('-');
+      const [p] = question.answer.accepts;
+      expect(question.answer.accepts).toHaveLength(1);
+      expect(p.string).toBe(Number(string));
+      expect(pitchClassAt(p)).toBe(pitchOf(name));
+    }
   });
 });

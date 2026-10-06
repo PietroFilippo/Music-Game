@@ -5,6 +5,7 @@ import { Fretboard, type FretMarker } from '../../components/Fretboard';
 import { GameShell } from '../../components/GameShell';
 import { GuitarTab } from '../../components/GuitarTab';
 import { PositionNotation } from '../../components/PositionNotation';
+import { Staff } from '../../components/Staff';
 import { TimerBar } from '../../components/TimerBar';
 import { useI18n } from '../../hooks/useI18n';
 import { useQuizRound } from '../../hooks/useQuizRound';
@@ -13,9 +14,11 @@ import { useSettings } from '../../SettingsContext';
 import { createQuestionDeck, NECK_FRETS, type ModuleTwoId, type QuestionVisual } from './questions';
 
 function QuestionIllustration({ visual }: { visual: QuestionVisual }) {
-  return visual.kind === 'tab'
-    ? <GuitarTab positions={[visual.position]} width={220} />
-    : <Fretboard frets={NECK_FRETS} {...visual.board} />;
+  switch (visual.kind) {
+    case 'tab': return <GuitarTab positions={[visual.position]} width={220} />;
+    case 'staff': return <Staff noteVexKey={visual.vexKey} />;
+    case 'board': return <Fretboard frets={NECK_FRETS} {...visual.board} />;
+  }
 }
 
 export function ModuleTwoGame({ id, onExit }: { id: ModuleTwoId; onExit: () => void }) {
@@ -62,7 +65,7 @@ export function ModuleTwoGame({ id, onExit }: { id: ModuleTwoId; onExit: () => v
           </strong>
           <p>{question.explanation}</p>
           {answer.kind === 'choice' && <Fretboard frets={NECK_FRETS} {...question.reveal} />}
-          {question.notation && <PositionNotation position={question.notation} />}
+          {question.notation && <PositionNotation position={question.notation} flat={question.notation.flat} />}
         </div>}
         {quiz.needsContinue && <ContinueButton onClick={quiz.next} />}
       </div>

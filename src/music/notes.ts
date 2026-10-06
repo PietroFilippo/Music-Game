@@ -72,6 +72,37 @@ export function pitchClassLabel(pitchClass: number, notation: Notation, language
   return notation === 'both' ? `${spell('letter')} · ${spell('solfege')}` : spell(notation);
 }
 
+export type Accidental = '' | '#' | 'b';
+
+// A note name with one spelling, e.g. F♯ or G♭ for the same pitch class.
+export interface SpelledNote {
+  letter: LetterNote;
+  accidental: Accidental;
+}
+
+const ACCIDENTAL_SIGN: Record<Accidental, string> = { '': '', '#': '♯', b: '♭' };
+const ACCIDENTAL_SHIFT: Record<Accidental, number> = { '': 0, '#': 1, b: -1 };
+
+export function spelledPitchClass({ letter, accidental }: SpelledNote): number {
+  return (PITCH_CLASS[letter] + ACCIDENTAL_SHIFT[accidental] + 12) % 12;
+}
+
+// Natural notes keep their name; others are spelled as a sharp or a flat.
+export function spell(pitchClass: number, prefer: '#' | 'b'): SpelledNote {
+  const pc = ((pitchClass % 12) + 12) % 12;
+  const natural = naturalForPitchClass(pc);
+  if (natural) return { letter: natural, accidental: '' };
+  return prefer === '#'
+    ? { letter: naturalForPitchClass(pc - 1)!, accidental: '#' }
+    : { letter: naturalForPitchClass(pc + 1)!, accidental: 'b' };
+}
+
+export function spelledLabel(note: SpelledNote, notation: Notation, language: Language = 'pt'): string {
+  const sign = ACCIDENTAL_SIGN[note.accidental];
+  const named = (format: 'letter' | 'solfege') => `${noteLabel(note.letter, format, language)}${sign}`;
+  return notation === 'both' ? `${named('letter')} / ${named('solfege')}` : named(notation);
+}
+
 export function shortPitchClassLabel(pitchClass: number, notation: Notation, language: Language = 'pt'): string {
   const natural = naturalForPitchClass(pitchClass);
   if (natural) return shortNoteLabel(natural, notation, language);
