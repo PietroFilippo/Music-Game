@@ -39,6 +39,15 @@ The fretboard is interactive. Positions can be selected with a pointer, or with 
 
 Each quiz deck draws evenly from its question types. Answers are checked on screen; there is no microphone grading.
 
+## Tuner
+
+The Tuner tab checks standard tuning (E A D G B E, A = 440 Hz) through the microphone:
+- It names the nearest open string and whether to tighten or loosen it.
+- It shows a cents meter; within ±5 cents counts as in tune.
+- Each open string can be played as a plucked reference tone.
+
+Pitch detection uses the YIN algorithm with the browser's voice processing turned off. Audio is analyzed on the device and never recorded or sent. The microphone needs a secure page (HTTPS or localhost) and the player's permission. An unplugged electric guitar is quiet, so an amp or audio interface works best.
+
 ## Settings and progress
 
 - Portuguese or English; letter names, solfege, or both.
@@ -99,7 +108,7 @@ Music rendering is checked in a real browser rather than simulated by jsdom. Git
 
 ```text
 src/
-  audio/                 Synthesized plucked-string sound effects
+  audio/                 Plucked-string synth, pitch detection and tuning math
   curriculum.ts          Module order, game membership and upcoming topics
   components/            Shared UI, notation, keyboard, rhythm and fretboard diagrams
     Fretboard.tsx        Display and interactive fretboard with labeled markers
@@ -110,7 +119,7 @@ src/
   lessons/index.ts       Lazy-loaded lesson registry
   lessons/module-one.tsx Six Module 1 lessons
   lessons/module-two.tsx Module 2 lessons
-  hooks/                 Quiz rounds, progress, timers and translations
+  hooks/                 Quiz rounds, progress, timers, microphone pitch and translations
   i18n/                  Shared UI strings
   music/                 Notes, rhythm values and guitar positions
   store/                 Browser-local scores and safe storage access

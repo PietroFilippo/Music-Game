@@ -85,7 +85,7 @@ Track which notes and positions a player misses, and bring those back more often
 
 Let players answer by playing on the guitar instead of clicking. The browser detects the played pitch with the Web Audio API and a pitch algorithm: YIN, or the McLeod method used by the small `pitchy` library. Audio is processed on the device and never uploaded.
 
-- **Start with a tuner screen.** Grading assumes standard tuning (E A D G B E, A4 = 440 Hz), and a tuner is useful on its own. It also tests detection with each player's real microphone, amplifier or audio interface.
+- **Start with a tuner screen** (implemented 2026-10-06). Grading assumes standard tuning (E A D G B E, A4 = 440 Hz), and a tuner is useful on its own. It also tests detection with each player's real microphone, amplifier or audio interface. The Tuner tab uses YIN detection (`src/audio/pitch.ts`) and a reusable microphone hook (`useMicrophonePitch`). It passed tests with generated waveforms and a Chrome fake-microphone check; it still needs testing on real guitars.
 - **Compare sounding pitch.** The guitar sounds an octave below its notation, so a written E4 is graded against a sounding E3. Accept a cents tolerance (about ±40) instead of perfect intonation.
 - **Know the limits:**
   - Microphone access needs HTTPS (or localhost) and the player's permission.
@@ -107,7 +107,7 @@ The quizzes already play short plucked-string sound effects for right and wrong 
 ### Recommended order
 
 1. ~~Start recording per-question results~~ (done).
-2. Build the tuner as a contained prototype of pitch detection.
+2. ~~Build the tuner as a contained prototype of pitch detection~~ (done; test it on real guitars and setups).
 3. Add the "Review weak spots" mode once enough history exists.
 4. Add the play-to-answer mode to reading quizzes if the tuner works reliably on real setups.
 

@@ -2,7 +2,7 @@ import { useState, type CSSProperties } from 'react';
 import { useI18n } from './hooks/useI18n';
 import { getScore, resetScore, resetAllScores } from './store/scores';
 import { resetAttempts } from './store/attempts';
-import { NavTabs } from './components/NavTabs';
+import { NavTabs, type Tab } from './components/NavTabs';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { GAME_IDS, type GameId, type PlayRecord } from './types';
 
@@ -35,7 +35,7 @@ const resetBtnStyle: CSSProperties = {
   fontSize: 13,
 };
 
-export function Stats({ onGames }: { onGames: () => void }) {
+export function Stats({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
   const { t } = useI18n();
   const [pending, setPending] = useState<GameId | 'all' | null>(null);
   const [, setVersion] = useState(0);
@@ -66,7 +66,7 @@ export function Stats({ onGames }: { onGames: () => void }) {
         <h1 style={{ margin: 0, fontSize: 38, letterSpacing: -0.5 }}>{t('menu.title')}</h1>
         <p style={{ color: 'var(--fg-muted)', marginTop: 6 }}>{t('menu.subtitle')}</p>
       </header>
-      <NavTabs active="stats" onGames={onGames} onStats={() => {}} />
+      <NavTabs active="stats" onNavigate={onNavigate} />
       <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>

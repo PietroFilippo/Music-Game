@@ -1,25 +1,24 @@
 import { useI18n } from '../hooks/useI18n';
 
+export type Tab = 'games' | 'stats' | 'tuner';
+
 interface Props {
-  active: 'games' | 'stats';
-  onGames: () => void;
-  onStats: () => void;
+  active: Tab;
+  onNavigate: (tab: Tab) => void;
 }
 
-export function NavTabs({ active, onGames, onStats }: Props) {
+const TABS: Tab[] = ['games', 'stats', 'tuner'];
+
+export function NavTabs({ active, onNavigate }: Props) {
   const { t } = useI18n();
-  const tabs = [
-    { id: 'games' as const, label: t('menu.tab.games'), onClick: onGames },
-    { id: 'stats' as const, label: t('menu.tab.stats'), onClick: onStats },
-  ];
   return (
     <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-      {tabs.map(tab => {
-        const isActive = tab.id === active;
+      {TABS.map(tab => {
+        const isActive = tab === active;
         return (
           <button
-            key={tab.id}
-            onClick={tab.onClick}
+            key={tab}
+            onClick={() => { if (!isActive) onNavigate(tab); }}
             aria-pressed={isActive}
             style={{
               padding: '9px 18px',
@@ -31,7 +30,7 @@ export function NavTabs({ active, onGames, onStats }: Props) {
               fontWeight: isActive ? 700 : 500,
             }}
           >
-            {tab.label}
+            {t(`menu.tab.${tab}`)}
           </button>
         );
       })}

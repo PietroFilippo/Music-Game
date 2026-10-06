@@ -79,10 +79,14 @@ function pluck(ctx: AudioContext, midi: number, at: number, damping: number, gai
   source.start(at);
 }
 
-export function playEffect(effect: SoundEffect): void {
+// Pluck MIDI notes in order: one note, a strummed chord or an arpeggio.
+export function playNotes(notes: number[], { spacing = 0, damping = 0.996, gain = 0.25 } = {}): void {
   const ctx = audioContext();
   if (!ctx) return;
-  const { notes, spacing, damping, gain } = EFFECTS[effect];
   const start = ctx.currentTime + 0.01;
   notes.forEach((midi, i) => pluck(ctx, midi, start + i * spacing, damping, gain));
+}
+
+export function playEffect(effect: SoundEffect): void {
+  playNotes(EFFECTS[effect].notes, EFFECTS[effect]);
 }

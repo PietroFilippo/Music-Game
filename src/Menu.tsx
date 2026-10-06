@@ -3,7 +3,7 @@ import { useI18n } from './hooks/useI18n';
 import { getScore } from './store/scores';
 import { readStored, writeStored } from './store/storage';
 import { SettingsBar } from './components/SettingsBar';
-import { NavTabs } from './components/NavTabs';
+import { NavTabs, type Tab } from './components/NavTabs';
 import type { GameId } from './types';
 import { COURSE_MODULES } from './curriculum';
 
@@ -23,10 +23,10 @@ function loadExpanded(): Record<string, boolean> {
 interface Props {
   onPlay: (id: GameId) => void;
   onLearn: (id: GameId) => void;
-  onStats: () => void;
+  onNavigate: (tab: Tab) => void;
 }
 
-export function Menu({ onPlay, onLearn, onStats }: Props) {
+export function Menu({ onPlay, onLearn, onNavigate }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(loadExpanded);
   const toggle = (id: string) => {
@@ -45,7 +45,7 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
         <p style={{ color: 'var(--fg-muted)', marginTop: 6 }}>{t('menu.subtitle')}</p>
         <SettingsBar />
       </header>
-      <NavTabs active="games" onGames={() => {}} onStats={onStats} />
+      <NavTabs active="games" onNavigate={onNavigate} />
       {COURSE_MODULES.map(module => (
       <section key={module.id} className="course-module" aria-labelledby={`module-heading-${module.id}`}>
         <h2 className="module-heading">

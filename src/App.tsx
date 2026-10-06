@@ -4,11 +4,13 @@ import { Menu } from './Menu';
 import { GAMES } from './games';
 import { LESSONS } from './lessons';
 import { useI18n } from './hooks/useI18n';
+import type { Tab } from './components/NavTabs';
 import type { GameId } from './types';
 
-type Route = 'menu' | 'stats' | GameId | `learn:${GameId}`;
+type Route = 'menu' | 'stats' | 'tuner' | GameId | `learn:${GameId}`;
 
 const Stats = lazy(() => import('./Stats').then(m => ({ default: m.Stats })));
+const Tuner = lazy(() => import('./Tuner').then(m => ({ default: m.Tuner })));
 
 function Loading() {
   const { t } = useI18n();
@@ -18,6 +20,7 @@ function Loading() {
 export default function App() {
   const [route, setRoute] = useState<Route>('menu');
   const back = () => setRoute('menu');
+  const navigate = (tab: Tab) => setRoute(tab === 'games' ? 'menu' : tab);
 
   let lesson = null;
   if (route.startsWith('learn:')) {
@@ -34,10 +37,11 @@ export default function App() {
           <Menu
             onPlay={setRoute}
             onLearn={id => setRoute(`learn:${id}`)}
-            onStats={() => setRoute('stats')}
+            onNavigate={navigate}
           />
         )}
-        {route === 'stats' && <Stats onGames={back} />}
+        {route === 'stats' && <Stats onNavigate={navigate} />}
+        {route === 'tuner' && <Tuner onNavigate={navigate} />}
         {Game && <Game key={route} onExit={back} />}
         {lesson}
       </Suspense>

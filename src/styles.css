@@ -82,6 +82,27 @@ select {
 .explorer-hint { color: var(--fg-muted); font-size: 14px; margin: 0; }
 .module-upcoming { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fg-muted); margin: 22px 0 0; }
 
+.tuner { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.tuner-title { margin: 0; font-size: 22px; }
+.tuner-intro, .tuner-waiting { color: var(--fg-muted); margin: 0; line-height: 1.6; }
+.tuner-display { width: 100%; min-height: 168px; padding: 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.tuner-string { font-size: 34px; font-weight: 700; }
+.tuner-state { font-size: 16px; font-weight: 600; }
+.tuner-inTune { color: var(--accent); }
+.tuner-low, .tuner-high { color: var(--warn); }
+.tuner-meter { position: relative; width: 100%; max-width: 420px; height: 18px; border-radius: 9px; background: var(--border); }
+.tuner-zone { position: absolute; left: 45%; width: 10%; top: 0; bottom: 0; border-radius: 4px; background: rgba(110, 231, 183, 0.35); }
+.tuner-needle { position: absolute; top: -5px; width: 4px; height: 28px; border-radius: 2px; transform: translateX(-50%); background: currentColor; transition: left 0.12s linear; }
+.tuner-detail { color: var(--fg-muted); font-size: 13px; }
+.tuner-error { color: var(--danger); margin: 0; }
+.tuner-subtitle { margin: 12px 0 0; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fg-muted); }
+.tuner-strings { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.tuner-string-button { min-width: 48px; min-height: 56px; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--fg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.tuner-string-button span { color: var(--fg-muted); font-size: 11px; }
+.tuner-string-button strong { font-size: 18px; }
+.tuner-string-button[aria-pressed='true'] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.tuner-note { color: var(--fg-muted); font-size: 13px; line-height: 1.5; margin: 0; }
+
 .module-question { text-align: center; }
 .question-prompt { color: var(--fg-muted); line-height: 1.6; margin: 0 auto 20px; max-width: 600px; }
 .question-illustration { display: flex; justify-content: center; align-items: center; min-height: 150px; margin-bottom: 26px; }
