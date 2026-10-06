@@ -24,7 +24,7 @@ Implemented on 2026-10-06:
    - **Strings and Tuning**: string numbering, tab orientation, standard tuning, checking the tuning at the 5th fret (4th fret on string 3), and open strings on the staff.
    - **Natural Notes on the Neck**: semitones per fret, counting up from the open string, the octave at fret 12, and landmarks on the E strings.
 
-   Each lesson ends with a short exercise to play on a real guitar. Microphone grading is outside this milestone.
+   Each lesson ends with a short exercise to play on a real guitar. Microphone grading is outside this milestone; see [practice features](#practice-features-across-modules-proposed).
 3. **Guitar notation correction.** Fretboard and tab feedback now treats the treble staff as written guitar pitch, one octave above the sound. Module 1 lessons that named guitar positions were corrected to match. For example, the E on the bottom line is the 4th string at fret 2, and the open 1st string is the E in the top space.
 
 **Next step:** test this first part with learners, including on a phone, where the fretboard's touch targets are small. Use the feedback to refine explanations, difficulty and navigation in Module 1 and in the new topics. Only then continue the sequence: **sharps/flats and semitone movement → octaves and repeated notes → intervals and scale degrees → major and natural minor scales**. The same fretboard interactions should support later triad and tetrad exercises.
@@ -65,6 +65,42 @@ Extend triads with a fourth chord tone. Begin with major seventh, dominant seven
 The teacher's **Tétrades.pdf** is a two-page chord-voicing reference. It includes `7M`, `m7`, `m7(b5)`, `7`, `7M(#5)`, `m7M` and diminished symbols, with roots on strings 6, 5 and 4. Its layouts include degree orders `1–7–3–5`, `1–3–5–7` and `1–5–7–3`. These are different voicings with the root in the bass; changing the order above the bass does not by itself create an inversion. This handout belongs primarily in module 4.
 
 Suggested games: identify a seventh-chord quality, find a missing chord tone, match a chord to its arpeggio, and choose a nearby voicing for the next chord.
+
+## Practice features across modules (proposed)
+
+These features change how every module is practiced rather than adding curriculum. Neither is implemented.
+
+### Spaced review of weak notes
+
+Track which notes and positions a player misses, and bring those back more often until they stick. Today every quiz deck is random or evenly balanced, and saved progress holds only a score per game.
+
+- **Record results per question.** Store each answer with the question's stable ID, the result and the time to answer. Module 1 and Module 2 questions already have stable IDs. The four original games (Staff I, Staff II, Clefs, Treble Clef) create questions on the fly; they would first need question banks like the newer games. Recording costs little and can start early, so history builds up before any scheduling exists.
+- **Schedule with Leitner boxes.** A correct answer moves an item up a box and shows it less often; a miss or timeout sends it back to the first box. Full algorithms such as SM-2 or FSRS are more than ten-round quizzes need.
+- **Add a separate "Review weak spots" mode** rather than changing the normal quizzes. Their scores then stay comparable over time.
+- **Group weakness by note as well as by question.** Missing B on the 2nd string in several games should count together. That also enables a fretboard accuracy map in Stats.
+- Reset controls must clear the per-question history too.
+
+### Play the note: microphone pitch detection
+
+Let players answer by playing on the guitar instead of clicking. The browser detects the played pitch with the Web Audio API and a pitch algorithm: YIN, or the McLeod method used by the small `pitchy` library. Audio is processed on the device and never uploaded.
+
+- **Start with a tuner screen.** Grading assumes standard tuning (E A D G B E, A4 = 440 Hz), and a tuner is useful on its own. It also tests detection with each player's real microphone, amplifier or audio interface.
+- **Compare sounding pitch.** The guitar sounds an octave below its notation, so a written E4 is graded against a sounding E3. Accept a cents tolerance (about ±40) instead of perfect intonation.
+- **Know the limits:**
+  - Microphone access needs HTTPS (or localhost) and the player's permission.
+  - Disable the browser's echo cancellation, noise suppression and automatic gain, since they distort musical signals.
+  - An unplugged electric guitar is quiet, so detection needs an amplifier or an audio interface.
+  - Detectors sometimes report a note an octave too high, especially on the low strings.
+- **Grade pitch, not position.** The same pitch can come from several strings, so the microphone cannot confirm which string or fret was used. It fits exercises like "play this written note" or "play the open strings from 6 to 1". "Find G on string 5" stays an on-screen answer.
+- **Offer it as an optional answer mode** on existing quizzes; clicking still works. Timed rounds may need longer limits when playing.
+- Test the pitch algorithm with generated waveforms (a fundamental plus harmonics, including low E at 82 Hz) in Vitest. Check microphone handling by hand on real instruments.
+
+### Recommended order
+
+1. Start recording per-question results soon, alongside the learner testing of Module 2's first part.
+2. Build the tuner as a contained prototype of pitch detection.
+3. Add the "Review weak spots" mode once enough history exists.
+4. Add the play-to-answer mode to reading quizzes if the tuner works reliably on real setups.
 
 ## Teaching and implementation principles
 
