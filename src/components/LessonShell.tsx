@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useI18n } from '../hooks/useI18n';
+import { Icon } from './Icon';
 
 export interface LessonStep {
   title?: string;
@@ -19,65 +20,44 @@ export function LessonShell({ title, steps, onExit, onPractice }: Props) {
   const current = steps[step];
   const isLast = step === steps.length - 1;
 
+  useEffect(() => {
+    if (typeof window.scrollTo === 'function' && !navigator.userAgent.includes('jsdom')) window.scrollTo(0, 0);
+  }, [step]);
+
   return (
-    <div className="shell">
-      <header className="shell-header">
-        <button onClick={onExit} className="btn-ghost">
-          ← {t('common.back')}
-        </button>
-        <h2 style={{ margin: 0, fontSize: 18, color: 'var(--fg-muted)' }}>{title}</h2>
-        <span style={{ color: 'var(--fg-muted)', fontSize: 13 }}>
-          {step + 1} / {steps.length}
-        </span>
+    <div className="page">
+      <header className="topbar">
+        <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onExit}><Icon name="back" /></button>
+        <h1 className="topbar-title">{title}</h1>
+        <span className="chip">{step + 1} / {steps.length}</span>
       </header>
-      <main className="shell-main" style={{ flex: 1 }}>
-        <div style={{ textAlign: 'center' }}>
-          {current.title && <h3 style={{ fontSize: 24, marginBottom: 18 }}>{current.title}</h3>}
-          <div style={{ fontSize: 17, lineHeight: 1.6 }}>{current.body}</div>
-        </div>
-      </main>
-      <footer
-        style={{
-          width: '100%',
-          maxWidth: 820,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 18,
-          marginTop: 28,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 8 }}>
-          {steps.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setStep(i)}
-              aria-label={`${i + 1} / ${steps.length}`}
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                border: 'none',
-                padding: 0,
-                background: i <= step ? 'var(--accent)' : 'var(--border)',
-              }}
-            />
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={() => setStep(s => s - 1)} disabled={step === 0} className="btn btn-secondary">
-            ← {t('lesson.prev')}
+      <nav className="lesson-steps" aria-label={t('lesson.step', { n: step + 1, total: steps.length })}>
+        {steps.map((_, i) => (
+          <button key={i} type="button" className={i < step ? 'done' : i === step ? 'cur' : ''}
+            aria-label={t('lesson.goToStep', { n: i + 1 })} aria-current={i === step ? 'step' : undefined}
+            onClick={() => setStep(i)}>
+            <span />
           </button>
-          {isLast ? (
-            <button onClick={onPractice} className="btn btn-primary">
-              {t('common.practice')} →
-            </button>
-          ) : (
-            <button onClick={() => setStep(s => s + 1)} className="btn btn-primary">
-              {t('lesson.next')} →
-            </button>
-          )}
-        </div>
+        ))}
+      </nav>
+      <main className="lesson-body">
+        <p className="eyebrow">{t('lesson.step', { n: step + 1, total: steps.length })}</p>
+        {current.title && <h2>{current.title}</h2>}
+        <div>{current.body}</div>
+      </main>
+      <footer className="bottombar">
+        <button type="button" onClick={() => setStep(s => s - 1)} disabled={step === 0} className="btn btn-secondary">
+          <Icon name="chevronLeft" /> {t('lesson.prev')}
+        </button>
+        {isLast ? (
+          <button type="button" onClick={onPractice} className="btn btn-primary">
+            {t('common.practice')} <Icon name="arrowRight" />
+          </button>
+        ) : (
+          <button type="button" onClick={() => setStep(s => s + 1)} className="btn btn-primary">
+            {t('lesson.next')} <Icon name="chevronRight" />
+          </button>
+        )}
       </footer>
     </div>
   );

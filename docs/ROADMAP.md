@@ -114,14 +114,19 @@ The quizzes already play short plucked-string sound effects for right and wrong 
 3. Add the "Review weak spots" mode once enough history exists.
 4. Add the play-to-answer mode to reading quizzes if the tuner works reliably on real setups.
 
-## Interface refresh (proposed)
+## Interface refresh (implemented 2026-10-06)
 
-Design mockups for a simpler, clearer interface are in [`docs/design/`](design/README.md). It has three directions, each with home, quiz, feedback, lesson, results, stats and settings screens for phone and desktop:
-- **A — Session:** a Continue-first home, a feedback bottom sheet, and a settings sheet usable mid-quiz.
-- **B — Map:** a progress dashboard.
-- **C — Plain:** one column with large touch targets.
+Design mockups are in [`docs/design/`](design/README.md). They show three directions: A (Session), B (Map) and C (Plain). Direction A is built:
+- A Continue-first home with module progress cards.
+- Header icons for Stats, Tuner and Settings.
+- A settings sheet that is also usable mid-quiz.
+- A quiz header with a round strip, counts and a countdown ring.
+- A feedback bottom sheet.
+- A results screen with missed rounds.
+- A split fretboard on phones.
+- A lesson step strip and Stats grouped by module.
 
-The brief recommends A, borrowing C's type scale and touch targets and B's grouped stats. Before building, decide where the Tuner tab goes: the mockups were drawn before it existed and remove the top navigation tabs. The mockups are static references, not part of the app.
+The mockups' "Review weak spots" entry waits for the review mode described above.
 
 ## Teaching and implementation principles
 

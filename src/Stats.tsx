@@ -1,50 +1,29 @@
-import { useState, type CSSProperties } from 'react';
-import { useI18n } from './hooks/useI18n';
-import { getScore, resetScore, resetAllScores } from './store/scores';
-import { resetAttempts } from './store/attempts';
-import { NavTabs, type Tab } from './components/NavTabs';
+import { useState } from 'react';
 import { ConfirmDialog } from './components/ConfirmDialog';
+import { Icon } from './components/Icon';
+import { COURSE_MODULES } from './curriculum';
+import { useI18n } from './hooks/useI18n';
+import { resetAttempts } from './store/attempts';
+import { getScore, resetAllScores, resetScore } from './store/scores';
 import { GAME_IDS, type GameId, type PlayRecord } from './types';
+
+const LOW_SCORE = 60;
 
 function average(history: PlayRecord[]): number | null {
   if (history.length === 0) return null;
   return Math.round(history.reduce((sum, p) => sum + p.percent, 0) / history.length);
 }
 
-const cellStyle: CSSProperties = {
-  padding: '12px 14px',
-  borderBottom: '1px solid var(--border)',
-  textAlign: 'center',
-  fontSize: 15,
-};
-
-const headStyle: CSSProperties = {
-  ...cellStyle,
-  color: 'var(--fg-muted)',
-  fontSize: 12,
-  letterSpacing: 1.5,
-  textTransform: 'uppercase',
-};
-
-const resetBtnStyle: CSSProperties = {
-  padding: '6px 12px',
-  background: 'transparent',
-  color: 'var(--danger)',
-  border: '1px solid var(--border)',
-  borderRadius: 6,
-  fontSize: 13,
-};
-
-export function Stats({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
+export function Stats({ onBack }: { onBack: () => void }) {
   const { t } = useI18n();
   const [pending, setPending] = useState<GameId | 'all' | null>(null);
   const [, setVersion] = useState(0);
-  const refresh = () => setVersion(v => v + 1);
 
   const scores = GAME_IDS.map(id => ({ id, rec: getScore(id) }));
   const played = scores.filter(s => s.rec);
   const totalPlays = played.reduce((sum, s) => sum + (s.rec?.plays ?? 0), 0);
-  const overallAvg = average(played.flatMap(s => s.rec?.history ?? []));
+  const overall = average(played.flatMap(s => s.rec?.history ?? []));
+  const fmt = (v: number | null | undefined) => (v === null || v === undefined ? '—' : `${v}%`);
 
   const confirmReset = () => {
     if (pending === 'all') {
@@ -55,92 +34,60 @@ export function Stats({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
       resetAttempts(pending);
     }
     setPending(null);
-    refresh();
+    setVersion(v => v + 1);
   };
 
-  const fmt = (v: number | null | undefined) => (v === null || v === undefined ? '—' : `${v}%`);
-
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
-      <header style={{ marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 38, letterSpacing: -0.5 }}>{t('menu.title')}</h1>
-        <p style={{ color: 'var(--fg-muted)', marginTop: 6 }}>{t('menu.subtitle')}</p>
+    <div className="page">
+      <header className="topbar">
+        <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onBack}><Icon name="back" /></button>
+        <h1 className="topbar-title">{t('menu.tab.stats')}</h1>
       </header>
-      <NavTabs active="stats" onNavigate={onNavigate} />
-      <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ ...headStyle, textAlign: 'left' }}>{t('stats.game')}</th>
-            <th style={headStyle}>{t('common.plays')}</th>
-            <th style={headStyle}>{t('stats.average')}</th>
-            <th style={headStyle}>{t('common.best')}</th>
-            <th style={headStyle}>{t('common.last')}</th>
-            <th style={headStyle} />
-          </tr>
-        </thead>
-        <tbody>
-          {scores.map(({ id, rec }) => (
-            <tr key={id}>
-              <td style={{ ...cellStyle, textAlign: 'left', fontWeight: 600 }}>
-                {t(`games.${id}`)}
-              </td>
-              <td style={cellStyle}>{rec?.plays ?? 0}</td>
-              <td style={cellStyle}>{fmt(rec ? average(rec.history) : null)}</td>
-              <td style={cellStyle}>{fmt(rec?.best)}</td>
-              <td style={cellStyle}>{fmt(rec?.last)}</td>
-              <td style={cellStyle}>
-                <button
-                  onClick={() => setPending(id)}
-                  disabled={!rec}
-                  style={{ ...resetBtnStyle, opacity: rec ? 1 : 0.4 }}
-                >
-                  {t('stats.reset')}
-                </button>
-              </td>
-            </tr>
-          ))}
-          <tr>
-            <td style={{ ...cellStyle, textAlign: 'left', color: 'var(--fg-muted)' }}>
-              {t('stats.total')}
-            </td>
-            <td style={cellStyle}>{totalPlays}</td>
-            <td style={cellStyle}>{fmt(overallAvg)}</td>
-            <td style={cellStyle} />
-            <td style={cellStyle} />
-            <td style={cellStyle} />
-          </tr>
-        </tbody>
-      </table>
-      </div>
-      <div style={{ marginTop: 28 }}>
-        <button
-          onClick={() => setPending('all')}
-          disabled={played.length === 0}
-          style={{
-            padding: '12px 22px',
-            background: 'var(--danger)',
-            color: '#0f0f0f',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 15,
-            fontWeight: 600,
-            opacity: played.length === 0 ? 0.4 : 1,
-          }}
-        >
-          {t('stats.resetAll')}
-        </button>
-        <p style={{ color: 'var(--fg-muted)', fontSize: 13, marginTop: 10 }}>
-          {t('stats.resetHint')}
-        </p>
-      </div>
+      <main className="page-main">
+        <div className="sumgrid">
+          <div><b>{totalPlays}</b><span>{t('stats.plays')}</span></div>
+          <div><b>{fmt(overall)}</b><span>{t('stats.overall')}</span></div>
+          <div><b>{played.length}/{GAME_IDS.length}</b><span>{t('stats.topicsLabel')}</span></div>
+        </div>
+        {COURSE_MODULES.filter(m => m.games.length > 0).map(module => (
+          <section key={module.id} className="card" aria-labelledby={`stats-${module.id}`}>
+            <p className="eyebrow">{t('course.number', { n: module.number })}</p>
+            <h3 id={`stats-${module.id}`}>{t(`course.${module.id}.title`)}</h3>
+            <div style={{ marginTop: 8 }}>
+              {module.games.map(id => {
+                const rec = getScore(id);
+                const avg = rec ? average(rec.history) : null;
+                return (
+                  <div key={id} className="srow">
+                    <div>
+                      <div className="sname">{t(`games.${id}`)}</div>
+                      <div className="snums">
+                        <span>{t('common.plays')} <b>{rec?.plays ?? 0}</b></span>
+                        <span className={avg !== null && avg < LOW_SCORE ? 'low' : ''}>{t('stats.average')} <b>{fmt(avg)}</b></span>
+                        <span>{t('common.best')} <b>{fmt(rec?.best)}</b></span>
+                        <span className={rec && rec.last < LOW_SCORE ? 'low' : ''}>{t('common.last')} <b>{fmt(rec?.last)}</b></span>
+                      </div>
+                    </div>
+                    <button type="button" className="ibtn" disabled={!rec}
+                      aria-label={t('stats.resetTopic', { game: t(`games.${id}`) })} onClick={() => setPending(id)}>
+                      <Icon name="trash" size={18} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+        <div>
+          <button type="button" className="btn btn-danger" disabled={played.length === 0} onClick={() => setPending('all')}>
+            {t('stats.resetAll')}
+          </button>
+          <p className="muted small" style={{ marginTop: 10 }}>{t('stats.resetHint')}</p>
+        </div>
+      </main>
       {pending && (
         <ConfirmDialog
-          title={
-            pending === 'all'
-              ? t('stats.confirmAll')
-              : t('stats.confirmGame', { game: t(`games.${pending}`) })
-          }
+          title={pending === 'all' ? t('stats.confirmAll') : t('stats.confirmGame', { game: t(`games.${pending}`) })}
           note={t('stats.confirmNote')}
           cancelLabel={t('stats.cancel')}
           confirmLabel={t('stats.delete')}

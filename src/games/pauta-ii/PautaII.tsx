@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
-import { useQuizRound } from '../../hooks/useQuizRound';
+import { useQuizRound, type RoundReview } from '../../hooks/useQuizRound';
 import { useI18n } from '../../hooks/useI18n';
 import { useSettings } from '../../SettingsContext';
 import { GameShell } from '../../components/GameShell';
 import { Staff } from '../../components/Staff';
 import { AnswerBank } from '../../components/AnswerBank';
 import { Fretboard } from '../../components/Fretboard';
-import { ContinueButton } from '../../components/ContinueButton';
-import { TimerBar } from '../../components/TimerBar';
 import { fretsForVexKey } from '../../music/guitar';
 import { TREBLE_POSITIONS, pickRandom, shuffle } from '../../music/theory';
 import { noteLabel, LETTERS, type LetterNote } from '../../music/notes';
@@ -32,57 +30,39 @@ function makeQuestion() {
 }
 
 export function PautaII({ onExit }: { onExit: () => void }) {
-  const quiz = useQuizRound<LetterNote>('pauta-ii', ROUNDS, {
-    itemId: (): string => `${q.start.vexKey}:${q.direction}${q.offset}`,
-  });
   const { t } = useI18n();
   const { settings } = useSettings();
+  const name = (l: LetterNote) => noteLabel(l, settings.notation, settings.language);
+  const ask = (): string => t(q.direction === 'up' ? 'prompts.pauta-ii.up' : 'prompts.pauta-ii.down', { n: q.offset });
+  const quiz = useQuizRound<LetterNote>('pauta-ii', ROUNDS, {
+    itemId: (): string => `${q.start.vexKey}:${q.direction}${q.offset}`,
+    review: (picked): RoundReview => ({
+      prompt: `${ask()} ${t('common.startNote')}: ${name(q.start.letter)}`,
+      correct: name(q.target.letter),
+      given: picked && name(picked),
+    }),
+  });
   const q = useMemo(makeQuestion, [quiz.progress.round]);
 
-  const promptKey = q.direction === 'up' ? 'prompts.pauta-ii.up' : 'prompts.pauta-ii.down';
-
   return (
-    <GameShell title={t('games.pauta-ii')} onExit={onExit} progress={quiz.progress}>
-      <div style={{ textAlign: 'center' }}>
-        <p style={{ color: 'var(--fg-muted)', marginBottom: 14 }}>
-          {t(promptKey, { n: q.offset })}
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-          <Staff noteVexKey={q.start.vexKey} />
-        </div>
-        <p style={{ color: 'var(--fg-muted)', fontSize: 13, marginBottom: 22 }}>
-          {t('common.startNote')}:{' '}
-          {noteLabel(q.start.letter, settings.notation, settings.language)}
-        </p>
-        {quiz.timed && <TimerBar fraction={quiz.timerFraction} />}
+    <GameShell title={t('games.pauta-ii')} onExit={onExit} quiz={quiz} feedback={
+      <div className="feedback-visual">
+        <p className="feedback-caption">{name(q.target.letter)} — {t('common.fretboard')}</p>
+        <Fretboard positions={fretsForVexKey(q.target.vexKey).slice(0, 1)} />
+      </div>
+    }>
+      <div className="question">
+        <p className="question-prompt">{ask()}</p>
+        <div className="question-visual"><Staff noteVexKey={q.start.vexKey} /></div>
+        <p className="question-hint">{t('common.startNote')}: <b>{name(q.start.letter)}</b></p>
         <AnswerBank
-          choices={q.choices.map(l => ({
-            value: l,
-            label: noteLabel(l, settings.notation, settings.language),
-          }))}
+          choices={q.choices.map(l => ({ value: l, label: name(l) }))}
           onPick={value => quiz.pick(value, value === q.target.letter)}
           disabled={quiz.answered}
           lastPick={quiz.picked}
           correctValue={q.target.letter}
           reveal={quiz.expired}
         />
-        {quiz.answered && (
-          <div style={{ marginTop: 28 }}>
-            <div
-              style={{
-                color: 'var(--fg-muted)',
-                fontSize: 12,
-                letterSpacing: 1.5,
-                textTransform: 'uppercase',
-                marginBottom: 6,
-              }}
-            >
-              {noteLabel(q.target.letter, settings.notation, settings.language)} — {t('common.fretboard')}
-            </div>
-            <Fretboard positions={fretsForVexKey(q.target.vexKey).slice(0, 1)} />
-          </div>
-        )}
-        {quiz.needsContinue && <ContinueButton onClick={quiz.next} />}
       </div>
     </GameShell>
   );

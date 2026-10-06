@@ -28,12 +28,13 @@ describe('module 1 games', () => {
     expect(getScore(id)).toMatchObject({ plays: 1, last: 100, best: 100 });
     expect(getScore(id)!.history).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
-    expect(screen.getByText('Round 1 / 10')).toBeDefined();
+    expect(screen.getByText('Round 1 of 10')).toBeDefined();
     const wrong = deck[0].choices.find(c => c.value !== deck[0].correct)!;
     fireEvent.click(screen.getByRole('button', { name: wrong.label }));
     expect(screen.getByRole('status').textContent).toContain('Let’s review');
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(screen.getByText('Score: 0/1 (0%)')).toBeDefined();
+    expect(screen.getByLabelText('0 correct')).toBeDefined();
+    expect(screen.getByLabelText('1 wrong')).toBeDefined();
     expect(getScore(id)!.plays).toBe(1);
   });
 
@@ -44,7 +45,7 @@ describe('module 1 games', () => {
     act(() => vi.advanceTimersByTime(4000));
     expect(screen.getByRole('status').textContent).toContain('Time is up');
     act(() => vi.advanceTimersByTime(900));
-    expect(screen.getByText('Round 2 / 10')).toBeDefined();
+    expect(screen.getByText('Round 2 of 10')).toBeDefined();
     expect(screen.queryByRole('status')).toBeNull();
     act(() => vi.advanceTimersByTime(3900));
     expect(screen.queryByRole('status')).toBeNull();
@@ -55,5 +56,26 @@ describe('module 1 games', () => {
     unmount();
     expect(vi.getTimerCount()).toBe(0);
     expect(getScore('notacao-alfabetica')).toBeUndefined();
+  });
+});
+
+describe('module 1 results', () => {
+  it('lists the missed rounds with the right answers', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.37);
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', advanceMode: 'manual' }));
+    const deck = createQuestionDeck('notas-teclado', 'en', 'both');
+    render(<SettingsProvider><ModuleOneGame id="notas-teclado" onExit={() => {}} /></SettingsProvider>);
+    deck.forEach((question, i) => {
+      const pick = i === 2 ? question.choices.find(c => c.value !== question.correct)! : question.choices.find(c => c.value === question.correct)!;
+      fireEvent.click(screen.getByRole('button', { name: pick.label }));
+      if (i === 2) expect(screen.getByRole('status').textContent).toContain(`Answer: ${question.choices.find(c => c.value === question.correct)!.label}`);
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    });
+    expect(screen.getByText('90%')).toBeDefined();
+    expect(screen.getByText('To review (1)')).toBeDefined();
+    const missed = screen.getByRole('listitem');
+    expect(missed.textContent).toContain('Round 3');
+    expect(missed.textContent).toContain(deck[2].prompt);
+    expect(missed.textContent).toContain(deck[2].choices.find(c => c.value === deck[2].correct)!.label);
   });
 });

@@ -1,16 +1,43 @@
 import { useState } from 'react';
+import { Icon } from './components/Icon';
+import { SettingsSheet } from './components/SettingsSheet';
+import { COURSE_MODULES } from './curriculum';
 import { useI18n } from './hooks/useI18n';
 import { getScore } from './store/scores';
 import { readStored, writeStored } from './store/storage';
-import { SettingsBar } from './components/SettingsBar';
-import { NavTabs, type Tab } from './components/NavTabs';
-import type { GameId } from './types';
-import { COURSE_MODULES } from './curriculum';
+import type { GameId, ScoreRecord } from './types';
 
 const EXPANSION_KEY = 'musicgame.modules';
+const GOOD_ENOUGH = 80;
+
+export type Destination = 'stats' | 'tuner';
+
+interface Props {
+  onPlay: (id: GameId) => void;
+  onLearn: (id: GameId) => void;
+  onNavigate: (to: Destination) => void;
+}
+
+const lastPlayed = (rec: ScoreRecord) => rec.history[rec.history.length - 1]?.date ?? '';
+
+/**
+ * What to practice next: the most recent topic if it still needs work, then
+ * the first topic not yet played, then the topic with the lowest best score.
+ */
+export function recommendTopic(): { id: GameId; kind: 'continue' | 'next' } {
+  const ids = COURSE_MODULES.flatMap(m => m.games);
+  const played = ids.map(id => ({ id, rec: getScore(id) })).filter((s): s is { id: GameId; rec: ScoreRecord } => !!s.rec);
+  const recent = [...played].sort((a, b) => lastPlayed(b.rec).localeCompare(lastPlayed(a.rec)))[0];
+  if (recent && lastPlayed(recent.rec) && recent.rec.last < GOOD_ENOUGH) return { id: recent.id, kind: 'continue' };
+  const unplayed = ids.find(id => !getScore(id));
+  if (unplayed) return { id: unplayed, kind: 'next' };
+  const weakest = [...played].sort((a, b) => a.rec.best - b.rec.best)[0];
+  return { id: weakest?.id ?? ids[0], kind: 'continue' };
+}
 
 function loadExpanded(): Record<string, boolean> {
-  const defaults = Object.fromEntries(COURSE_MODULES.map(module => [module.id, module.games.length > 0]));
+  const defaults = Object.fromEntries(COURSE_MODULES.map(module =>
+    [module.id, module.games.length > 0 && module.games.some(id => !getScore(id))]));
   const saved = readStored(EXPANSION_KEY);
   if (saved && typeof saved === 'object') {
     for (const [id, value] of Object.entries(saved)) {
@@ -20,114 +47,116 @@ function loadExpanded(): Record<string, boolean> {
   return defaults;
 }
 
-interface Props {
-  onPlay: (id: GameId) => void;
-  onLearn: (id: GameId) => void;
-  onNavigate: (tab: Tab) => void;
-}
-
 export function Menu({ onPlay, onLearn, onNavigate }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(loadExpanded);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const toggle = (id: string) => {
     const next = { ...expanded, [id]: !expanded[id] };
     setExpanded(next);
     writeStored(EXPANSION_KEY, next);
   };
-  const status = (games: number, upcoming: number) => {
-    if (games === 0) return t('course.planned');
-    return t(upcoming > 0 ? 'course.inProgress' : 'course.lessonCount', { n: games });
-  };
+
+  const pick = recommendTopic();
+  const pickModule = COURSE_MODULES.find(m => m.games.includes(pick.id))!;
+  const pickScore = getScore(pick.id);
+  const scoreLine = (rec: ScoreRecord | undefined) =>
+    rec ? t('home.bestLast', { best: rec.best, last: rec.last }) : t('home.notPlayed');
+
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
-      <header style={{ marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 38, letterSpacing: -0.5 }}>{t('menu.title')}</h1>
-        <p style={{ color: 'var(--fg-muted)', marginTop: 6 }}>{t('menu.subtitle')}</p>
-        <SettingsBar />
+    <div className="page home">
+      <header className="topbar">
+        <h1 className="wordmark">{t('menu.title')}</h1>
+        <button type="button" className="ibtn" aria-label={t('menu.tab.stats')} onClick={() => onNavigate('stats')}><Icon name="stats" /></button>
+        <button type="button" className="ibtn" aria-label={t('menu.tab.tuner')} onClick={() => onNavigate('tuner')}><Icon name="tuner" /></button>
+        <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => setSettingsOpen(true)}><Icon name="settings" /></button>
       </header>
-      <NavTabs active="games" onNavigate={onNavigate} />
-      {COURSE_MODULES.map(module => (
-      <section key={module.id} className="course-module" aria-labelledby={`module-heading-${module.id}`}>
-        <h2 className="module-heading">
-          <button type="button" className="module-toggle" id={`module-heading-${module.id}`}
-            aria-expanded={expanded[module.id]} aria-controls={`module-content-${module.id}`}
-            onClick={() => toggle(module.id)}>
-            <span className="module-chevron" aria-hidden="true">{expanded[module.id] ? '▾' : '▸'}</span>
-            <span className="module-heading-text">
-              <span className="module-number">{t('course.number', { n: module.number })}</span>
-              <span>{t(`course.${module.id}.title`)}</span>
-            </span>
-            <span className={`module-status ${module.games.length ? 'module-available' : ''}`}>
-              {status(module.games.length, module.topicKeys.length)}
-            </span>
-          </button>
-        </h2>
-        <div id={`module-content-${module.id}`} hidden={!expanded[module.id]} className="module-content">
-          <p className="module-description">{t(`course.${module.id}.description`)}</p>
-          {module.games.length > 0 && <div className="game-grid">
-          {module.games.map(id => {
-            const score = getScore(id);
+      <main className="page-main home-layout">
+        <div className="home-side">
+          <p className="muted small">{t('menu.subtitle')}</p>
+          <section className="card hero" aria-labelledby="home-pick">
+            <p className="eyebrow">{t(pick.kind === 'continue' ? 'home.continue' : 'home.upNext')}</p>
+            <h2 id="home-pick">{t(`games.${pick.id}`)}</h2>
+            <p className="muted small">{t('home.moduleRounds', { n: pickModule.number })} · {scoreLine(pickScore)}</p>
+            <div className="actions" style={{ marginTop: 14 }}>
+              <button type="button" className="btn btn-primary" onClick={() => onPlay(pick.id)}>
+                <Icon name="play" size={18} /> {t('common.practice')}
+              </button>
+              <button type="button" className="btn btn-secondary" style={{ flex: '0 0 auto' }} onClick={() => onLearn(pick.id)}>
+                <Icon name="book" size={18} /> {t('home.lesson')}
+              </button>
+            </div>
+          </section>
+        </div>
+        <div className="home-modules page-main" style={{ padding: 0 }}>
+          {COURSE_MODULES.map(module => {
+            const records = module.games.map(id => ({ id, rec: getScore(id) }));
+            const played = records.filter(r => r.rec);
+            const open = expanded[module.id];
+            const contentId = `module-content-${module.id}`;
+            const planned = module.games.length === 0;
+            const status = planned ? t('home.planned') : module.topicKeys.length ? t('home.inProgress') : '';
+            const weakest = [...played].sort((a, b) => a.rec!.best - b.rec!.best)[0];
+            const average = played.length
+              ? Math.round(played.reduce((sum, r) => sum + r.rec!.best, 0) / played.length) : 0;
             return (
-              <article
-                key={id}
-                aria-label={t(`games.${id}`)}
-                style={{
-                  textAlign: 'left',
-                  padding: 20,
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 12,
-                }}
-              >
-                <div style={{ fontWeight: 600, fontSize: 17 }}>{t(`games.${id}`)}</div>
-                <div style={{ color: 'var(--fg-muted)', fontSize: 12, marginTop: 8 }}>
-                  {score
-                    ? `${t('common.best')}: ${score.best}% · ${t('common.last')}: ${score.last}% · ${t('common.plays')}: ${score.plays}`
-                    : '—'}
+              <section key={module.id} className={`card${planned ? ' planned' : ''}`} aria-labelledby={`module-${module.id}`}>
+                <div className="modhead">
+                  <div>
+                    <p className="eyebrow">{t('course.number', { n: module.number })}{status && ` · ${status}`}</p>
+                    <h3 id={`module-${module.id}`}>{t(`course.${module.id}.title`)}</h3>
+                  </div>
+                  {!planned && <div className="modpct"><b>{played.length}</b>/{module.games.length}</div>}
                 </div>
-                <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-                  <button
-                    onClick={() => onLearn(id)}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      background: 'transparent',
-                      color: 'var(--fg)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
-                      fontSize: 14,
-                    }}
-                  >
-                    {t('menu.learn')}
-                  </button>
-                  <button
-                    onClick={() => onPlay(id)}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      background: 'var(--accent-strong)',
-                      color: '#0f0f0f',
-                      border: 'none',
-                      borderRadius: 8,
-                      fontSize: 14,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {t('common.practice')}
+                {!planned && <div className="bar" aria-hidden="true"><span style={{ width: `${(played.length / module.games.length) * 100}%` }} /></div>}
+                <p className="muted small">
+                  {!planned && played.length === module.games.length
+                    ? `${t('home.complete', { avg: average })} · ${t('home.weakest', { topic: t(`games.${weakest.id}`), score: weakest.rec!.best })}`
+                    : t(`course.${module.id}.description`)}
+                </p>
+                <div className="actions" style={{ marginTop: 12 }}>
+                  <button type="button" className="btn btn-secondary sm" style={{ flex: '0 0 auto' }}
+                    aria-expanded={open} aria-controls={contentId} onClick={() => toggle(module.id)}>
+                    {open ? t('home.hideTopics') : planned ? t('home.showPlanned') : t('home.showTopics', { n: module.games.length })}
+                    <Icon name="chevronDown" size={16} />
                   </button>
                 </div>
-              </article>
+                <div id={contentId} hidden={!open}>
+                  {!planned && (
+                    <div className="topics">
+                      {records.map(({ id, rec }) => (
+                        <article key={id} className="topic" aria-label={t(`games.${id}`)}>
+                          <div>
+                            <div className="tname">{t(`games.${id}`)}</div>
+                            <div className="tscore">{scoreLine(rec)}</div>
+                          </div>
+                          <div className="tacts">
+                            <button type="button" className="btn btn-ghost sm" onClick={() => onLearn(id)}>
+                              <Icon name="book" size={18} /> {t('menu.learn')}
+                            </button>
+                            <button type="button" className="btn btn-primary sm" onClick={() => onPlay(id)}>
+                              {t('common.practice')}
+                            </button>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                  {module.topicKeys.length > 0 && (
+                    <>
+                      {!planned && <h4 className="eyebrow" style={{ marginTop: 16 }}>{t('course.upcoming')}</h4>}
+                      <ul className="coming">
+                        {module.topicKeys.map(key => <li key={key}>{t(`course.topics.${key}`)}</li>)}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              </section>
             );
           })}
-          </div>}
-          {module.topicKeys.length > 0 && <div className="module-roadmap">
-            {module.games.length > 0 && <h3 className="module-upcoming">{t('course.upcoming')}</h3>}
-            <ul>{module.topicKeys.map(key => <li key={key}>{t(`course.topics.${key}`)}</li>)}</ul>
-            <p>{t('course.plannedNote')}</p>
-          </div>}
         </div>
-      </section>
-      ))}
+      </main>
+      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }

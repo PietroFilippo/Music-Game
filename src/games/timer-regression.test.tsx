@@ -22,7 +22,7 @@ describe.each([
     expect(answers().every(b => (b as HTMLButtonElement).disabled)).toBe(true);
     if (advanceMode === 'manual') fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     else act(() => vi.advanceTimersByTime(900));
-    expect(screen.getByText('Round 2 / 10')).toBeDefined();
+    expect(screen.getByText('Round 2 of 10')).toBeDefined();
     expect(answers().every(b => !(b as HTMLButtonElement).disabled)).toBe(true);
     act(() => vi.advanceTimersByTime(3900));
     expect(answers().every(b => !(b as HTMLButtonElement).disabled)).toBe(true);

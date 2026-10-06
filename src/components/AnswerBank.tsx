@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { Icon } from './Icon';
 
 interface Choice<V extends string | number> {
   value: V;
@@ -14,6 +14,8 @@ interface Props<V extends string | number> {
   reveal?: boolean;
 }
 
+// Answer buttons in a two-column grid (one column for long labels). After an
+// answer, the right choice and a wrong pick get an icon as well as a color.
 export function AnswerBank<V extends string | number>({
   choices,
   onPick,
@@ -22,42 +24,23 @@ export function AnswerBank<V extends string | number>({
   correctValue,
   reveal: forceReveal,
 }: Props<V>) {
+  const reveal = forceReveal || lastPick !== undefined;
+  const wide = choices.some(c => c.label.length > 14);
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 12,
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-      }}
-    >
+    <div className={`answers${wide ? ' answers-wide' : ''}`}>
       {choices.map(c => {
-        const reveal = forceReveal || lastPick !== undefined;
         const isCorrect = reveal && c.value === correctValue;
         const isWrongPick = reveal && c.value === lastPick && lastPick !== correctValue;
-        const style: CSSProperties = {
-          minWidth: 96,
-          padding: '12px 18px',
-          fontSize: 18,
-          fontWeight: 600,
-          background: isCorrect
-            ? 'var(--accent-strong)'
-            : isWrongPick
-              ? 'var(--danger)'
-              : 'var(--bg-card)',
-          color: isCorrect || isWrongPick ? '#0f0f0f' : 'var(--fg)',
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          cursor: disabled ? 'default' : 'pointer',
-          transition: 'background 0.15s, transform 0.05s',
-        };
         return (
           <button
             key={String(c.value)}
+            type="button"
+            className={`answer${isCorrect ? ' answer-ok' : isWrongPick ? ' answer-bad' : ''}`}
             disabled={disabled}
             onClick={() => onPick(c.value)}
-            style={style}
           >
+            {isCorrect && <Icon name="check" size={18} />}
+            {isWrongPick && <Icon name="cross" size={18} />}
             {c.label}
           </button>
         );

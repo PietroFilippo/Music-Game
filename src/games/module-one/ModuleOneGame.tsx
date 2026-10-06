@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { AnswerBank } from '../../components/AnswerBank';
-import { ContinueButton } from '../../components/ContinueButton';
 import { Fretboard } from '../../components/Fretboard';
 import { GameShell } from '../../components/GameShell';
 import { Keyboard } from '../../components/Keyboard';
 import { RhythmFigure } from '../../components/RhythmFigure';
 import { Staff } from '../../components/Staff';
-import { TimerBar } from '../../components/TimerBar';
 import { useI18n } from '../../hooks/useI18n';
-import { useQuizRound } from '../../hooks/useQuizRound';
+import { useQuizRound, type RoundReview } from '../../hooks/useQuizRound';
 import { fretsForVexKey } from '../../music/guitar';
 import { useSettings } from '../../SettingsContext';
 import { createQuestionDeck, type ModuleOneId, type QuestionVisual } from './questions';
@@ -33,28 +31,29 @@ export function ModuleOneGame({ id, onExit }: { id: ModuleOneId; onExit: () => v
   const { t } = useI18n();
   const newDeck = () => createQuestionDeck(id, settings.language, settings.notation);
   const [deck, setDeck] = useState(newDeck);
+  const labelOf = (value: string) => deck[quiz.progress.round].choices.find(c => c.value === value)?.label ?? value;
   const quiz = useQuizRound<string>(id, 10, {
     itemId: (): string => deck[quiz.progress.round].id,
+    review: (picked): RoundReview => {
+      const q = deck[quiz.progress.round];
+      return { prompt: q.prompt, correct: labelOf(q.correct), given: picked === undefined ? undefined : labelOf(picked) };
+    },
     onRestart: () => setDeck(newDeck()),
   });
   const question = deck[quiz.progress.round];
 
   return (
-    <GameShell title={t(`games.${id}`)} onExit={onExit} progress={quiz.progress}>
-      <div className="module-question">
+    <GameShell title={t(`games.${id}`)} onExit={onExit} quiz={quiz} feedback={<>
+      <p className="feedback-explanation">{question.explanation}</p>
+      {question.fretKey && <div className="feedback-visual">
+        <Fretboard positions={fretsForVexKey(question.fretKey).slice(0, 1)} />
+      </div>}
+    </>}>
+      <div className="question">
         <p className="question-prompt">{question.prompt}</p>
-        <div className="question-illustration"><QuestionIllustration visual={question.visual} reveal={quiz.answered} /></div>
-        {quiz.timed && <TimerBar fraction={quiz.timerFraction} />}
+        <div className="question-visual"><QuestionIllustration visual={question.visual} reveal={quiz.answered} /></div>
         <AnswerBank choices={question.choices} correctValue={question.correct} lastPick={quiz.picked}
           reveal={quiz.expired} disabled={quiz.answered} onPick={value => quiz.pick(value, value === question.correct)} />
-        {quiz.answered && <div className="answer-feedback" role="status">
-          <strong style={{ color: quiz.correct ? 'var(--accent)' : 'var(--warn)' }}>
-            {t(quiz.expired ? 'module.timeUp' : quiz.correct ? 'module.correct' : 'module.review')}
-          </strong>
-          <p>{question.explanation}</p>
-          {question.fretKey && <Fretboard positions={fretsForVexKey(question.fretKey).slice(0, 1)} />}
-        </div>}
-        {quiz.needsContinue && <ContinueButton onClick={quiz.next} />}
       </div>
     </GameShell>
   );

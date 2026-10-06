@@ -4,7 +4,6 @@ import { Menu } from './Menu';
 import { GAMES } from './games';
 import { LESSONS } from './lessons';
 import { useI18n } from './hooks/useI18n';
-import type { Tab } from './components/NavTabs';
 import type { GameId } from './types';
 
 type Route = 'menu' | 'stats' | 'tuner' | GameId | `learn:${GameId}`;
@@ -20,7 +19,6 @@ function Loading() {
 export default function App() {
   const [route, setRoute] = useState<Route>('menu');
   const back = () => setRoute('menu');
-  const navigate = (tab: Tab) => setRoute(tab === 'games' ? 'menu' : tab);
 
   let lesson = null;
   if (route.startsWith('learn:')) {
@@ -37,11 +35,11 @@ export default function App() {
           <Menu
             onPlay={setRoute}
             onLearn={id => setRoute(`learn:${id}`)}
-            onNavigate={navigate}
+            onNavigate={setRoute}
           />
         )}
-        {route === 'stats' && <Stats onNavigate={navigate} />}
-        {route === 'tuner' && <Tuner onNavigate={navigate} />}
+        {route === 'stats' && <Stats onBack={back} />}
+        {route === 'tuner' && <Tuner onBack={back} />}
         {Game && <Game key={route} onExit={back} />}
         {lesson}
       </Suspense>

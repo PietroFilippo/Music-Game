@@ -4,6 +4,19 @@ Sight-reading practice for electric guitar, built with React, TypeScript, Vite a
 
 The course has four module sections. Each can be expanded independently, and the menu remembers the selection. Modules with playable topics start expanded; modules without them start collapsed and show a Planned label. Module 2 shows its two available topics followed by the topics still to come. The [guitar curriculum roadmap](docs/ROADMAP.md) distinguishes the original four-module plan from the newly proposed topics for modules 2–4.
 
+## Interface
+
+- **Home** opens on a Continue card. It recommends the most recent topic if its last score was under 80%, otherwise the next unplayed topic, otherwise the weakest one.
+- **Module cards** show progress and can expand to list topics, each with Learn and Practice buttons.
+- **Header icons** open Stats, the Tuner and Settings.
+- **Settings** is a sheet, also reachable during a quiz.
+- **Quizzes:**
+  - The header shows a 10-segment round strip, correct and wrong counts, a countdown ring when timed, and a sound toggle.
+  - Feedback arrives in a bottom sheet, so Continue stays in one place; in automatic mode the button shows the advance delay.
+  - Results compare the score with the previous best and last play, and list each missed round with the right answer.
+- **Phones:** a selectable fretboard splits into frets 0–6 and 7–12, so each fret is a large touch target.
+- **Lessons** have a step strip and a sticky Previous/Next bar.
+
 ## Module 1
 
 All ten topics have a six-step lesson and a ten-round quiz, in Portuguese and English.
@@ -44,7 +57,7 @@ Each quiz deck draws evenly from its question types. Answers are checked on scre
 
 ## Tuner
 
-The Tuner tab checks standard tuning (E A D G B E, A = 440 Hz) through the microphone:
+The tuner (wave icon on the home screen) checks standard tuning (E A D G B E, A = 440 Hz) through the microphone:
 - It names the nearest open string and whether to tighten or loosen it.
 - It shows a cents meter; within ±5 cents counts as in tune.
 - Each open string can be played as a plucked reference tone.
@@ -53,13 +66,15 @@ Pitch detection uses the YIN algorithm with the browser's voice processing turne
 
 ## Settings and progress
 
+All settings live in one sheet, opened from the gear icon on the home screen or during a quiz.
+
 - Portuguese or English; letter names, solfege, or both.
 - Fixed note-name mapping: C = Dó/Do and B = Si (PT) / Ti (EN). Alphabetical Notation uses the question's requested format so the answer is not revealed by the notation preference.
 - Automatic advance with a configurable 0.5–2 second delay, or manual Continue.
 - Untimed practice, or 15-second Easy, 8-second Medium, and 4-second Hard rounds. Difficulty changes the time limit, not the question bank. A timeout counts as incorrect and the next round receives a fresh timer.
 - Sound effects for correct and wrong answers, timeouts and finished quizzes, on by default. They are plucked-string sounds synthesized in the browser, so the app ships no audio files. Browsers usually play sound only after the page has been clicked or tapped.
 - Local best/last scores, completed play counts, and per-play date/difficulty history.
-- Stats summarizes plays, averages, best and last scores. Per-game and global reset controls ask for confirmation and preserve settings.
+- Stats shows total plays, the overall average and topics played. Each module lists every topic's plays, average, best and last score, with low scores highlighted. Per-topic and global resets ask for confirmation and preserve settings.
 
 Progress lives in `localStorage` under `musicgame.scores`, with settings under `musicgame.settings`. Every answer is also recorded per question under `musicgame.attempts`: times seen, times correct, current correct streak, last result and average answer time. A future review of weak spots will use this history; Stats resets clear it too. Existing scores from before play-history support are preserved; averages use only plays with recorded history. Saved settings with unknown values fall back to the defaults. There is no account or cloud sync. Leaving an unfinished quiz does not record a score, and any pending automatic advance is cancelled.
 

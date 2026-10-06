@@ -6,7 +6,7 @@ import { Tuner } from './Tuner';
 
 vi.mock('./audio/sound', () => ({ playNotes: vi.fn(), playEffect: vi.fn() }));
 
-const renderTuner = () => render(<SettingsProvider><Tuner onNavigate={() => {}} /></SettingsProvider>);
+const renderTuner = () => render(<SettingsProvider><Tuner onBack={() => {}} /></SettingsProvider>);
 
 describe('tuner', () => {
   beforeEach(() => {

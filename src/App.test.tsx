@@ -23,9 +23,12 @@ describe('settings and storage', () => {
     vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(blocked);
 
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: /Idioma/ }), { target: { value: 'en' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(screen.getByText('Sight-reading practice — electric guitar')).toBeDefined();
-    const toggle = screen.getByRole('button', { name: /Module 1/ });
+    const module1 = within(screen.getByRole('region', { name: 'Music-reading foundations' }));
+    const toggle = module1.getByRole('button', { name: /Hide topics/ });
     fireEvent.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
 
@@ -39,9 +42,9 @@ describe('menu', () => {
   it('lists module 2 topics alongside the topics still to come', () => {
     localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en' }));
     render(<App />);
-    const toggle = screen.getByRole('button', { name: /Module 2/ });
-    expect(toggle.textContent).toContain('6 lessons + games · in progress');
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    const module2 = within(screen.getByRole('region', { name: 'Guitar fretboard and intervals' }));
+    expect(module2.getByText('Module 2 · in progress')).toBeDefined();
+    expect(module2.getByRole('button', { name: /Hide topics/ }).getAttribute('aria-expanded')).toBe('true');
     const section = within(document.getElementById('module-content-fretboard')!);
     expect(section.getByRole('article', { name: 'Strings and Tuning' })).toBeDefined();
     expect(section.getByRole('article', { name: 'Natural Notes on the Neck' })).toBeDefined();
@@ -51,6 +54,8 @@ describe('menu', () => {
     expect(section.getByRole('article', { name: 'Major and Minor Scales' })).toBeDefined();
     expect(section.getByRole('heading', { name: 'Coming next' })).toBeDefined();
     expect(section.getByText('Connections between staff, tablature, fretboard and rhythm')).toBeDefined();
-    expect(screen.getByRole('button', { name: /Module 3/ }).textContent).toContain('Planned');
+    const module3 = within(screen.getByRole('region', { name: 'Triads, chords and arpeggios' }));
+    expect(module3.getByText('Module 3 · planned')).toBeDefined();
+    expect(module3.getByRole('button', { name: /See planned topics/ }).getAttribute('aria-expanded')).toBe('false');
   });
 });

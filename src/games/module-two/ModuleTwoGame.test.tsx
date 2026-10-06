@@ -51,7 +51,7 @@ describe('module 2 games', () => {
     expect(Object.keys(attempts).sort()).toEqual(deck.map(q => q.id).sort());
     expect(Object.values(attempts).every(a => a.seen === 1 && a.last === 'correct')).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
-    expect(screen.getByText('Round 1 / 10')).toBeDefined();
+    expect(screen.getByText('Round 1 of 10')).toBeDefined();
     expect(getScore(id)!.plays).toBe(1);
   });
 
@@ -68,12 +68,12 @@ describe('module 2 games', () => {
     fireEvent.click(screen.getByRole('button', { name: cellName({ string: (target.string + 1) % 6, fret: 1 }) }));
     expect(screen.getByRole('status').textContent).toContain('Let’s review');
     expect(screen.getByRole('status').textContent).toContain(question.explanation);
-    expect(screen.getByText('✗')).toBeDefined();
+    expect(screen.getAllByText('✗').length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole('button', { name: cellName(target) }));
     expect(screen.queryByText('✓')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    const pct = Math.round((index / (index + 1)) * 100);
-    expect(screen.getByText(`Score: ${index}/${index + 1} (${pct}%)`)).toBeDefined();
+    expect(screen.getByLabelText(`${index} correct`)).toBeDefined();
+    expect(screen.getByLabelText('1 wrong')).toBeDefined();
   });
 });

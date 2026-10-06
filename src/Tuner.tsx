@@ -1,6 +1,6 @@
 import { playNotes } from './audio/sound';
 import { readTuning } from './audio/tuning';
-import { NavTabs, type Tab } from './components/NavTabs';
+import { Icon } from './components/Icon';
 import { useI18n } from './hooks/useI18n';
 import { useMicrophonePitch } from './hooks/useMicrophonePitch';
 import { OPEN_STRING_LETTERS, OPEN_STRING_MIDI } from './music/guitar';
@@ -10,7 +10,7 @@ import { useSettings } from './SettingsContext';
 const LOW_TO_HIGH = [5, 4, 3, 2, 1, 0];
 const STATE_ICON = { inTune: '✓', low: '↑', high: '↓' } as const;
 
-export function Tuner({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
+export function Tuner({ onBack }: { onBack: () => void }) {
   const { t } = useI18n();
   const { settings } = useSettings();
   const mic = useMicrophonePitch();
@@ -23,14 +23,13 @@ export function Tuner({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
   const listening = mic.status === 'listening';
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
-      <header style={{ marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 38, letterSpacing: -0.5 }}>{t('menu.title')}</h1>
-        <p style={{ color: 'var(--fg-muted)', marginTop: 6 }}>{t('menu.subtitle')}</p>
+    <div className="page">
+      <header className="topbar">
+        <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onBack}><Icon name="back" /></button>
+        <h1 className="topbar-title" id="tuner-title">{t('tuner.title')}</h1>
       </header>
-      <NavTabs active="tuner" onNavigate={onNavigate} />
+      <main className="page-main">
       <section className="tuner" aria-labelledby="tuner-title">
-        <h2 id="tuner-title" className="tuner-title">{t('tuner.title')}</h2>
         <p className="tuner-intro">{t('tuner.intro')}</p>
         <div className="tuner-display" aria-live="polite">
           {reading ? (
@@ -74,6 +73,7 @@ export function Tuner({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
         <p className="tuner-note">{t('tuner.hint')}</p>
         <p className="tuner-note">{t('tuner.privacy')}</p>
       </section>
+      </main>
     </div>
   );
 }
