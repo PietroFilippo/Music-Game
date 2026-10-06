@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>musicgame design mocks</title>
+<style>
+*{box-sizing:border-box}
+html{background:#111;color:#f0f0f0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;padding:32px 40px 80px}
+a{color:#6ee7b7}
+.board-head{max-width:1200px;margin:0 0 28px}
+.board-head h1{font-size:30px;margin:0 0 6px;letter-spacing:-.3px}
+.board-head .kicker{color:#a0a0a0;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 10px}
+.board-head p{max-width:820px;line-height:1.55;color:#d0d0d0;margin:8px 0}
+.board-head .nav{margin-top:10px;font-size:14px;color:#a0a0a0}
+.board-head .nav a{margin-right:16px}
+.principles{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0;padding:0;list-style:none}
+.principles li{border:1px solid #333;border-radius:999px;padding:6px 12px;font-size:13px;color:#d0d0d0}
+h2.sec{font-size:15px;letter-spacing:1.5px;text-transform:uppercase;color:#a0a0a0;margin:44px 0 14px;padding-top:18px;border-top:1px solid #2a2a2a}
+h2.sec span{color:#f0f0f0;letter-spacing:0;text-transform:none;font-size:18px;margin-left:10px}
+.row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.frame{margin:0;display:flex;flex-direction:column;gap:10px}
+.frame figcaption{max-width:390px;font-size:13px;line-height:1.5;color:#a0a0a0}
+.frame figcaption b{color:#f0f0f0;font-weight:600}
+.frame .dim{color:#777}
+.phone{position:relative;width:var(--w);height:var(--h);min-height:0;border:1px solid #3a3a3a;border-radius:28px;background:#1a1a1a;overflow:hidden;box-shadow:0 0 0 4px #141414}
+.phone.tall{height:auto;min-height:var(--h)}
+.phone .screen{height:100%;display:flex;flex-direction:column;position:relative;min-height:inherit}
+.phone.tall .screen{min-height:var(--h)}
+.fold{position:absolute;left:0;right:0;top:844px;border-top:1px dashed #6ee7b7;opacity:.7;pointer-events:none}
+.fold span{position:absolute;right:10px;top:-18px;font-size:10px;color:#6ee7b7;letter-spacing:.5px}
+.desk-wrap{overflow:hidden;border:1px solid #3a3a3a;border-radius:12px;box-shadow:0 0 0 4px #141414;position:relative}
+.desk{transform-origin:top left;background:#1a1a1a;overflow:hidden}
+.desk .screen{height:100%;display:flex;flex-direction:column}
+/* note panels */
+.paper{display:inline-block;background:#fafafa;border-radius:8px;line-height:0;padding:4px;border:1px solid #e5e5e5}
+.inkpanel{display:inline-block;background:#242424;border-radius:8px;line-height:0;padding:4px;border:1px solid #3a3a3a}
+.spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1200px}
+.spec .card{border:1px solid #2e2e2e;border-radius:12px;padding:16px;background:#161616;font-size:13px;line-height:1.6;color:#c8c8c8}
+.spec h3{margin:0 0 8px;font-size:14px;color:#f0f0f0}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid #444}
+.toggles{display:flex;gap:6px;margin-bottom:4px}
+.toggles button{font:inherit;font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #444;background:#1c1c1c;color:#ddd;cursor:pointer}
+.toggles button[aria-pressed=true]{background:#6ee7b7;color:#0f0f0f;border-color:#6ee7b7;font-weight:600}
+[data-state=correct] [data-when=wrong],[data-state=wrong] [data-when=correct]{display:none!important}
+[data-state=auto] [data-when=manual],[data-state=manual] [data-when=auto]{display:none!important}
+.callout{font-size:12px;color:#6ee7b7;border:1px dashed #3f6f5c;border-radius:8px;padding:6px 10px;max-width:390px;line-height:1.45}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;max-width:1200px}
+.gcard{display:block;border:1px solid #2e2e2e;border-radius:16px;background:#161616;padding:20px;color:#f0f0f0;text-decoration:none;transition:border-color .15s}
+.gcard:hover,.gcard:focus-visible{border-color:#6ee7b7;outline:none}
+.gcard .thumb{display:flex;gap:8px;align-items:flex-end;height:150px;margin-bottom:16px;border-radius:10px;background:#1a1a1a;border:1px solid #2a2a2a;padding:12px;overflow:hidden}
+.gcard h2{margin:0 0 6px;font-size:20px}
+.gcard p{margin:0;color:#c8c8c8;line-height:1.55;font-size:14px}
+.gcard .tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.gcard .tags span{font-size:12px;color:#a0a0a0;border:1px solid #333;border-radius:999px;padding:3px 9px}
+.gcard .open{display:inline-block;margin-top:14px;color:#6ee7b7;font-weight:600;font-size:14px}
+.common{max-width:1200px;margin-top:40px;border-top:1px solid #2a2a2a;padding-top:20px;color:#c8c8c8;font-size:14px;line-height:1.6}
+.common ul{padding-left:20px}
+.common code{background:#242424;padding:1px 6px;border-radius:4px;font-size:13px}
+.t-a .sheet{width:100%;height:84px;background:#242424;border-radius:12px 12px 0 0;border:1px solid #3a3a3a;border-bottom:0;padding:10px;display:flex;flex-direction:column;gap:8px}
+.t-a .sheet i{display:block;height:8px;border-radius:4px;background:#333}
+.t-a .sheet i.v{background:rgba(110,231,183,.25);height:14px;width:60%}
+.t-a .sheet i.btn{background:#34d399;height:16px;margin-top:auto}
+.t-b{align-items:stretch!important}
+.t-b .side{width:70px;background:#202020;border-radius:8px;display:flex;flex-direction:column;gap:6px;padding:8px}
+.t-b .side i{display:block;height:8px;border-radius:4px;background:#333}
+.t-b .main{flex:1;display:flex;flex-direction:column;gap:8px;padding:4px}
+.t-b .node{display:flex;align-items:center;gap:8px}
+.t-b .node i{display:block;flex:1;height:8px;border-radius:4px;background:#333}
+.t-c{flex-direction:column;align-items:stretch!important;justify-content:flex-end}
+.t-c i{display:block;height:10px;border-radius:4px;background:#333}
+.t-c i.big{height:22px;background:#34d399}
+.t-c i.row{height:14px;border-radius:0;background:transparent;border-bottom:1px solid #333}
+</style>
+</head>
+<body>
+
+<div class="board-head">
+  <p class="kicker">musicgame · design mocks</p>
+  <h1>Three directions for the next musicgame UI</h1>
+  <p>Static boards for a bilingual sight-reading and fretboard trainer. Each board keeps the current theme (dark surfaces, mint accent, system font, paper-style notation unless noted) and redesigns the same seven screens: home, quiz questions, answer feedback, lesson steps, results, stats and settings. Phone frames are 390 px wide; desktop frames are 1100 px scaled down. Open each board for the screens, captions and a tokens panel; see <code>../README.md</code> for the brief and the recommendation.</p>
+</div>
+
+
+<div class="gallery">
+  <a class="gcard" href="direction-a.html"><div class="thumb t-a"><div class="sheet"><i class="v"></i><i style="width:85%"></i><i class="btn"></i></div></div><h2>A — Session</h2><p>A practice-session flow: home opens on a Continue card, quizzes carry a round strip and timer ring in the header, feedback is a bottom sheet so Continue never moves, and settings are a sheet you can open mid-quiz. The neck is split into frets 0–6 and 7–12 so cells reach 43 × 40 px with no scrolling.</p><div class="tags"><span>Continue card</span><span>Bottom sheets</span><span>Split neck</span><span>Recommended base</span></div><span class="open">Open board →</span></a>
+  <a class="gcard" href="direction-b.html"><div class="thumb t-b"><div class="side"><i style="width:70%"></i><i></i><i style="width:50%"></i><i style="width:60%"></i></div><div class="main"><div class="node"><svg viewBox="0 0 22 22" width="22" height="22" role="img" aria-label="80%" class="ring"><circle cx="11.0" cy="11.0" r="9.5" fill="none" stroke="#333" stroke-width="3"/><circle cx="11.0" cy="11.0" r="9.5" fill="none" stroke="#6ee7b7" stroke-width="3" stroke-linecap="round" stroke-dasharray="47.8 59.7" transform="rotate(-90 11.0 11.0)"/></svg><i style="width:80%"></i></div><div class="node"><svg viewBox="0 0 22 22" width="22" height="22" role="img" aria-label="80%" class="ring"><circle cx="11.0" cy="11.0" r="9.5" fill="none" stroke="#333" stroke-width="3"/><circle cx="11.0" cy="11.0" r="9.5" fill="none" stroke="#6ee7b7" stroke-width="3" stroke-linecap="round" stroke-dasharray="47.8 59.7" transform="rotate(-90 11.0 11.0)"/></svg><i style="width:60%"></i></div><div class="node"><svg viewBox="0 0 22 22" width="22" height="22" role="img" aria-label="0%" class="ring"><circle cx="11.0" cy="11.0" r="9.5" fill="none" stroke="#333" stroke-width="3"/></svg><i style="width:70%"></i></div><div class="node"><svg viewBox="0 0 22 22" width="22" height="22" role="img" aria-label="0%" class="ring"><circle cx="11.0" cy="11.0" r="9.5" fill="none" stroke="#333" stroke-width="3"/></svg><i style="width:50%"></i></div></div></div><h2>B — Map</h2><p>A progress dashboard: sidebar with module rings on desktop, module cards unfolding into a path of topic nodes on mobile, round dots and a card-attached timer in quizzes, in-place feedback with an auto-advance fill on Continue, and a real stats dashboard. The neck scrolls at 44 px cells with zone chips.</p><div class="tags"><span>Progress rings</span><span>Topic path</span><span>Stats dashboard</span><span>Scrolling neck</span></div><span class="open">Open board →</span></a>
+  <a class="gcard" href="direction-c.html"><div class="thumb t-c"><i class="big"></i><i class="row"></i><i class="row"></i><i class="row"></i><i style="width:40%;height:6px"></i></div><h2>C — Plain</h2><p>One column, big targets, nothing nested: section headers instead of cards, 64 px rows, 56 px buttons, a bottom tab bar, and a grid of fret buttons under a context neck for fretboard questions. Notation is inverted to light ink on dark. Least to build, easiest one-handed.</p><div class="tags"><span>Single column</span><span>Fret-button grid</span><span>Inverted notation</span><span>Least effort</span></div><span class="open">Open board →</span></a>
+</div>
+<div class="common">
+  <b style="color:#f0f0f0">Shared across all three</b>
+  <ul>
+    <li>Settings leave the menu header; Practice becomes the primary action and Learn the secondary one; every module shows its progress and the next recommended topic.</li>
+    <li>Correct/wrong always combine colour, an icon and words; all text meets WCAG AA on the dark surfaces; every control is at least 44 px; focus rings are 2 px mint with a 3 px offset.</li>
+    <li>Music is kept as in the app: standard tuning with string 1 (high E) on top, naturals on string 1 at E0 F1 G3 A5 B7 C8 D10 E12, inlays at 3 5 7 9 and a double at 12, and written pitch an octave above sounding pitch (open string 1 = E5 in the top space; string 1 fret 7 = B5 above the staff).</li>
+    <li>Each board has small state toggles (correct / wrong, auto / manual) implemented with a few lines of vanilla JS; everything else is inline CSS and SVG and works offline.</li>
+  </ul>
+</div>
+
+<script>
+document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){
+ var box=b.hasAttribute('data-target')?document.getElementById(b.getAttribute('data-target')):b.closest('[data-states]');
+ if(!box)return;box.setAttribute('data-state',b.getAttribute('data-toggle'));
+ b.parentElement.querySelectorAll('[data-toggle]').forEach(function(o){o.setAttribute('aria-pressed',o===b?'true':'false');});});});
+</script>
+</body>
+</html>

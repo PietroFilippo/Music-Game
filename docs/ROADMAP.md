@@ -114,6 +114,15 @@ The quizzes already play short plucked-string sound effects for right and wrong 
 3. Add the "Review weak spots" mode once enough history exists.
 4. Add the play-to-answer mode to reading quizzes if the tuner works reliably on real setups.
 
+## Interface refresh (proposed)
+
+Design mockups for a simpler, clearer interface are in [`docs/design/`](design/README.md). It has three directions, each with home, quiz, feedback, lesson, results, stats and settings screens for phone and desktop:
+- **A — Session:** a Continue-first home, a feedback bottom sheet, and a settings sheet usable mid-quiz.
+- **B — Map:** a progress dashboard.
+- **C — Plain:** one column with large touch targets.
+
+The brief recommends A, borrowing C's type scale and touch targets and B's grouped stats. Before building, decide where the Tuner tab goes: the mockups were drawn before it existed and remove the top navigation tabs. The mockups are static references, not part of the app.
+
 ## Teaching and implementation principles
 
 - Use the guitar fretboard as the main visual in future modules, supported by tablature and staff notation. Keep the existing keyboard lesson as a short reference for understanding note layout.
