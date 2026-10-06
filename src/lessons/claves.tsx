@@ -34,7 +34,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'E a guitarra?',
-      text: 'Partituras de guitarra usam sempre a clave de sol. Com ela, o Sol da 2ª linha fica nessas posições do braço. As outras claves você vai reconhecer em partituras de outros instrumentos.',
+      text: 'Partituras de guitarra usam sempre a clave de sol e são escritas uma oitava acima do som real. Com ela, o Sol da 2ª linha fica nessas posições do braço — a mais usada é a 3ª corda solta. As outras claves você vai reconhecer em partituras de outros instrumentos.',
     },
     {
       title: 'Como jogar',
@@ -60,7 +60,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'What about the guitar?',
-      text: "Guitar sheet music always uses the treble clef. With it, the G on line 2 lives at these fretboard spots. You'll meet the other clefs in music for other instruments.",
+      text: "Guitar sheet music always uses the treble clef and is written an octave above how it sounds. With it, the G on line 2 lives at these fretboard spots — most often the open 3rd string. You'll meet the other clefs in music for other instruments.",
     },
     {
       title: 'How to play',

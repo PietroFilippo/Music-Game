@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useI18n } from './hooks/useI18n';
 import { getScore } from './store/scores';
+import { readStored, writeStored } from './store/storage';
 import { SettingsBar } from './components/SettingsBar';
 import { NavTabs } from './components/NavTabs';
-import { hasLesson } from './lessons';
 import type { GameId } from './types';
 import { COURSE_MODULES } from './curriculum';
 
@@ -11,14 +11,12 @@ const EXPANSION_KEY = 'musicgame.modules';
 
 function loadExpanded(): Record<string, boolean> {
   const defaults = Object.fromEntries(COURSE_MODULES.map(module => [module.id, module.games.length > 0]));
-  try {
-    const saved: unknown = JSON.parse(localStorage.getItem(EXPANSION_KEY) ?? '{}');
-    if (saved && typeof saved === 'object') {
-      for (const [id, value] of Object.entries(saved)) {
-        if (id in defaults && typeof value === 'boolean') defaults[id] = value;
-      }
+  const saved = readStored(EXPANSION_KEY);
+  if (saved && typeof saved === 'object') {
+    for (const [id, value] of Object.entries(saved)) {
+      if (id in defaults && typeof value === 'boolean') defaults[id] = value;
     }
-  } catch { /* Use defaults if storage is unavailable or contains invalid data. */ }
+  }
   return defaults;
 }
 
@@ -34,7 +32,7 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
   const toggle = (id: string) => {
     const next = { ...expanded, [id]: !expanded[id] };
     setExpanded(next);
-    try { localStorage.setItem(EXPANSION_KEY, JSON.stringify(next)); } catch { /* Toggling still works without persistence. */ }
+    writeStored(EXPANSION_KEY, next);
   };
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
@@ -86,12 +84,11 @@ export function Menu({ onPlay, onLearn, onStats }: Props) {
                 <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
                   <button
                     onClick={() => onLearn(id)}
-                    disabled={!hasLesson(id)}
                     style={{
                       flex: 1,
                       padding: '10px 14px',
                       background: 'transparent',
-                      color: hasLesson(id) ? 'var(--fg)' : 'var(--fg-muted)',
+                      color: 'var(--fg)',
                       border: '1px solid var(--border)',
                       borderRadius: 8,
                       fontSize: 14,

@@ -29,4 +29,16 @@ describe.each([
     act(() => vi.advanceTimersByTime(100));
     expect(answers().every(b => (b as HTMLButtonElement).disabled)).toBe(true);
   });
+
+  it('cancels a pending automatic advance when the player leaves', () => {
+    vi.useFakeTimers();
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', advanceMode: 'auto' }));
+    const { unmount } = render(<SettingsProvider><Game onExit={() => {}} /></SettingsProvider>);
+    // The test environment keeps a couple of its own timers; count only the game's.
+    const baseline = vi.getTimerCount();
+    fireEvent.click(within(screen.getByRole('main')).getAllByRole('button')[0]);
+    expect(vi.getTimerCount()).toBe(baseline + 1);
+    unmount();
+    expect(vi.getTimerCount()).toBe(baseline);
+  });
 });

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useGameProgress } from '../../hooks/useGameProgress';
+import { useMemo } from 'react';
+import { useQuizRound } from '../../hooks/useQuizRound';
 import { useI18n } from '../../hooks/useI18n';
 import { useSettings } from '../../SettingsContext';
 import { GameShell } from '../../components/GameShell';
@@ -8,7 +8,6 @@ import { AnswerBank } from '../../components/AnswerBank';
 import { Fretboard } from '../../components/Fretboard';
 import { ContinueButton } from '../../components/ContinueButton';
 import { TimerBar } from '../../components/TimerBar';
-import { useAnswerTimer, DIFFICULTY_SECONDS } from '../../hooks/useAnswerTimer';
 import { fretsForVexKey } from '../../music/guitar';
 import { TREBLE_POSITIONS, pickRandom, shuffle, type StaffPosition } from '../../music/theory';
 import { noteLabel } from '../../music/notes';
@@ -25,66 +24,34 @@ function makeQuestion() {
   return { target, choices };
 }
 
-const keyOf = (p: StaffPosition) => `${p.kind}-${p.index}` as const;
+const keyOf = (p: StaffPosition) => `${p.kind}-${p.index}`;
 
 export function PautaI({ onExit }: { onExit: () => void }) {
-  const progress = useGameProgress('pauta-i', ROUNDS);
+  const quiz = useQuizRound<string>('pauta-i', ROUNDS);
   const { t } = useI18n();
   const { settings } = useSettings();
-  const q = useMemo(makeQuestion, [progress.round]);
-  const [picked, setPicked] = useState<StaffPosition | null>(null);
-  const [expired, setExpired] = useState(false);
-  const answered = !!picked || expired;
-
-  const finishRound = (answer: StaffPosition | null) => {
-    progress.submit(answer ? keyOf(answer) === keyOf(q.target) : false);
-    setPicked(null);
-    setExpired(false);
-  };
-
-  const onPick = (val: string) => {
-    if (answered) return;
-    const found = q.choices.find(c => keyOf(c) === val);
-    if (!found) return;
-    setPicked(found);
-    if (settings.advanceMode === 'auto') {
-      window.setTimeout(() => finishRound(found), settings.autoAdvanceDelayMs);
-    }
-  };
-
-  const seconds = DIFFICULTY_SECONDS[settings.difficulty];
-  const timer = useAnswerTimer({
-    seconds,
-    running: !answered && !progress.done,
-    resetKey: progress.round,
-    onExpire: () => {
-      setExpired(true);
-      if (settings.advanceMode === 'auto') {
-        window.setTimeout(() => finishRound(null), settings.autoAdvanceDelayMs);
-      }
-    },
-  });
+  const q = useMemo(makeQuestion, [quiz.progress.round]);
 
   const labelFor = (p: StaffPosition) =>
     `${p.kind === 'line' ? t('common.line') : t('common.space')} ${p.index}`;
 
   return (
-    <GameShell title={t('games.pauta-i')} onExit={onExit} progress={progress}>
+    <GameShell title={t('games.pauta-i')} onExit={onExit} progress={quiz.progress}>
       <div style={{ textAlign: 'center' }}>
         <p style={{ color: 'var(--fg-muted)', marginBottom: 14 }}>{t('prompts.pauta-i')}</p>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
           <Staff noteVexKey={q.target.vexKey} />
         </div>
-        {seconds !== null && <TimerBar fraction={timer.fraction} />}
+        {quiz.timed && <TimerBar fraction={quiz.timerFraction} />}
         <AnswerBank
           choices={q.choices.map(c => ({ value: keyOf(c), label: labelFor(c) }))}
-          onPick={onPick}
-          disabled={answered}
-          lastPick={picked ? keyOf(picked) : undefined}
+          onPick={value => quiz.pick(value, value === keyOf(q.target))}
+          disabled={quiz.answered}
+          lastPick={quiz.picked}
           correctValue={keyOf(q.target)}
-          reveal={expired}
+          reveal={quiz.expired}
         />
-        {answered && (
+        {quiz.answered && (
           <div style={{ marginTop: 28 }}>
             <div
               style={{
@@ -100,9 +67,7 @@ export function PautaI({ onExit }: { onExit: () => void }) {
             <Fretboard positions={fretsForVexKey(q.target.vexKey).slice(0, 1)} />
           </div>
         )}
-        {answered && settings.advanceMode === 'manual' && (
-          <ContinueButton onClick={() => finishRound(picked)} />
-        )}
+        {quiz.needsContinue && <ContinueButton onClick={quiz.next} />}
       </div>
     </GameShell>
   );

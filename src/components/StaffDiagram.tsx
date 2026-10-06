@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Renderer, Stave, StaveNote, Formatter } from 'vexflow';
+import { Renderer, Stave, StaveNote, Formatter } from 'vexflow/bravura';
 
 export interface DiagramNote {
   vexKey: string;
@@ -65,11 +65,14 @@ export function StaffDiagram({
         ctx.fillText(String(n), staveX + staveW + 10, y + 4);
       }
     }
+    // Labels share one row below the staff, lowered if ledger-line notes reach it.
+    const lowestNote = Math.max(0, ...staveNotes.flatMap(n => n.getYs()));
+    const labelY = Math.max(stave.getYForLine(4) + 34, lowestNote + 26);
     notes.forEach((n, i) => {
       if (!n.label) return;
       ctx.setFillStyle(n.highlight ? HIGHLIGHT : INK);
       const x = staveNotes[i].getAbsoluteX();
-      ctx.fillText(n.label, x - n.label.length * 3, stave.getYForLine(4) + 34);
+      ctx.fillText(n.label, x - n.label.length * 3, labelY);
     });
   }, [clef, notes, numberLines, numberSpaces, width, height]);
 

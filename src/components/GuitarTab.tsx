@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Renderer, TabStave, TabNote, Formatter } from 'vexflow';
+import { Renderer, TabStave, TabNote, Formatter } from 'vexflow/bravura';
 import type { FretPosition } from '../music/guitar';
 
 interface Props {
@@ -10,6 +10,11 @@ interface Props {
 
 export function GuitarTab({ positions, width = 280, height = 140 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const first = positions[0];
+  // Redraw only when the shown position changes, not for every new array
+  // (timed rounds re-render ten times a second).
+  const string = first?.string;
+  const fret = first?.fret;
 
   useEffect(() => {
     const el = ref.current;
@@ -20,15 +25,14 @@ export function GuitarTab({ positions, width = 280, height = 140 }: Props) {
     const ctx = renderer.getContext();
     const stave = new TabStave(10, 10, width - 30);
     stave.addClef('tab').setContext(ctx).draw();
-    if (positions.length) {
-      const p = positions[0];
+    if (string !== undefined && fret !== undefined) {
       const note = new TabNote({
-        positions: [{ str: p.string + 1, fret: p.fret }],
+        positions: [{ str: string + 1, fret }],
         duration: 'w',
       });
       Formatter.FormatAndDraw(ctx, stave, [note]);
     }
-  }, [positions, width, height]);
+  }, [string, fret, width, height]);
 
   return <div className="vex-stave" ref={ref} />;
 }

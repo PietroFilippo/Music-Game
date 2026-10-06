@@ -35,7 +35,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'Na guitarra',
-      text: 'Notas vizinhas ficam perto no braço: na corda mi aguda, Mi (solta), Fá (casa 1) e Sol (casa 3). Subir na pauta é subir no braço. No jogo, a posição no braço aparece depois de cada resposta.',
+      text: 'Notas vizinhas também ficam perto no braço. Na 4ª corda (Ré), o Mi da 1ª linha está na casa 2, o Fá na casa 3 e o Sol na casa 5: subir na pauta é subir no braço, na mesma corda. No jogo, a posição no braço aparece depois de cada resposta.',
     },
     {
       title: 'Como jogar',
@@ -61,7 +61,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'On the guitar',
-      text: 'Neighboring notes sit close on the neck: on the high E string, E (open), F (fret 1) and G (fret 3). Up the staff means up the neck. In the game, the fretboard position shows after every answer.',
+      text: 'Neighboring notes sit close together on the neck too. On the 4th string (D), the E on line 1 is at fret 2, F at fret 3 and G at fret 5: moving up the staff means moving up the neck on the same string. In the game, the fretboard position shows after every answer.',
     },
     {
       title: 'How to play',
@@ -72,10 +72,11 @@ const COPY: Record<Language, StepCopy[]> = {
 
 const CYCLE: LetterNote[] = [...LETTERS, 'C'];
 
-const E_STRING_FRETS: FretPosition[] = [
-  { string: 0, fret: 0 },
-  { string: 0, fret: 1 },
-  { string: 0, fret: 3 },
+// Written E4, F4 and G4 on the 4th string.
+const D_STRING_FRETS: FretPosition[] = [
+  { string: 3, fret: 2 },
+  { string: 3, fret: 3 },
+  { string: 3, fret: 5 },
 ];
 
 function Text({ children }: { children: ReactNode }) {
@@ -189,7 +190,7 @@ export function PautaIILesson({ onExit, onPractice }: LessonProps) {
             }}
           >
             <StaffDiagram clef="treble" width={300} height={175} notes={guitarNotes} />
-            <Fretboard positions={E_STRING_FRETS} highlightFirst={false} />
+            <Fretboard positions={D_STRING_FRETS} highlightFirst={false} />
           </div>
         </>
       ),

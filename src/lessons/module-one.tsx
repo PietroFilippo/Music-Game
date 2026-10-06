@@ -6,8 +6,10 @@ import { RhythmFigure } from '../components/RhythmFigure';
 import { StaffDiagram } from '../components/StaffDiagram';
 import { SOUND_PROPERTIES, type ModuleOneId, type SoundProperty } from '../games/module-one/questions';
 import { useI18n } from '../hooks/useI18n';
-import { LETTERS, noteLabel, type LetterNote } from '../music/notes';
+import { fretsForVexKey } from '../music/guitar';
+import { LETTERS, noteLabel, shortNoteLabel, type LetterNote } from '../music/notes';
 import { beatLabel, RHYTHM_VALUES, type RhythmId } from '../music/rhythm';
+import { TREBLE_POSITIONS } from '../music/theory';
 import { useSettings } from '../SettingsContext';
 import type { LessonProps } from './index';
 
@@ -58,9 +60,11 @@ export function ModuleOneLesson({ id, onExit, onPractice }: LessonProps & { id: 
         'Treble clef anchors G on line 2. One step above is A, then B. One step below is F, then E. Each step moves from a line to a space or from a space to a line.',
         staff(['e/4', 'f/4', 'g/4', 'a/4', 'b/4'])),
       step('Encontre no braço', 'Find it on the fretboard',
-        'Na corda mi aguda, as casas 0, 1, 3, 5 e 7 dão Mi, Fá, Sol, Lá e Si. Algumas notas agudas desta atividade passam da casa 12. O desenho depois da resposta mostra uma posição possível para a nota.',
-        'On the high E string, frets 0, 1, 3, 5 and 7 give E, F, G, A and B. Some high notes in this activity go beyond fret 12. The feedback diagram shows one possible position for the note.',
-        <Fretboard positions={[0, 1, 3, 5, 7].map(fret => ({ string: 0, fret }))} highlightFirst={false} />),
+        'A música para guitarra é escrita uma oitava acima do som real. Na primeira posição, as notas da pauta ocupam quatro cordas: Mi e Fá na 4ª (casas 2 e 3), Sol e Lá na 3ª (solta e casa 2), Si, Dó e Ré na 2ª (solta, casas 1 e 3) e Mi e Fá na 1ª (solta e casa 1). O desenho depois da resposta mostra essa posição.',
+        'Guitar music is written an octave above how it sounds. In first position, the staff notes use four strings: E and F on the 4th (frets 2 and 3), G and A on the 3rd (open and fret 2), B, C and D on the 2nd (open, frets 1 and 3), and E and F on the 1st (open and fret 1). The feedback diagram shows this position.',
+        <Fretboard frets={5} markers={TREBLE_POSITIONS.map(p => ({
+          ...fretsForVexKey(p.vexKey)[0], label: shortNoteLabel(p.letter, settings.notation, lang),
+        }))} />),
       step('Como jogar', 'How to play',
         'Leia a nota na clave de sol e escolha o nome correto. São dez rodadas, cobrindo as cinco linhas e os quatro espaços. Depois de responder, revise o nome, a posição na pauta e a posição no braço.',
         'Read the treble-clef note and choose its name. Ten rounds cover the five lines and four spaces. After answering, review the name, staff position and fretboard position.',
@@ -136,8 +140,8 @@ export function ModuleOneLesson({ id, onExit, onPractice }: LessonProps & { id: 
         'Here C in space 3 moves down to B on line 3, then A in space 2. Each move to the neighboring staff position is one step through the natural-note sequence.',
         staff(['c/5', 'b/4', 'a/4'])),
       step('Desça na mesma corda', 'Go down on one string',
-        'Na corda mi aguda, Si na casa 7, Lá na 5 e Sol na 3 formam uma sequência descendente. Passos entre notas naturais nem sempre ocupam o mesmo número de casas: Mi–Fá e Si–Dó são vizinhas.',
-        'On the high E string, B at fret 7, A at 5 and G at 3 form a descending sequence. Natural-note steps do not always span the same number of frets: E–F and B–C are adjacent.',
+        'Na corda mi aguda, Si na casa 7, Lá na 5 e Sol na 3 formam uma sequência descendente. Passos entre notas naturais nem sempre ocupam o mesmo número de casas: Mi–Fá e Si–Dó ficam a uma casa de distância.',
+        'On the high E string, B at fret 7, A at 5 and G at 3 form a descending sequence. Natural-note steps do not always span the same number of frets: E–F and B–C are one fret apart.',
         <Fretboard positions={[7, 5, 3].map(fret => ({ string: 0, fret }))} highlightFirst={false} />),
       step('Como jogar', 'How to play',
         'Leia a nota inicial e desça de um a quatro passos, conforme o pedido. Os pontos de interrogação mostram quantas mudanças fazer. Escolha a nota final e confira o caminho completo após responder.',
@@ -151,8 +155,8 @@ export function ModuleOneLesson({ id, onExit, onPractice }: LessonProps & { id: 
         <>{property('pitch', 'grave ↔ agudo', 'low ↔ high')}{property('duration', 'curto ↔ longo', 'short ↔ long')}
           {property('dynamics', 'fraco ↔ forte', 'quiet ↔ loud')}{property('timbre', 'caráter do som', 'tone color')}</>),
       step('Altura: grave ou agudo', 'Pitch: low or high',
-        'Uma nota grave tem altura menor; uma aguda tem altura maior. Na mesma corda da guitarra, aumentar a casa normalmente deixa a nota mais aguda. Isso não quer dizer aumentar o volume.',
-        'A low note has lower pitch; a high note has higher pitch. On the same guitar string, moving to a higher fret normally raises the pitch. This does not mean turning up the volume.',
+        'Uma nota grave tem altura menor; uma aguda tem altura maior. Na mesma corda da guitarra, ir para uma casa mais alta deixa a nota mais aguda. Isso não quer dizer aumentar o volume.',
+        'A low note has lower pitch; a high note has higher pitch. On the same guitar string, moving to a higher fret raises the pitch. This does not mean turning up the volume.',
         property('pitch', 'Mi → Sol: mais agudo', 'E → G above it: higher pitch')),
       step('Duração: curto ou longo', 'Duration: short or long',
         'Duração é o tempo durante o qual um som permanece. Deixar a corda soar ou abafá-la cedo muda a duração. É diferente do andamento, que é a velocidade do pulso musical.',

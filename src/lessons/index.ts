@@ -1,4 +1,5 @@
 import { createElement, lazy, type ComponentType } from 'react';
+import type { ModuleOneId } from '../games/module-one/questions';
 import type { GameId } from '../types';
 
 export interface LessonProps {
@@ -20,12 +21,8 @@ export const LESSONS: Record<GameId, ComponentType<LessonProps>> = {
   'notas-teclado': moduleLesson('notas-teclado'),
 };
 
-function moduleLesson(id: import('../games/module-one/questions').ModuleOneId) {
+function moduleLesson(id: ModuleOneId) {
   return lazy(() => import('./module-one').then(m => ({
     default: (props: LessonProps) => createElement(m.ModuleOneLesson, { ...props, id }),
   })));
-}
-
-export function hasLesson(id: GameId): boolean {
-  return id in LESSONS;
 }

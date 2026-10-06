@@ -1,23 +1,16 @@
 import type { Difficulty, GameId, ScoreRecord } from '../types';
+import { readStored, removeStored, writeStored } from './storage';
 
 const KEY = 'musicgame.scores';
 
 function readAll(): Partial<Record<GameId, ScoreRecord>> {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return {};
-    const all = JSON.parse(raw) as Partial<Record<GameId, ScoreRecord>>;
-    for (const rec of Object.values(all)) {
-      if (rec && !Array.isArray(rec.history)) rec.history = [];
-    }
-    return all;
-  } catch {
-    return {};
+  const saved = readStored(KEY);
+  if (!saved || typeof saved !== 'object') return {};
+  const all = saved as Partial<Record<GameId, ScoreRecord>>;
+  for (const rec of Object.values(all)) {
+    if (rec && typeof rec === 'object' && !Array.isArray(rec.history)) rec.history = [];
   }
-}
-
-function writeAll(all: Partial<Record<GameId, ScoreRecord>>): void {
-  localStorage.setItem(KEY, JSON.stringify(all));
+  return all;
 }
 
 export function getScore(id: GameId): ScoreRecord | undefined {
@@ -35,16 +28,16 @@ export function recordScore(id: GameId, percent: number, difficulty: Difficulty)
     history: [...(prev?.history ?? []), { percent, date: new Date().toISOString(), difficulty }],
   };
   all[id] = next;
-  writeAll(all);
+  writeStored(KEY, all);
   return next;
 }
 
 export function resetScore(id: GameId): void {
   const all = readAll();
   delete all[id];
-  writeAll(all);
+  writeStored(KEY, all);
 }
 
 export function resetAllScores(): void {
-  localStorage.removeItem(KEY);
+  removeStored(KEY);
 }

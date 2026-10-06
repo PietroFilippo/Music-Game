@@ -1,8 +1,8 @@
-import { useSettings } from '../SettingsContext';
+import { AUTO_DELAY_MAX_MS, AUTO_DELAY_MIN_MS, useSettings } from '../SettingsContext';
 import { useI18n } from '../hooks/useI18n';
 import { DIFFICULTY_SECONDS } from '../hooks/useAnswerTimer';
 import type { CSSProperties } from 'react';
-import type { AdvanceMode, Difficulty, Language, Notation } from '../types';
+import { ADVANCE_MODES, DIFFICULTIES, type Difficulty, type Language, type Notation } from '../types';
 
 const ctrlStyle = {
   background: 'var(--bg-card)',
@@ -40,8 +40,6 @@ export function SettingsBar() {
   const { settings, setLanguage, setNotation, setAdvanceMode, setAutoAdvanceDelayMs, setDifficulty } =
     useSettings();
   const { t } = useI18n();
-  const advanceModes: AdvanceMode[] = ['auto', 'manual'];
-  const difficulties: Difficulty[] = ['none', 'easy', 'medium', 'hard'];
   const autoAdvance = settings.advanceMode === 'auto';
 
   return (
@@ -81,10 +79,10 @@ export function SettingsBar() {
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         {t('settings.advance')}:
         <div style={segmentStyle}>
-          {advanceModes.map((mode, index) => {
+          {ADVANCE_MODES.map((mode, index) => {
             const active = settings.advanceMode === mode;
             const style = segmentButtonStyle(active);
-            if (index === advanceModes.length - 1) style.borderRight = 'none';
+            if (index === ADVANCE_MODES.length - 1) style.borderRight = 'none';
 
             return (
               <button
@@ -107,7 +105,7 @@ export function SettingsBar() {
           value={settings.difficulty}
           onChange={e => setDifficulty(e.target.value as Difficulty)}
         >
-          {difficulties.map(d => {
+          {DIFFICULTIES.map(d => {
             const s = DIFFICULTY_SECONDS[d];
             return (
               <option key={d} value={d}>
@@ -128,8 +126,8 @@ export function SettingsBar() {
         {t('settings.autoDelay')}:
         <input
           type="range"
-          min={500}
-          max={2000}
+          min={AUTO_DELAY_MIN_MS}
+          max={AUTO_DELAY_MAX_MS}
           step={100}
           value={settings.autoAdvanceDelayMs}
           disabled={!autoAdvance}

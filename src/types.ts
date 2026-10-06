@@ -4,10 +4,15 @@ export const GAME_IDS = [
   'propriedades-som', 'notas-teclado',
 ] as const;
 export type GameId = typeof GAME_IDS[number];
-export type Language = 'pt' | 'en';
-export type Notation = 'letter' | 'solfege' | 'both';
-export type AdvanceMode = 'auto' | 'manual';
-export type Difficulty = 'none' | 'easy' | 'medium' | 'hard';
+
+export const LANGUAGES = ['pt', 'en'] as const;
+export type Language = typeof LANGUAGES[number];
+export const NOTATIONS = ['letter', 'solfege', 'both'] as const;
+export type Notation = typeof NOTATIONS[number];
+export const ADVANCE_MODES = ['auto', 'manual'] as const;
+export type AdvanceMode = typeof ADVANCE_MODES[number];
+export const DIFFICULTIES = ['none', 'easy', 'medium', 'hard'] as const;
+export type Difficulty = typeof DIFFICULTIES[number];
 
 export interface PlayRecord {
   percent: number;

@@ -37,7 +37,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'Na guitarra',
-      text: 'Com a clave de sol, a nota da 1ª linha é Mi (E) — a corda mi aguda solta da guitarra. A mesma nota também aparece em outras casas do braço. No jogo, após cada resposta, você vê a posição no braço.',
+      text: 'Com a clave de sol, a nota da 1ª linha é Mi (E). Na guitarra, ela fica na 4ª corda, casa 2 — e o mesmo som aparece na 5ª corda, casa 7, e na 6ª, casa 12. A música para guitarra é escrita uma oitava acima do som real; por isso a 1ª corda (Mi aguda) solta fica no 4º espaço, não na 1ª linha. No jogo, após cada resposta, você vê a posição no braço.',
     },
     {
       title: 'Como jogar',
@@ -64,7 +64,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'On the guitar',
-      text: 'With the treble clef, the note on line 1 is E (mi) — the open high E string of the guitar. The same note also lives in other spots on the neck. In the game, you see the fretboard position after every answer.',
+      text: 'With the treble clef, the note on line 1 is E (mi). On guitar it is the 4th string at fret 2 — and the same pitch is also at fret 7 on the 5th string and fret 12 on the 6th. Guitar music is written an octave above how it sounds, so the open 1st string (high E) sits in the 4th space, not on line 1. In the game, you see the fretboard position after every answer.',
     },
     {
       title: 'How to play',

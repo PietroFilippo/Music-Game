@@ -2,8 +2,7 @@ import type { ReactNode } from 'react';
 import { LessonShell, type LessonStep } from '../components/LessonShell';
 import { StaffDiagram, type DiagramNote } from '../components/StaffDiagram';
 import { Fretboard } from '../components/Fretboard';
-import { noteLabel, type LetterNote } from '../music/notes';
-import type { FretPosition } from '../music/guitar';
+import { noteLabel, shortNoteLabel, type LetterNote } from '../music/notes';
 import { useI18n } from '../hooks/useI18n';
 import { useSettings } from '../SettingsContext';
 import type { Language } from '../types';
@@ -34,7 +33,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'Na guitarra',
-      text: 'As três caem na corda mi aguda: Sol na casa 3, Lá na casa 5 e Si na casa 7 — exatamente nas casas com marcação no braço. No jogo, depois de responder, você vê a posição em tablatura e no braço.',
+      text: 'As três ficam na primeira posição: Sol é a 3ª corda solta, Lá é a 3ª corda na casa 2 e Si é a 2ª corda solta. São algumas das primeiras notas que guitarristas aprendem a ler. No jogo, depois de responder, você vê a posição em tablatura e no braço.',
     },
     {
       title: 'Como jogar',
@@ -60,7 +59,7 @@ const COPY: Record<Language, StepCopy[]> = {
     },
     {
       title: 'On the guitar',
-      text: 'All three land on the high E string: G at fret 3, A at fret 5 and B at fret 7 — exactly on the marked frets. In the game, after answering you see the position in tab and on the fretboard.',
+      text: 'All three sit in first position: G is the open 3rd string, A is the 3rd string at fret 2, and B is the open 2nd string. They are among the first notes guitarists learn to read. In the game, after answering you see the position in tab and on the fretboard.',
     },
     {
       title: 'How to play',
@@ -68,12 +67,6 @@ const COPY: Record<Language, StepCopy[]> = {
     },
   ],
 };
-
-const GAB_FRETS: FretPosition[] = [
-  { string: 0, fret: 3 },
-  { string: 0, fret: 5 },
-  { string: 0, fret: 7 },
-];
 
 function Text({ children }: { children: ReactNode }) {
   return <p style={{ maxWidth: 560, margin: '0 auto 22px' }}>{children}</p>;
@@ -84,6 +77,13 @@ export function ClaveSolLesson({ onExit, onPractice }: LessonProps) {
   const { settings } = useSettings();
   const c = COPY[lang];
   const labelFor = (letter: LetterNote) => noteLabel(letter, settings.notation, lang);
+
+  // Written G4, A4 and B4 in first position.
+  const gabFrets = [
+    { string: 2, fret: 0, label: shortNoteLabel('G', settings.notation, lang) },
+    { string: 2, fret: 2, label: shortNoteLabel('A', settings.notation, lang) },
+    { string: 1, fret: 0, label: shortNoteLabel('B', settings.notation, lang) },
+  ];
 
   const gabNotes = (highlight: LetterNote[]): DiagramNote[] => [
     { vexKey: 'g/4', label: labelFor('G'), highlight: highlight.includes('G') },
@@ -167,7 +167,7 @@ export function ClaveSolLesson({ onExit, onPractice }: LessonProps) {
             }}
           >
             <StaffDiagram clef="treble" width={340} height={175} notes={gabNotes(['G', 'A', 'B'])} />
-            <Fretboard positions={GAB_FRETS} highlightFirst={false} />
+            <Fretboard markers={gabFrets} frets={5} />
           </div>
         </>
       ),

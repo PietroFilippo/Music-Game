@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Renderer, Stave, StaveNote, Formatter } from 'vexflow';
+import { Accidental, Renderer, Stave, StaveNote, Formatter } from 'vexflow/bravura';
 
 interface Props {
   clef?: 'treble' | 'alto' | 'bass';
@@ -22,6 +22,7 @@ export function Staff({ clef = 'treble', noteVexKey, width = 280, height = 140 }
     stave.addClef(clef).setContext(ctx).draw();
     if (noteVexKey) {
       const note = new StaveNote({ clef, keys: [noteVexKey], duration: 'w' });
+      if (noteVexKey.includes('#')) note.addModifier(new Accidental('#'), 0);
       Formatter.FormatAndDraw(ctx, stave, [note]);
     }
   }, [clef, noteVexKey, width, height]);
