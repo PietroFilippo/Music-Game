@@ -20,7 +20,8 @@ export interface BoardView {
 export type QuestionVisual =
   | { kind: 'board'; board: BoardView }
   | { kind: 'tab'; position: FretPosition }
-  | { kind: 'staff'; vexKey: string };
+  | { kind: 'staff'; vexKey: string }
+  | { kind: 'text'; text: string };
 
 export interface Choice {
   value: string;
@@ -51,6 +52,7 @@ export interface ModuleTwoQuestion {
 export function createCopy(language: Language, notation: Notation) {
   const text = (pt: string, en: string) => (language === 'pt' ? pt : en);
   return {
+    language,
     text,
     name: (letter: LetterNote) => noteLabel(letter, notation, language),
     short: (letter: LetterNote) => shortNoteLabel(letter, notation, language),

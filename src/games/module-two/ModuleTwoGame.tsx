@@ -17,6 +17,7 @@ function QuestionIllustration({ visual }: { visual: QuestionVisual }) {
   switch (visual.kind) {
     case 'tab': return <GuitarTab positions={[visual.position]} width={220} />;
     case 'staff': return <Staff noteVexKey={visual.vexKey} />;
+    case 'text': return <div className="note-sequence question-text">{visual.text}</div>;
     case 'board': return <Fretboard frets={NECK_FRETS} {...visual.board} />;
   }
 }

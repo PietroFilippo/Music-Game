@@ -103,6 +103,12 @@ select {
 .tuner-string-button[aria-pressed='true'] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .tuner-note { color: var(--fg-muted); font-size: 13px; line-height: 1.5; margin: 0; }
 
+.hear-button { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); color: var(--fg); font-size: 14px; }
+.hear-button:hover { border-color: var(--accent); }
+.question-text { font-size: 40px; }
+.interval-table { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; width: 100%; max-width: 640px; }
+.interval-table .reference-card { padding: 10px 12px; font-size: 14px; }
+
 .module-question { text-align: center; }
 .question-prompt { color: var(--fg-muted); line-height: 1.6; margin: 0 auto 20px; max-width: 600px; }
 .question-illustration { display: flex; justify-content: center; align-items: center; min-height: 150px; margin-bottom: 26px; }

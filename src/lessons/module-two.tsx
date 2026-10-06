@@ -2,11 +2,13 @@ import type { ReactNode } from 'react';
 import { Fretboard, type FretMarker, type MarkerTone } from '../components/Fretboard';
 import { FretboardExplorer } from '../components/FretboardExplorer';
 import { GuitarTab } from '../components/GuitarTab';
+import { HearButton } from '../components/HearButton';
 import { LessonShell, type LessonStep } from '../components/LessonShell';
 import { StaffDiagram } from '../components/StaffDiagram';
 import type { ModuleTwoId } from '../games/module-two/questions';
 import { useI18n } from '../hooks/useI18n';
 import { naturalAt, naturalFrets, OPEN_STRING_LETTERS, pitchClassAt, writtenVexKey } from '../music/guitar';
+import { INTERVALS } from '../music/intervals';
 import { shortNoteLabel, spell, spelledLabel, type SpelledNote } from '../music/notes';
 import { useSettings } from '../SettingsContext';
 import type { LessonProps } from './index';
@@ -42,6 +44,12 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
   const sequence = (items: string[]) => <div className="note-sequence">
     {items.map((item, i) => <span key={i}>{i > 0 && '→ '}{item}</span>)}
   </div>;
+
+  // A marker labeled with a degree such as R, ♭3 or 5.
+  const degree = (string: number, fret: number, label: string, tone: MarkerTone = 'accent'): FretMarker =>
+    ({ string, fret, label, tone });
+  const listen = (...buttons: { notes: number[]; label?: string; spacing?: number }[]) =>
+    <div className="lesson-visual">{buttons.map((b, i) => <HearButton key={i} {...b} />)}</div>;
 
   const lessons: Record<ModuleTwoId, LessonStep[]> = {
     'cordas-afinacao': [
@@ -180,6 +188,63 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
         <Fretboard frets={12} stringLabels="name" showFretNumbers markers={[
           at(5, 3, 'accent'), at(3, 5, 'accent'), at(1, 8, 'accent'),
           at(5, 5, 'root'), at(3, 7, 'root'), at(1, 10, 'root'),
+        ]} />),
+    ],
+    intervalos: [
+      step('A distância entre duas notas', 'The distance between two notes',
+        'Um intervalo é a distância entre duas notas, contada em semitons. Numa mesma corda, basta contar as casas: de Dó (5ª corda, casa 3) até Mi (casa 7) são 4 casas, ou 4 semitons.',
+        'An interval is the distance between two notes, counted in semitones. On one string, just count the frets: from C (string 5, fret 3) to E (fret 7) is 4 frets, or 4 semitones.',
+        <>
+          <Fretboard frets={9} stringLabels="name" showFretNumbers highlightStrings={[4]}
+            markers={[degree(4, 3, 'R', 'root'), degree(4, 7, '3')]} />
+          {listen({ notes: [48, 52] })}
+        </>),
+      step('Número e qualidade', 'Number and quality',
+        'O número do intervalo conta os nomes de nota, incluindo as duas pontas: de Dó a Mi são três (Dó, Ré, Mi), uma 3ª. A qualidade vem dos semitons: 3 semitons formam uma 3ª menor; 4, uma 3ª maior. A 4ª, a 5ª e a oitava são chamadas justas.',
+        'The interval number counts letter names, including both ends: C to E spans three (C, D, E), a 3rd. The quality comes from the semitones: 3 semitones make a minor 3rd; 4 make a major 3rd. 4ths, 5ths and octaves are called perfect.',
+        <div className="interval-table">{INTERVALS.map(i => <div className="reference-card" key={i.semitones}>
+          <strong>{i[lang]}</strong>{i.semitones} {text('semitons', 'semitones')} · {i.degree}
+        </div>)}</div>),
+      step('Em outra corda', 'Across the strings',
+        'Passar para a corda vizinha mais aguda soma 5 semitons (4 da 3ª para a 2ª corda). Assim, a partir de Sol na 6ª corda, casa 3: a 4ª justa fica na mesma casa da 5ª corda; a 5ª justa, duas casas à frente dela; e a oitava, duas cordas acima e duas casas à frente.',
+        'Moving to the next higher string adds 5 semitones (4 from string 3 to string 2). So from G at fret 3 of string 6: the perfect 4th is at the same fret on string 5; the perfect 5th is two frets up from there; and the octave is two strings over and two frets up.',
+        <>
+          <Fretboard frets={7} stringLabels="name" showFretNumbers
+            markers={[degree(5, 3, 'R', 'root'), degree(4, 3, '4'), degree(4, 5, '5'), degree(3, 5, '8')]} />
+          {listen(
+            { notes: [43, 48], label: text('4ª justa', 'Perfect 4th') },
+            { notes: [43, 50], label: text('5ª justa', 'Perfect 5th') },
+            { notes: [43, 55], label: text('Oitava', 'Octave') },
+          )}
+        </>),
+      step('Terça maior e terça menor', 'Major and minor thirds',
+        'A 3ª maior soa mais clara e a 3ª menor, mais escura. A partir de Lá na 6ª corda, casa 5: a 3ª menor (Dó) está na 5ª corda, casa 3; a 3ª maior (Dó♯), uma casa à frente, na casa 4. Essa única casa é a diferença entre um acorde maior e um menor.',
+        'A major 3rd sounds bright and a minor 3rd sounds dark. From A at fret 5 of string 6: the minor 3rd (C) is at fret 3 of string 5; the major 3rd (C♯) is one fret up, at fret 4. That single fret is the difference between a major and a minor chord.',
+        <>
+          <Fretboard frets={7} stringLabels="name" showFretNumbers
+            markers={[degree(5, 5, 'R', 'root'), degree(4, 3, '♭3', 'plain'), degree(4, 4, '3')]} />
+          {listen(
+            { notes: [45, 48], label: text('3ª menor', 'Minor 3rd') },
+            { notes: [45, 49], label: text('3ª maior', 'Major 3rd') },
+          )}
+        </>),
+      step('Graus', 'Degrees',
+        'Contados a partir da fundamental (R, do inglês "root"), os intervalos viram graus: 1, ♭3, 3, 5, ♭7… Acordes e escalas são feitos de graus. Dó, Mi e Sol são os graus 1, 3 e 5 de Dó: a tríade de Dó maior, tema do Módulo 3.',
+        'Counted from the root (R), intervals become degrees: 1, ♭3, 3, 5, ♭7… Chords and scales are built from degrees. C, E and G are degrees 1, 3 and 5 of C: the C major triad, coming in Module 3.',
+        <>
+          <Fretboard frets={7} stringLabels="name" showFretNumbers
+            markers={[degree(4, 3, 'R', 'root'), degree(3, 2, '3'), degree(3, 5, '5')]} />
+          {listen(
+            { notes: [48, 52, 55], spacing: 0.45, label: text('Uma por vez', 'One at a time') },
+            { notes: [48, 52, 55], spacing: 0.03, label: text('Juntas', 'Together') },
+          )}
+        </>),
+      step('No seu instrumento', 'On your guitar',
+        'A partir de Sol (6ª corda, casa 3), toque cada intervalo e volte à fundamental: a 4ª (5ª corda, casa 3), a 5ª (5ª corda, casa 5) e a oitava (4ª corda, casa 5). Cante as notas. Depois compare a 3ª menor e a 3ª maior a partir de Lá (6ª corda, casa 5).',
+        'From G (string 6, fret 3), play each interval and return to the root: the 4th (string 5, fret 3), the 5th (string 5, fret 5) and the octave (string 4, fret 5). Sing the notes. Then compare the minor and major 3rd from A (string 6, fret 5).',
+        <Fretboard frets={7} stringLabels="name" showFretNumbers markers={[
+          degree(5, 3, 'R', 'root'), degree(4, 3, '4'), degree(4, 5, '5'), degree(3, 5, '8'),
+          degree(5, 5, 'R', 'root'), degree(4, 4, '3', 'plain'),
         ]} />),
     ],
   };

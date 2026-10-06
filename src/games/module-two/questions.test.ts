@@ -174,3 +174,39 @@ describe('octaves question bank', () => {
     expect([...seen].sort()).toEqual(['different', 'octave', 'two-octaves', 'unison']);
   });
 });
+
+describe('intervals question bank', () => {
+  const pool = createQuestionPool('intervalos', 'en', 'letter');
+
+  it('measures every interval from the root to the marked or accepted note', () => {
+    for (const question of pool) {
+      if (question.id.startsWith('name-') && question.answer.kind === 'choice' && question.answer.visual.kind === 'board') {
+        const [root, target] = question.answer.visual.board.markers!;
+        expect(String(soundingMidi(target) - soundingMidi(root))).toBe(question.answer.correct);
+      }
+      if (question.answer.kind === 'board') {
+        const [root] = question.answer.board.markers!;
+        const semitones = Number(question.id.split('-')[1]);
+        expect(soundingMidi(question.answer.accepts[0]) - soundingMidi(root)).toBe(semitones);
+      }
+    }
+  });
+
+  it('uses every interval size in each fretboard question type', () => {
+    const sizes = (prefix: string) => new Set(pool.filter(q => q.id.startsWith(prefix)).map(q => q.id.split('-')[1]));
+    expect(sizes('name-').size).toBe(12);
+    expect(sizes('find-').size).toBe(12);
+  });
+
+  it('shows spelled intervals on the neck with the right distance', () => {
+    const spelled = pool.filter(q => q.id.startsWith('spell-'));
+    expect(spelled.length).toBeGreaterThan(50);
+    for (const question of spelled) {
+      const [root, target] = question.reveal.markers!;
+      expect(String(soundingMidi(target) - soundingMidi(root))).toBe(question.answer.kind === 'choice' && question.answer.correct);
+    }
+    const cToEFlat = pool.find(q => q.id === 'spell-C-3')!;
+    expect(cToEFlat.prompt).toBe('What interval is it from C up to E♭?');
+    expect(cToEFlat.notation).toMatchObject({ flat: true });
+  });
+});

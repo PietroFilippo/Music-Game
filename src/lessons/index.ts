@@ -24,6 +24,7 @@ export const LESSONS: Record<GameId, ComponentType<LessonProps>> = {
   'notas-braco': moduleTwoLesson('notas-braco'),
   'sustenidos-bemois': moduleTwoLesson('sustenidos-bemois'),
   oitavas: moduleTwoLesson('oitavas'),
+  intervalos: moduleTwoLesson('intervalos'),
 };
 
 function moduleLesson(id: ModuleOneId) {
