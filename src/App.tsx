@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useReducer, useState } from 'react';
 import { SettingsProvider } from './SettingsContext';
 import { DesktopBridge, type DesktopRoute } from './desktop/DesktopBridge';
 import { DesktopChrome } from './desktop/DesktopChrome';
+import { QuizNavContext, type QuizNav } from './components/QuizNav';
 import { PROGRESS_CHANGED } from './store/transfer';
 import { Menu, recommendTopic } from './Menu';
 import { GAMES } from './games';
@@ -39,6 +40,17 @@ export default function App() {
     if (Lesson) lesson = <Lesson key={route} onExit={back} onPractice={() => setRoute(gameId)} />;
   }
   const Game = route in GAMES ? GAMES[route as GameId] : null;
+  // A topic's results offer its lesson and, after a perfect score, the
+  // recommended topic: its lesson when it has not been played yet.
+  const nav: QuizNav = Game ? {
+    learn: LESSONS[route as GameId] ? () => setRoute(`learn:${route as GameId}`) : undefined,
+    upNext: () => {
+      const pick = recommendTopic();
+      if (pick.id === route) return null;
+      const lesson = pick.kind === 'next' && !!LESSONS[pick.id];
+      return { id: pick.id, lesson, open: () => setRoute(lesson ? `learn:${pick.id}` : pick.id) };
+    },
+  } : {};
   const reviewModule = route.startsWith('review:') ? route.slice('review:'.length) : null;
 
   return (
@@ -55,7 +67,7 @@ export default function App() {
         )}
         {route === 'stats' && <Stats onBack={back} />}
         {route === 'tuner' && <Tuner onBack={back} />}
-        {Game && <Game key={route} onExit={back} />}
+        {Game && <QuizNavContext.Provider value={nav}><Game key={route} onExit={back} /></QuizNavContext.Provider>}
         {reviewModule && <ReviewSession key={route} moduleId={reviewModule} onExit={back} />}
         {lesson}
       </Suspense>

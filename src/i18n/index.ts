@@ -257,6 +257,15 @@ const pt: Dict = {
   'lesson.steps': 'Passos',
   'lesson.stepN': 'Passo {n}',
   'lesson.done': 'concluído',
+  // Redesign: quiz and results
+  'quiz.boardHint': 'Toque na posição no braço. As setas movem, Enter seleciona.',
+  'quiz.keysHint': 'Pressione 1–{n} para responder.',
+  'quiz.enterHint': 'Enter ↵',
+  'quiz.autoHint': 'auto · {s} s',
+  'results.lesson': 'Lição',
+  'results.upNext': 'Próximo passo: {topic}',
+  'results.yourAnswer': 'Sua resposta',
+  'results.rightAnswer': 'Resposta certa',
 };
 
 const en: Dict = {
@@ -514,6 +523,15 @@ const en: Dict = {
   'lesson.steps': 'Steps',
   'lesson.stepN': 'Step {n}',
   'lesson.done': 'done',
+  // Redesign: quiz and results
+  'quiz.boardHint': 'Tap the position on the neck. Arrow keys move, Enter selects.',
+  'quiz.keysHint': 'Press 1–{n} to answer.',
+  'quiz.enterHint': 'Enter ↵',
+  'quiz.autoHint': 'auto · {s} s',
+  'results.lesson': 'Lesson',
+  'results.upNext': 'Up next: {topic}',
+  'results.yourAnswer': 'Your answer',
+  'results.rightAnswer': 'Right answer',
 };
 
 const DICTS: Record<Language, Dict> = { pt, en };
