@@ -28,10 +28,7 @@ export function readingQuestions(c: Copy): ModuleTwoQuestion[][] {
     markers: positions.map(p => ({ ...p, label: c.short(naturalAt(p)!), tone: 'accent' })),
     stringLabels: 'name', showFretNumbers: true,
   });
-  const writtenName = (key: string) => {
-    const p = fretsForVexKey(key, NECK_FRETS)[0];
-    return `${c.name(naturalAt(p)!)}${key.split('/')[1]}`;
-  };
+  const writtenName = (key: string) => c.withOctave(naturalAt(fretsForVexKey(key, NECK_FRETS)[0])!, Number(key.split('/')[1]));
   const octaveRule = text('A guitarra soa uma oitava abaixo da nota escrita.', 'The guitar sounds one octave below the written note.');
 
   const findPosition = STAFF_NOTES.map((vexKey): ModuleTwoQuestion => {
@@ -85,7 +82,7 @@ export function readingQuestions(c: Copy): ModuleTwoQuestion[][] {
       },
       explanation: text(
         `A nota ${index + 1} (${c.where(target.position)}) é uma ${rhythm.pt.toLowerCase()}: ${beatLabel(beats, 'pt')}. As figuras acima e abaixo indicam o mesmo ritmo; o compasso soma 4 tempos.`,
-        `Note ${index + 1} (${c.where(target.position)}) is a ${rhythm.en.toLowerCase()}: ${beatLabel(beats, 'en')}. The symbols above and below show the same rhythm; the measure totals 4 beats.`,
+        `Note ${index + 1} (${c.where(target.position)}) is ${/^[aeiou]/i.test(rhythm.en) ? 'an' : 'a'} ${rhythm.en.toLowerCase()}: ${beatLabel(beats, 'en')}. The symbols above and below show the same rhythm; the measure totals 4 beats.`,
       ) + (even ? '' : text(' O áudio toca apenas as alturas, com espaçamento uniforme.', ' Audio plays only the pitches, evenly spaced.')),
       reveal: board([...new Map(notes.map(n => [positionKey(n.position), n.position])).values()]),
       notation: target.position, sound: measureSound(notes),

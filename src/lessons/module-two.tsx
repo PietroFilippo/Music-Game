@@ -74,12 +74,12 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
   const lessons: Record<ModuleTwoId, LessonStep[]> = {
     'leitura-braco': [
       step('Duas maneiras de ler', 'Two ways to read',
-        `A pauta mostra altura e ritmo; a tablatura indica corda e casa. O 0 indica corda solta. A guitarra é escrita uma oitava acima do som: a 6ª corda solta soa ${readingCopy.name('E')}2, mas aparece como ${readingCopy.name('E')}3, no espaço abaixo de três linhas suplementares.`,
-        `The staff shows pitch and rhythm; tab gives the string and fret. A 0 means an open string. Guitar notation is written one octave above the sound: open string 6 sounds ${readingCopy.name('E')}2 but is written as ${readingCopy.name('E')}3, in the space below three ledger lines.`,
+        `A pauta mostra altura e ritmo; a tablatura indica corda e casa. O 0 indica corda solta. A guitarra é escrita uma oitava acima do som: a 6ª corda solta soa ${readingCopy.withOctave('E', 2)}, mas aparece como ${readingCopy.withOctave('E', 3)}, no espaço abaixo de três linhas suplementares.`,
+        `The staff shows pitch and rhythm; tab gives the string and fret. A 0 means an open string. Guitar notation is written one octave above the sound: open string 6 sounds ${readingCopy.withOctave('E', 2)} but is written as ${readingCopy.withOctave('E', 3)}, in the space below three ledger lines.`,
         <><PositionNotation position={{ string: 5, fret: 0 }} />{listen({ notes: [soundingMidi({ string: 5, fret: 0 })] })}</>),
       step('Uma nota, vários lugares', 'One note, several places',
-        `${readingCopy.name('E')}4, na primeira linha da pauta, soa igual na 4ª corda, casa 2; na 5ª, casa 7; e na 6ª, casa 12. A pauta sozinha não escolhe a corda. A tablatura escolhe uma dessas posições. Compare a altura e a oitava, não apenas o nome da nota.`,
-        `${readingCopy.name('E')}4 on the bottom staff line sounds the same on string 4 fret 2, string 5 fret 7, and string 6 fret 12. The staff alone does not choose a string. Tab selects one of these positions. Match the pitch and octave, not just the note name.`,
+        `${readingCopy.withOctave('E', 4)}, na primeira linha da pauta, soa igual na 4ª corda, casa 2; na 5ª, casa 7; e na 6ª, casa 12. A pauta sozinha não escolhe a corda. A tablatura escolhe uma dessas posições. Compare a altura e a oitava, não apenas o nome da nota.`,
+        `${readingCopy.withOctave('E', 4)} on the bottom staff line sounds the same on string 4 fret 2, string 5 fret 7, and string 6 fret 12. The staff alone does not choose a string. Tab selects one of these positions. Match the pitch and octave, not just the note name.`,
         <>
           <StaffDiagram clef="treble" notes={[{ vexKey: 'e/4' }]} />
           <Fretboard stringLabels="name" showFretNumbers markers={sameE.map(p => at(p.string, p.fret, 'accent'))} />

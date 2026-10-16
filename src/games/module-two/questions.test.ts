@@ -311,4 +311,14 @@ describe('reading question bank', () => {
     expect(READING_MEASURES[2].notes.map(n => writtenVexKey(n.position))).toEqual(['g/5', 'a/5', 'b/5', 'a/5']);
     expect(READING_MEASURES[2].notes.map(n => n.position.fret)).toEqual([3, 5, 7, 5]);
   });
+
+  it('names written octaves and rhythm values naturally in the reading topic', () => {
+    const both = createQuestionPool('leitura-braco', 'pt', 'both');
+    expect(both.find(q => q.id === 'staff-position-e/4')!.explanation).toMatch(/^E4 \/ Mi4:/);
+    const en = createQuestionPool('leitura-braco', 'en', 'letter');
+    const eighths = en.filter(q => q.explanation.includes('eighth note'));
+    expect(eighths.length).toBeGreaterThan(0);
+    for (const q of eighths) expect(q.explanation).toContain('is an eighth note');
+  });
 });
+

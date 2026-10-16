@@ -73,6 +73,10 @@ export function createCopy(language: Language, notation: Notation) {
     language,
     text,
     name: (letter: LetterNote) => noteLabel(letter, notation, language),
+    /** A note with its octave number, e.g. "E4", "Mi4" or "E4 / Mi4". */
+    withOctave: (letter: LetterNote, octave: number) => (notation === 'both'
+      ? `${letter}${octave} / ${noteLabel(letter, 'solfege', language)}${octave}`
+      : `${noteLabel(letter, notation, language)}${octave}`),
     short: (letter: LetterNote) => shortNoteLabel(letter, notation, language),
     spelled: (note: SpelledNote) => spelledLabel(note, notation, language),
     shortSpelled: (note: SpelledNote) => spelledLabel(note, notation === 'solfege' ? 'solfege' : 'letter', language),
