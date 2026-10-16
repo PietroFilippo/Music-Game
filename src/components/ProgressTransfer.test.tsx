@@ -1,11 +1,9 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { SettingsProvider } from '../SettingsContext';
 import { getScore, recordScore } from '../store/scores';
 import { buildExport } from '../store/transfer';
 import { ProgressTransfer } from './ProgressTransfer';
-
-const flush = () => act(() => new Promise(resolve => setTimeout(resolve, 0)));
 
 function choose(text: string) {
   const input = document.querySelector('input[type=file]') as HTMLInputElement;
@@ -23,18 +21,17 @@ describe('progress transfer in settings', () => {
     localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en' }));
     render(<SettingsProvider><ProgressTransfer /></SettingsProvider>);
 
+    // Files are read asynchronously, so each step waits for its result.
+    const status = (message: string) => waitFor(() => expect(screen.getByRole('status').textContent).toBe(message));
     choose(text);
-    await flush();
-    const dialog = screen.getByRole('alertdialog', { name: 'Import 2 plays across 2 topics?' });
+    const dialog = await screen.findByRole('alertdialog', { name: 'Import 2 plays across 2 topics?' });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Import' }));
     expect(getScore('escalas')).toMatchObject({ best: 70, plays: 1 });
     expect(screen.getByRole('status').textContent).toBe('Progress imported.');
 
     choose(text);
-    await flush();
-    expect(screen.getByRole('status').textContent).toBe('This file has nothing new.');
+    await status('This file has nothing new.');
     choose('{"hello": 1}');
-    await flush();
-    expect(screen.getByRole('status').textContent).toBe('This file is not a musicgame export.');
+    await status('This file is not a musicgame export.');
   });
 });
