@@ -162,4 +162,22 @@ describe('module 3 banks', () => {
       expect(q.answer).toMatchObject({ correct: noteKey(common[0]) });
     }
   });
+
+  it.each(MODULE_THREE_IDS)('%s never makes a spelled-note answer the only choice with an accidental', id => {
+    for (const q of createQuestionPool(id, 'en', 'letter')) {
+      if (q.answer.kind !== 'choice' || !q.answer.choices.every(o => /^[A-G][#b]?$/.test(o.value))) continue;
+      const altered = q.answer.choices.filter(o => o.value.length > 1);
+      if (q.answer.correct.length > 1) expect(altered.length).toBeGreaterThan(1);
+    }
+  });
+
+  it('shows the roots of an arpeggio whose quality is asked', () => {
+    for (const q of createQuestionPool('arpejos-triades', 'en', 'letter').filter(q => q.id.startsWith('quality-'))) {
+      if (q.answer.kind !== 'choice' || q.answer.visual.kind !== 'board') throw new Error('expected a board');
+      const roots = q.answer.visual.board.markers!.filter(m => m.label === 'R');
+      expect(roots.length).toBe(2);
+      expect(roots.every(m => pitchClassAt(m) === spelledPitchClass(q.chord.root))).toBe(true);
+    }
+  });
 });
+

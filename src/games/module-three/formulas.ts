@@ -1,8 +1,8 @@
 import { chordMidi, TRIADS } from '../../music/chords';
 import { OPEN_STRING_MIDI, soundingMidi } from '../../music/guitar';
-import { LETTERS, spelledPitchClass } from '../../music/notes';
+import { spelledPitchClass } from '../../music/notes';
 import { noteKey, STRINGS, type Copy } from '../fretboard/model';
-import { baseQuestion, board, chordKey, notesOf, qualityChoices, symbol, symbolChoices, TRIAD_EXAMPLES, type TriadQuestion } from './common';
+import { baseQuestion, board, chordKey, noteChoices, notesOf, qualityChoices, symbol, symbolChoices, TRIAD_EXAMPLES, type TriadQuestion } from './common';
 
 export function formulaQuestions(c: Copy): TriadQuestion[][] {
   const { text } = c;
@@ -17,7 +17,7 @@ export function formulaQuestions(c: Copy): TriadQuestion[][] {
       answer: {
         kind: 'choice' as const,
         visual: { kind: 'text' as const, text: TRIADS[e.quality].tones.map(t => t.degree === '1' ? 'R' : t.degree).join(' – ') },
-        choices: c.spelledChoices(note, LETTERS.map(letter => ({ letter, accidental: '' }))), correct: noteKey(note),
+        choices: noteChoices(c, note), correct: noteKey(note),
       },
     };
   }));

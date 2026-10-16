@@ -2,9 +2,9 @@ import type { FretMarker } from '../../components/Fretboard';
 import { closeVoicings, type ShapeTone } from '../../music/chord-shapes';
 import { chordNotes, chordSymbol, spellsCleanly, TRIAD_QUALITIES, TRIADS, type TriadQuality } from '../../music/chords';
 import { positionKey, soundingMidi } from '../../music/guitar';
-import type { SpelledNote } from '../../music/notes';
+import { LETTERS, spelledPitchClass, type SpelledNote } from '../../music/notes';
 import { shuffle } from '../../music/theory';
-import { noteKey, type BoardView, type Copy, type FretboardQuestion } from '../fretboard/model';
+import { noteKey, type BoardView, type Choice, type Copy, type FretboardQuestion } from '../fretboard/model';
 
 export const ROOTS: SpelledNote[] = [
   ...(['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const).map(letter => ({ letter, accidental: '' as const })),
@@ -38,6 +38,26 @@ export const namedBoard = (c: Copy, e: TriadExample): BoardView => board(e.shape
 })));
 export const describeChord = (c: Copy, e: Pick<TriadExample, 'root' | 'quality'>) =>
   `${symbol(c, e)}: ${notesOf(e).map((n, i) => `${c.spelled(n)} (${i === 0 ? 'R' : TRIADS[e.quality].tones[i].degree})`).join(' · ')}.`;
+// E♯, B♯, F♭ and C♭ would be odd distractors in a course that never uses them.
+const RARE = new Set(['E#', 'B#', 'Fb', 'Cb']);
+/** The note plus three neighbors by letter, mixing natural and altered spellings so no choice stands out. */
+export const noteChoices = (c: Copy, note: SpelledNote): Choice[] => {
+  const index = LETTERS.indexOf(note.letter);
+  const pool = shuffle([-1, 0, 1].flatMap(d => (['', '#', 'b'] as const)
+    .map((accidental): SpelledNote => ({ letter: LETTERS[(index + d + 7) % 7], accidental })))
+    .filter(n => !RARE.has(noteKey(n))));
+  const used = new Set([spelledPitchClass(note)]);
+  const picked: SpelledNote[] = [];
+  const take = (n: SpelledNote | undefined) => {
+    if (!n || used.has(spelledPitchClass(n)) || picked.length === 3) return;
+    used.add(spelledPitchClass(n));
+    picked.push(n);
+  };
+  take(pool.find(n => n.accidental && !used.has(spelledPitchClass(n))));
+  take(pool.find(n => !n.accidental && !used.has(spelledPitchClass(n))));
+  pool.forEach(take);
+  return shuffle([note, ...picked]).map(n => ({ value: noteKey(n), label: c.spelled(n) }));
+};
 export const qualityChoices = (c: Copy) => shuffle(TRIAD_QUALITIES).map(value => ({ value, label: TRIADS[value].name[c.language] }));
 export const symbolChoices = (c: Copy, root: SpelledNote) => shuffle(TRIAD_QUALITIES).map(value => ({
   value, label: chordSymbol(root, TRIADS[value], c.language),

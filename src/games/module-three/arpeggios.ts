@@ -4,7 +4,7 @@ import { OPEN_STRING_MIDI, soundingMidi } from '../../music/guitar';
 import { spell, spelledPitchClass } from '../../music/notes';
 import { shuffle } from '../../music/theory';
 import { STRINGS, type Copy } from '../fretboard/model';
-import { baseQuestion, board, chordKey, describeChord, hiddenBoard, notesOf, qualityChoices, ROOTS, shapeKey, symbol, type TriadExample, type TriadQuestion } from './common';
+import { baseQuestion, board, chordKey, describeChord, notesOf, qualityChoices, ROOTS, shapeKey, symbol, type TriadExample, type TriadQuestion } from './common';
 
 export const ARPEGGIO_EXAMPLES: TriadExample[] = ROOTS.flatMap(root => (['major', 'minor'] as const)
   .filter(q => spellsCleanly(root, TRIADS[q]))
@@ -37,7 +37,7 @@ export function arpeggioQuestions(c: Copy): TriadQuestion[][] {
       ...base(e),
       id: `degree-${chordKey(e)}-${shapeKey(e.shape)}`,
       prompt: text(`Qual grau está marcado no arpejo de ${symbol(c, e)}?`, `Which degree is marked in the ${symbol(c, e)} arpeggio?`),
-      answer: { kind: 'choice', visual: { kind: 'board', board: board(e.shape.map(t => ({ ...t.position, label: t === target ? '?' : t.degree, tone: t === target ? 'accent' : 'plain' }))) },
+      answer: { kind: 'choice', visual: { kind: 'board', board: board(e.shape.map(t => ({ ...t.position, label: t === target ? '?' : c.shortSpelled(notesOf(e)[t.toneIndex]), tone: t === target ? 'accent' : 'plain' }))) },
         choices: shuffle(['R', '3', '♭3', '5']).map(value => ({ value, label: value })), correct: target.degree },
       explanation: `${describeChord(c, e)} ${c.spelled(notesOf(e)[target.toneIndex])} = ${target.degree} (${c.where(target.position)}).`,
     };
@@ -46,7 +46,12 @@ export function arpeggioQuestions(c: Copy): TriadQuestion[][] {
     ...base(e),
     id: `quality-${chordKey(e)}-${shapeKey(e.shape)}`,
     prompt: text(`Qual é a qualidade deste arpejo, com fundamental ${c.spelled(e.root)}?`, `What is the quality of this arpeggio, with root ${c.spelled(e.root)}?`),
-    answer: { kind: 'choice', visual: { kind: 'board', board: hiddenBoard(e.shape) }, choices: qualityChoices(c), correct: e.quality },
+    answer: {
+      kind: 'choice',
+      // The roots are shown, so the quality is judged from the distance to the third.
+      visual: { kind: 'board', board: board(e.shape.map(t => ({ ...t.position, label: t.toneIndex === 0 ? 'R' : '?', tone: t.toneIndex === 0 ? 'root' : 'plain' }))) },
+      choices: qualityChoices(c), correct: e.quality,
+    },
     explanation: `${describeChord(c, e)} ${text('A terça fica', 'The third is')} ${TRIADS[e.quality].tones[1].semitones} ${text('semitons acima da fundamental', 'semitones above the root')}.`,
   }));
   const transpose = ARPEGGIO_EXAMPLES.filter(e => e.shape.every(t => t.position.fret >= 1 && t.position.fret <= 10)

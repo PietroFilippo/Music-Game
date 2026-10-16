@@ -2,10 +2,10 @@ import { closeVoicings, voiceLeadingDistance } from '../../music/chord-shapes';
 import { TRIADS } from '../../music/chords';
 import { majorTriads, MAJOR_ROMANS } from '../../music/harmony';
 import { soundingMidi } from '../../music/guitar';
-import { LETTERS, spelledPitchClass, type SpelledNote } from '../../music/notes';
+import { spelledPitchClass, type SpelledNote } from '../../music/notes';
 import { shuffle } from '../../music/theory';
 import { noteKey, type Copy } from '../fretboard/model';
-import { baseQuestion, chordKey, describeChord, hiddenBoard, notesOf, positionsOf, shapeBoard, shapeKey, STRING_SETS, symbol, type TriadExample, type TriadQuestion } from './common';
+import { baseQuestion, chordKey, describeChord, hiddenBoard, noteChoices, notesOf, positionsOf, shapeBoard, shapeKey, STRING_SETS, symbol, type TriadExample, type TriadQuestion } from './common';
 
 export const MAJOR_KEYS: SpelledNote[] = [
   ...(['C', 'G', 'D', 'A', 'E', 'F'] as const).map(letter => ({ letter, accidental: '' as const })),
@@ -81,7 +81,7 @@ export function progressionQuestions(c: Copy): TriadQuestion[][] {
       ...baseQuestion(c, to),
       id: `common-${noteKey(key)}-${a}-${b}`,
       prompt: text(`Qual nota é comum a ${symbol(c, from)} e ${symbol(c, to)}?`, `Which note is common to ${symbol(c, from)} and ${symbol(c, to)}?`),
-      answer: { kind: 'choice', visual: { kind: 'text', text: `${symbol(c, from)} → ${symbol(c, to)}` }, choices: c.spelledChoices(note, LETTERS.map(letter => ({ letter, accidental: '' }))), correct: noteKey(note) },
+      answer: { kind: 'choice', visual: { kind: 'text', text: `${symbol(c, from)} → ${symbol(c, to)}` }, choices: noteChoices(c, note), correct: noteKey(note) },
       explanation: `${describeChord(c, from)} ${describeChord(c, to)} ${c.spelled(note)}: ${text('mantenha essa nota na mesma altura quando possível.', 'keep this note at the same pitch when possible.')}`,
     }];
   }));
