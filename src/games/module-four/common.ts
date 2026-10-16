@@ -60,7 +60,7 @@ export const degreeChoices = (correct: string) => shuffle([correct, ...shuffle([
 /** Two natural and two altered names prevent a lone accidental from revealing the answer. */
 export function noteChoices(c: Copy, correct: SpelledNote) {
   const index = LETTERS.indexOf(correct.letter);
-  const candidates = [0, -1, 1, -2, 2].flatMap(offset => (['', '#', 'b'] as Accidental[])
+  const candidates = [-1, 1].flatMap(offset => (['', '#', 'b'] as Accidental[])
     .map(accidental => ({ letter: LETTERS[(index + offset + 7) % 7], accidental })))
     .filter(n => !(['E#', 'B#', 'Fb', 'Cb'].includes(noteKey(n))));
   const picked = [correct];

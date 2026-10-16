@@ -2,7 +2,7 @@ import { shuffle } from '../../music/theory';
 import type { Copy } from '../fretboard/model';
 import { baseQuestion, board, chordKey, degreeChoices, hiddenBoard, notesOf, qualityChoices, rootedBoard, shapeKey, symbol, VOICING_EXAMPLES, type SeventhQuestion } from './common';
 
-const ORDERS = ['1–7–3–5', '1–5–7–3', '1–3–5–7', '3–5–7–1'];
+const ORDERS = ['1–7–3–5', '1–5–7–3', '1–3–5–7', '1–3–7–5'];
 export function voicingQuestions(c: Copy): SeventhQuestion[][] {
   const { text } = c;
   const order = VOICING_EXAMPLES.map((e): SeventhQuestion => {

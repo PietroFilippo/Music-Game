@@ -1,12 +1,12 @@
 import { arpeggioShapes, type ShapeTone } from '../../music/chord-shapes';
-import { SEVENTH_QUALITIES, SEVENTHS, spellsCleanly } from '../../music/chords';
+import { SEVENTH_QUALITIES, SEVENTHS, spellsCleanly, type ChordQuality } from '../../music/chords';
 import { OPEN_STRING_MIDI, soundingMidi, type FretPosition } from '../../music/guitar';
 import { spell, spelledPitchClass } from '../../music/notes';
 import type { Copy } from '../fretboard/model';
 import { baseQuestion, board, chordKey, degreeChoices, describeChord, exactPositions, notesOf, qualityChoices, ROOTS, rootedBoard, shapeKey, symbol, type SeventhExample, type SeventhQuestion } from './common';
 
 /** Adjacent-string movement avoids teaching jumps over unplayed strings. */
-export function beginnerArpeggios(root: FretPosition, quality: typeof SEVENTHS[keyof typeof SEVENTHS]): ShapeTone[][] {
+export function beginnerArpeggios(root: FretPosition, quality: ChordQuality): ShapeTone[][] {
   return arpeggioShapes(root, quality, { maxSpan: 4 }).filter(shape => shape.every((t, i) => i === 0
     || shape[i - 1].position.string - t.position.string <= 1));
 }

@@ -66,15 +66,16 @@ export function progressionQuestions(c: Copy): SeventhQuestion[][] {
       explanation: `${describeChord(c, from)} ${describeChord(c, to)} ${c.spelled(target)} (${SEVENTHS[to.quality].tones[1].degree}) ${text('é a nota mais próxima; a sétima desce por grau conjunto.', 'is the closest tone; the seventh falls by step.')}`,
     };
   }));
-  const landing = MAJOR_KEYS.flatMap(key => majorSevenths(key).map((chord): SeventhQuestion => {
+  const landing = MAJOR_KEYS.flatMap(key => majorSevenths(key).flatMap(chord => [1, 2, 3].map((target): SeventhQuestion => {
     const e = example(chord);
-    const sequence = [0, 1, 2, 3];
+    const sequence = target === 1 ? [0, 2, 1] : target === 2 ? [0, 1, 2] : [0, 1, 2, 3];
+    const degree = SEVENTHS[e.quality].tones[target].degree;
     return {
-      ...baseQuestion(c, e), id: `landing-${noteKey(key)}-${chord.degree}`,
+      ...baseQuestion(c, e), id: `landing-${noteKey(key)}-${chord.degree}-${target}`,
       prompt: text(`Sobre ${symbol(c, e)}, em qual grau termina a frase ${sequence.map(i => c.spelled(notesOf(e)[i])).join(' → ')}?`, `Over ${symbol(c, e)}, on which degree does the phrase ${sequence.map(i => c.spelled(notesOf(e)[i])).join(' → ')} land?`),
-      answer: { kind: 'choice', visual: { kind: 'text', text: text('Identifique a nota-alvo final.', 'Identify the final target tone.') }, choices: degreeChoices(SEVENTHS[e.quality].tones[3].degree), correct: SEVENTHS[e.quality].tones[3].degree },
-      explanation: `${describeChord(c, e)} ${c.spelled(notesOf(e)[3])} (${SEVENTHS[e.quality].tones[3].degree}) ${text('é a sétima e a nota-alvo final da frase.', 'is the seventh and the final target tone of the phrase.')}`,
+      answer: { kind: 'choice', visual: { kind: 'text', text: text('Identifique a nota-alvo final.', 'Identify the final target tone.') }, choices: degreeChoices(degree), correct: degree },
+      explanation: `${describeChord(c, e)} ${c.spelled(notesOf(e)[target])} (${degree}) ${text('é a nota-alvo final da frase.', 'is the final target tone of the phrase.')}`,
     };
-  }));
+  })));
   return [degree, transpose, guide, closest, landing];
 }
