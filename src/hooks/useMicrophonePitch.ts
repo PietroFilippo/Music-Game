@@ -64,16 +64,34 @@ export function useMicrophonePitch() {
       return;
     }
 
-    const ctx = new AudioContext();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = FFT_SIZE;
-    ctx.createMediaStreamSource(stream).connect(analyser);
+    // Release the microphone however setup ends, even if the audio graph fails.
+    let ctx: AudioContext | null = null;
+    let timer: number | undefined;
+    session.current = () => {
+      window.clearInterval(timer);
+      stream.getTracks().forEach(track => track.stop());
+      void ctx?.close().catch(() => {});
+    };
+    let analyser: AnalyserNode;
+    try {
+      ctx = new AudioContext();
+      analyser = ctx.createAnalyser();
+      analyser.fftSize = FFT_SIZE;
+      ctx.createMediaStreamSource(stream).connect(analyser);
+    } catch {
+      session.current();
+      session.current = null;
+      setStatus('error');
+      setError('unavailable');
+      return;
+    }
+    const sampleRate = ctx.sampleRate;
     const buffer = new Float32Array(FFT_SIZE);
     const recent: number[] = [];
     let lastHeard = 0;
-    const timer = window.setInterval(() => {
+    timer = window.setInterval(() => {
       analyser.getFloatTimeDomainData(buffer);
-      const pitch = detectPitch(buffer, ctx.sampleRate);
+      const pitch = detectPitch(buffer, sampleRate);
       const now = performance.now();
       if (pitch && pitch.clarity >= MIN_CLARITY) {
         // A jump of more than a semitone is a new note: drop the old readings.
@@ -88,11 +106,6 @@ export function useMicrophonePitch() {
         setFrequency(null);
       }
     }, INTERVAL_MS);
-    session.current = () => {
-      window.clearInterval(timer);
-      stream.getTracks().forEach(track => track.stop());
-      void ctx.close();
-    };
     setStatus('listening');
   }, []);
 

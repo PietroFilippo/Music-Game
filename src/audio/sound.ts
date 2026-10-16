@@ -44,20 +44,32 @@ export function midiToFrequency(midi: number): number {
 }
 
 // A noise burst circulating through a short averaging delay line decays like a plucked string.
+// The loop delays by whole samples, half a sample in the averaging filter, and
+// a fraction of a sample in an allpass filter, so the pitch is exact instead of
+// rounded to a whole-sample period: the tuner's reference tones must be in tune.
 export function pluckSamples(frequency: number, sampleRate: number, seconds: number, damping: number): Float32Array {
   const out = new Float32Array(Math.round(sampleRate * seconds));
-  const period = Math.max(2, Math.round(sampleRate / frequency));
-  const ring = new Float32Array(period);
+  const loop = sampleRate / frequency - 0.5;
+  // Keep the fractional part in [0.5, 1.5) so the allpass coefficient stays small.
+  const period = Math.max(2, Math.floor(loop - 0.5));
+  const fraction = loop - period;
+  const coefficient = (1 - fraction) / (1 + fraction);
   let previous = 0;
-  for (let i = 0; i < period; i++) {
-    const noise = Math.random() * 2 - 1;
-    ring[i] = (noise + previous) / 2; // a softer attack than raw noise
-    previous = noise;
-  }
+  let allpassIn = 0;
+  let allpassOut = 0;
   for (let i = 0; i < out.length; i++) {
-    const j = i % period;
-    out[i] = ring[j];
-    ring[j] = damping * 0.5 * (ring[j] + ring[(j + 1) % period]);
+    let excitation = 0;
+    if (i < period) {
+      const noise = Math.random() * 2 - 1;
+      excitation = (noise + previous) / 2; // a softer attack than raw noise
+      previous = noise;
+    }
+    const delayed = i >= period ? out[i - period] : 0;
+    const before = i > period ? out[i - period - 1] : 0;
+    const averaged = damping * 0.5 * (delayed + before);
+    allpassOut = coefficient * averaged + allpassIn - coefficient * allpassOut;
+    allpassIn = averaged;
+    out[i] = excitation + allpassOut;
   }
   return out;
 }

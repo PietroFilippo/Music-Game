@@ -24,6 +24,8 @@ export function useAnswerTimer({ seconds, running, resetKey, onExpire }: Options
   const remainingMs = currentRound ? clock.remainingMs : totalMs;
   const expireRef = useRef(onExpire);
   expireRef.current = onExpire;
+  const remainingRef = useRef(remainingMs);
+  remainingRef.current = remainingMs;
   const firedRef = useRef(false);
 
   useEffect(() => {
@@ -31,12 +33,15 @@ export function useAnswerTimer({ seconds, running, resetKey, onExpire }: Options
     setClock({ resetKey, seconds, remainingMs: seconds === null ? null : seconds * 1000 });
   }, [resetKey, seconds]);
 
+  // Count down to a deadline rather than adding up ticks, so a busy or throttled
+  // page cannot stretch the round. Stopping keeps the time left for a resume.
   useEffect(() => {
     if (!running || seconds === null) return;
+    const deadline = Date.now() + (remainingRef.current ?? 0);
     const id = window.setInterval(() => {
       setClock(prev => ({
         ...prev,
-        remainingMs: prev.remainingMs === null ? null : Math.max(prev.remainingMs - TICK_MS, 0),
+        remainingMs: prev.remainingMs === null ? null : Math.max(deadline - Date.now(), 0),
       }));
     }, TICK_MS);
     return () => window.clearInterval(id);

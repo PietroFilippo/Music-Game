@@ -196,8 +196,8 @@ const pt: Dict = {
   'difficulty.medium': 'Médio ({s}s)',
   'difficulty.hard': 'Difícil ({s}s)',
   'prompts.pauta-i': 'Que linha ou espaço está marcado?',
-  'prompts.pauta-ii.up': 'Conte {n} ASCENDENTE. Qual a nota?',
-  'prompts.pauta-ii.down': 'Conte {n} DESCENDENTE. Qual a nota?',
+  'prompts.pauta-ii.up': 'Conte {n} para CIMA. Qual é a nota?',
+  'prompts.pauta-ii.down': 'Conte {n} para BAIXO. Qual é a nota?',
   'prompts.claves': 'Qual nota esta clave fixa na pauta?',
   'prompts.clave-sol': 'Qual nota está na pauta?',
 };
@@ -396,8 +396,8 @@ const en: Dict = {
   'difficulty.medium': 'Medium ({s}s)',
   'difficulty.hard': 'Hard ({s}s)',
   'prompts.pauta-i': 'Which line or space is marked?',
-  'prompts.pauta-ii.up': 'Count {n} positions UP. What note?',
-  'prompts.pauta-ii.down': 'Count {n} positions DOWN. What note?',
+  'prompts.pauta-ii.up': 'Count {n} UP. What is the note?',
+  'prompts.pauta-ii.down': 'Count {n} DOWN. What is the note?',
   'prompts.claves': 'Which note does this clef anchor?',
   'prompts.clave-sol': 'Which note is on the staff?',
 };

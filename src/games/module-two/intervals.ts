@@ -18,6 +18,7 @@ export function intervalOn(root: FretPosition, semitones: number, string: number
 export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
   const { text } = c;
   const name = (interval: Interval) => interval[c.language];
+  const semitonesText = (n: number) => text(`${n} ${n === 1 ? 'semitom' : 'semitons'}`, `${n} ${n === 1 ? 'semitone' : 'semitones'}`);
   // The answer and its neighbors by size, so players must count.
   const intervalChoices = (semitones: number): Choice[] => {
     const nearby = INTERVALS.filter(i => i.semitones !== semitones)
@@ -32,14 +33,21 @@ export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
   // How the semitones add up between two positions.
   const counting = (root: FretPosition, target: FretPosition, semitones: number) => {
     if (root.string === target.string) {
-      return text(`Na mesma corda, conte as casas: ${target.fret - root.fret} casas = ${semitones} semitons.`,
-        `On the same string, count the frets: ${target.fret - root.fret} frets = ${semitones} semitones.`);
+      const n = target.fret - root.fret;
+      return text(`Na mesma corda, conte as casas: ${n} ${n === 1 ? 'casa' : 'casas'} = ${semitonesText(semitones)}.`,
+        `On the same string, count the frets: ${n} ${n === 1 ? 'fret' : 'frets'} = ${semitonesText(semitones)}.`);
     }
     const crossing = OPEN_STRING_MIDI[target.string] - OPEN_STRING_MIDI[root.string];
     const frets = target.fret - root.fret;
+    const n = Math.abs(frets);
+    const shift = frets === 0
+      ? text('na mesma casa', 'at the same fret')
+      : frets > 0
+        ? text(`${n} ${n === 1 ? 'casa' : 'casas'} à frente`, `${n} ${n === 1 ? 'fret' : 'frets'} up`)
+        : text(`${n} ${n === 1 ? 'casa' : 'casas'} para trás`, `${n} ${n === 1 ? 'fret' : 'frets'} back`);
     return text(
-      `A corda seguinte soma ${crossing} semitons${crossing === 4 ? ' (da 3ª para a 2ª corda são 4, não 5)' : ''}; com ${frets} casas de diferença, são ${semitones} semitons.`,
-      `The next string adds ${crossing} semitones${crossing === 4 ? ' (from string 3 to string 2 it is 4, not 5)' : ''}; with a ${frets}-fret difference, that makes ${semitones} semitones.`,
+      `A corda seguinte soma ${crossing} semitons${crossing === 4 ? ' (da 3ª para a 2ª corda são 4, não 5)' : ''}; ${shift}, são ${semitonesText(semitones)}.`,
+      `The next string adds ${crossing} semitones${crossing === 4 ? ' (from string 3 to string 2 it is 4, not 5)' : ''}; ${shift}, that makes ${semitonesText(semitones)}.`,
     );
   };
 
@@ -62,7 +70,7 @@ export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
       choices: intervalChoices(interval.semitones),
       correct: String(interval.semitones),
     },
-    explanation: `${counting(root, target, interval.semitones)} ${text('É uma', 'That is a')} ${name(interval)}.`,
+    explanation: `${counting(root, target, interval.semitones)} ${text('Intervalo', 'Interval')}: ${name(interval)}.`,
     reveal: board([rootMarker(root), { ...target, label: interval.degree, tone: 'accent' }]),
     notation: target,
     sound: { notes: [soundingMidi(root), soundingMidi(target)] },
@@ -71,11 +79,11 @@ export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
   const findOnBoard = sample(7, 3).map(({ interval, root, target }): ModuleTwoQuestion => ({
     id: `find-${interval.semitones}-${positionKey(root)}-${target.string}`,
     prompt: text(
-      `Toque na ${name(interval)} acima de ${c.name(naturalAt(root)!)} (R) na ${target.string + 1}ª corda.`,
+      `Toque ${interval.semitones === 6 ? 'no' : 'na'} ${name(interval)} acima de ${c.name(naturalAt(root)!)} (R) na ${target.string + 1}ª corda.`,
       `Tap the ${name(interval)} above ${c.name(naturalAt(root)!)} (R) on string ${target.string + 1}.`,
     ),
     answer: { kind: 'board', board: board([rootMarker(root)], [target.string]), accepts: [target] },
-    explanation: `${name(interval)}: ${interval.semitones} ${text('semitons', 'semitones')}. ${counting(root, target, interval.semitones)}`,
+    explanation: `${text('Intervalo', 'Interval')}: ${name(interval)}, ${semitonesText(interval.semitones)}. ${counting(root, target, interval.semitones)}`,
     reveal: board([rootMarker(root), { ...target, label: interval.degree, tone: 'accent' }], [target.string]),
     notation: target,
     sound: { notes: [soundingMidi(root), soundingMidi(target)] },
@@ -105,8 +113,8 @@ export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
         correct: String(interval.semitones),
       },
       explanation: text(
-        `${interval.number} nomes de nota (${letters}) e ${interval.semitones} semitons: ${name(interval)}.`,
-        `${interval.number} letter names (${letters}) and ${interval.semitones} semitones: a ${name(interval)}.`,
+        `${interval.number} nomes de nota (${letters}) e ${semitonesText(interval.semitones)}: ${name(interval)}.`,
+        `${interval.number} letter names (${letters}) and ${semitonesText(interval.semitones)}: ${/^[aeiou]/.test(name(interval)) ? 'an' : 'a'} ${name(interval)}.`,
       ),
       reveal: board([rootMarker(rootPosition), { ...targetPosition, label: interval.degree, tone: 'accent' }]),
       notation: { ...targetPosition, flat: target.accidental === 'b' },

@@ -320,5 +320,18 @@ describe('reading question bank', () => {
     expect(eighths.length).toBeGreaterThan(0);
     for (const q of eighths) expect(q.explanation).toContain('is an eighth note');
   });
+
+  it('words interval feedback grammatically in both languages', () => {
+    for (const lang of ['pt', 'en'] as const) {
+      for (const q of createQuestionPool('intervalos', lang, 'letter')) {
+        const all = `${q.prompt} ${q.explanation}`;
+        expect(all).not.toMatch(/\b1 (casas|frets|semitons|semitones)\b|-\d+-fret|É uma|na trítono|\ba octave/);
+        expect(q.explanation[0]).toBe(q.explanation[0].toUpperCase());
+      }
+    }
+    const tritone = createQuestionPool('intervalos', 'pt', 'letter').filter(q => q.prompt.includes('trítono') && q.prompt.startsWith('Toque'));
+    expect(tritone.length).toBeGreaterThan(0);
+    for (const q of tritone) expect(q.prompt).toMatch(/^Toque no trítono/);
+  });
 });
 

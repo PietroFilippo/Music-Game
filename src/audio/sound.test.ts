@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { centsBetween, detectPitch } from './pitch';
 import { midiToFrequency, playEffect, pluckSamples } from './sound';
 
 describe('plucked-string synthesis', () => {
@@ -17,6 +18,15 @@ describe('plucked-string synthesis', () => {
     const tail = (s: Float32Array) => energy(s, 52800, 57600) / energy(s, 0, 4800);
     expect(tail(ringing)).toBeLessThan(0.2);
     expect(tail(muted)).toBeLessThan(tail(ringing) / 100);
+  });
+
+  it.each([44100, 48000])('plucks every open string in tune at %i Hz, within the tuner tolerance', sampleRate => {
+    for (const midi of [40, 45, 50, 55, 59, 64]) {
+      const samples = pluckSamples(midiToFrequency(midi), sampleRate, 0.5, 0.996);
+      // Skip the noisy attack; measure once the string rings.
+      const reading = detectPitch(samples.subarray(4096, 8192), sampleRate)!;
+      expect(Math.abs(centsBetween(reading.frequency, midi))).toBeLessThan(1);
+    }
   });
 
   it('does nothing where Web Audio is unavailable', () => {

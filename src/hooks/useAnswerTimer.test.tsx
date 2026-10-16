@@ -52,6 +52,30 @@ describe('answer timer', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it('expires on time even when ticks are delayed', () => {
+    const onExpire = vi.fn();
+    renderHook(() => useAnswerTimer({ seconds: 4, running: true, resetKey: 0, onExpire }));
+    // A stalled page: five seconds pass, but only one tick is delivered.
+    vi.setSystemTime(Date.now() + 5000);
+    act(() => vi.advanceTimersByTime(100));
+    expect(onExpire).toHaveBeenCalledTimes(1);
+  });
+
+  it('resumes with the time that was left', () => {
+    const onExpire = vi.fn();
+    const { result, rerender } = renderHook(({ running }) => useAnswerTimer({
+      seconds: 4, running, resetKey: 0, onExpire,
+    }), { initialProps: { running: true } });
+    act(() => vi.advanceTimersByTime(1000));
+    rerender({ running: false });
+    act(() => vi.advanceTimersByTime(10000));
+    rerender({ running: true });
+    act(() => vi.advanceTimersByTime(2000));
+    expect(result.current.fraction).toBe(0.25);
+    act(() => vi.advanceTimersByTime(1000));
+    expect(onExpire).toHaveBeenCalledTimes(1);
+  });
+
   it('never expires in untimed mode', () => {
     const onExpire = vi.fn();
     const { result } = renderHook(() => useAnswerTimer({

@@ -42,4 +42,16 @@ describe('tuner', () => {
       audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
     });
   });
+
+  it('releases the microphone when audio setup fails', async () => {
+    vi.stubGlobal('AudioContext', class { constructor() { throw new DOMException('No audio', 'NotSupportedError'); } });
+    const stop = vi.fn();
+    const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop }] });
+    Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true });
+    renderTuner();
+    fireEvent.click(screen.getByRole('button', { name: 'Turn on microphone' }));
+    await screen.findByRole('alert');
+    expect(stop).toHaveBeenCalledTimes(1);
+  });
 });
+
