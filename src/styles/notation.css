@@ -1,5 +1,15 @@
 /* Notation and fretboard */
-.vex-stave { display: inline-block; max-width: 100%; overflow-x: auto; padding: 8px 4px; border-radius: 8px; background: var(--paper); border: 1px solid #e5e5e5; line-height: 0; }
+/* Notation is drawn straight on the page or panel (REDESIGN.md, section 10).
+   Layouts with room set --notation-scale; each kind of drawing has a cap. */
+.vex-stave { display: inline-block; max-width: 100%; line-height: 0; }
+.vex-stave svg { display: block; max-width: 100%; }
+.vex-staff svg { max-width: min(100%, 720px); }
+.vex-diagram svg { max-width: min(100%, 748px); }
+.vex-measure svg { max-width: min(100%, 850px); }
+.notation-pair { --notation-scale: 1; }
+@media (min-width: 1600px) {
+  .notation-pair { --notation-scale: 1.3; }
+}
 .fret-cell { fill: transparent; cursor: pointer; outline: none; }
 .fret-cell:hover { fill: var(--accent-soft); }
 .fretboard[aria-disabled='true'] .fret-cell { cursor: default; }

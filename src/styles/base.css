@@ -22,8 +22,8 @@
   --line-strong: #3a423b;
   --outline: #5a655d;
   --focus: #9cf0cc;
-  --paper: #f4f3ee;
-  --ink: #1b1e1b;
+  /* Stave and tab lines: a step quieter than the fretboard strings. */
+  --staff-line: #7c867e;
 
   /* Segoe UI Variable and Bahnschrift ship with Windows; elsewhere the system face. */
   --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;

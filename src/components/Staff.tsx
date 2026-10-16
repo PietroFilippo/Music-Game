@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { Accidental, Renderer, Stave, StaveNote, Formatter } from 'vexflow/bravura';
+import { Stave } from 'vexflow/bravura';
+import { drawNotes, fitDrawing, inkNote, startDrawing, styleStave } from './notation';
 
 interface Props {
   clef?: 'treble' | 'alto' | 'bass';
@@ -14,19 +15,12 @@ export function Staff({ clef = 'treble', noteVexKey, width = 280, height = 140 }
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.innerHTML = '';
-    const renderer = new Renderer(el, Renderer.Backends.SVG);
-    renderer.resize(width, height);
-    const ctx = renderer.getContext();
-    const stave = new Stave(10, 20, width - 30);
-    stave.addClef(clef).setContext(ctx).draw();
-    if (noteVexKey) {
-      const note = new StaveNote({ clef, keys: [noteVexKey], duration: 'w' });
-      const accidental = noteVexKey.split('/')[0].slice(1);
-      if (accidental) note.addModifier(new Accidental(accidental), 0);
-      Formatter.FormatAndDraw(ctx, stave, [note]);
-    }
+    const ctx = startDrawing(el, width, height);
+    const stave = new Stave(10, 20, width - 30).addClef(clef);
+    styleStave(stave).setContext(ctx).draw();
+    if (noteVexKey) drawNotes(ctx, stave, [inkNote(clef, noteVexKey)]);
+    fitDrawing(el, width, height);
   }, [clef, noteVexKey, width, height]);
 
-  return <div className="vex-stave" ref={ref} />;
+  return <div className="vex-stave vex-staff" ref={ref} />;
 }

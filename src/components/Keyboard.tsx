@@ -8,6 +8,8 @@ interface Props {
   notation: Notation;
 }
 
+// A picture of a real keyboard, so the white keys stay light, in a warm off-white
+// that does not glare on the dark page.
 export function Keyboard({ highlighted, showLabels = false, language, notation }: Props) {
   const label = language === 'pt' ? 'Teclado: grupos de duas e três teclas pretas' : 'Keyboard: groups of two and three black keys';
   return (
@@ -15,15 +17,16 @@ export function Keyboard({ highlighted, showLabels = false, language, notation }
       {LETTERS.map((letter, i) => (
         <g key={letter}>
           <rect x={i * 60 + 1} y={1} width={58} height={180} rx={4}
-            fill={highlighted === letter ? 'var(--accent)' : '#fafafa'} stroke="#555" />
-          {highlighted === letter && <circle cx={i * 60 + 30} cy={130} r={8} fill="#14532d" />}
-          {showLabels && <text x={i * 60 + 30} y={164} textAnchor="middle" fill="#222" fontSize={notation === 'both' ? 11 : 16}>
+            fill={highlighted === letter ? 'var(--accent)' : '#e3e1d8'} stroke="var(--line-strong)" />
+          {highlighted === letter && <circle cx={i * 60 + 30} cy={130} r={8} fill="var(--on-accent)" />}
+          {showLabels && <text x={i * 60 + 30} y={164} textAnchor="middle" fill="#1b1e1b" fontSize={notation === 'both' ? 11 : 16}
+            fontWeight={highlighted === letter ? 700 : 500}>
             {noteLabel(letter, notation, language)}
           </text>}
         </g>
       ))}
       {[1, 2, 4, 5, 6].map(boundary => (
-        <rect key={boundary} x={boundary * 60 - 18} y={1} width={36} height={106} rx={3} fill="#242424" stroke="#111" />
+        <rect key={boundary} x={boundary * 60 - 18} y={1} width={36} height={106} rx={3} fill="var(--bg)" stroke="var(--line-strong)" />
       ))}
     </svg>
   );
