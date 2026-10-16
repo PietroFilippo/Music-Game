@@ -1,6 +1,7 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import type { QuizRound } from '../hooks/useQuizRound';
 import { useI18n } from '../hooks/useI18n';
+import { usePageHidden } from '../hooks/usePageHidden';
 import { useSettings } from '../SettingsContext';
 import { Icon } from './Icon';
 import { SettingsSheet } from './SettingsSheet';
@@ -40,12 +41,12 @@ export function GameShell({ title, onExit, quiz, feedback, review = false, revie
   const { t } = useI18n();
   const { settings, setSound } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const hidden = usePageHidden();
   const { progress } = quiz;
-  // The sheet covers the quiz, so a round must not time out or advance behind it.
-  const showSettings = (open: boolean) => {
-    setSettingsOpen(open);
-    quiz.setPaused(open);
-  };
+  // A round must not time out or advance where it cannot be seen: behind the
+  // settings sheet, in a background tab or with the desktop window in the tray.
+  const { setPaused } = quiz;
+  useEffect(() => setPaused(settingsOpen || hidden), [settingsOpen, hidden]);
 
   const topbar = (
     <header className="topbar">
@@ -55,12 +56,12 @@ export function GameShell({ title, onExit, quiz, feedback, review = false, revie
         onClick={() => setSound(!settings.sound)}>
         <Icon name={settings.sound ? 'sound' : 'mute'} />
       </button>
-      <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => showSettings(true)}>
+      <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => setSettingsOpen(true)}>
         <Icon name="settings" />
       </button>
     </header>
   );
-  const settingsSheet = settingsOpen && <SettingsSheet onClose={() => showSettings(false)} />;
+  const settingsSheet = settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />;
 
   if (progress.done) {
     const pct = Math.round((progress.correctCount / progress.totalRounds) * 100);

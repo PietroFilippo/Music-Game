@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { setShellHidden } from '../hooks/usePageHidden';
 import { SettingsProvider } from '../SettingsContext';
 import { PautaI } from './pauta-i/PautaI';
 import { PautaII } from './pauta-ii/PautaII';
@@ -65,4 +66,21 @@ describe.each([
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it('holds the timer while the window is hidden in the tray', () => {
+    vi.useFakeTimers();
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', advanceMode: 'manual', difficulty: 'hard' }));
+    render(<SettingsProvider><Game onExit={() => {}} /></SettingsProvider>);
+    const feedback = () => screen.queryByRole('region', { name: 'Answer feedback' });
+    act(() => vi.advanceTimersByTime(2000));
+    act(() => setShellHidden(true));
+    act(() => vi.advanceTimersByTime(60000));
+    expect(feedback()).toBeNull();
+    act(() => setShellHidden(false));
+    act(() => vi.advanceTimersByTime(1900));
+    expect(feedback()).toBeNull();
+    act(() => vi.advanceTimersByTime(100));
+    expect(feedback()).not.toBeNull();
+  });
 });
+

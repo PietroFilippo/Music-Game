@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { SettingsProvider } from './SettingsContext';
-import { Menu } from './Menu';
+import { DesktopBridge, type DesktopRoute } from './desktop/DesktopBridge';
+import { Menu, recommendTopic } from './Menu';
 import { GAMES } from './games';
 import { LESSONS } from './lessons';
 import { useI18n } from './hooks/useI18n';
@@ -20,6 +21,8 @@ function Loading() {
 export default function App() {
   const [route, setRoute] = useState<Route>('menu');
   const back = () => setRoute('menu');
+  // The tray menu opens the tuner or the recommended topic.
+  const openFromTray = (to: DesktopRoute) => setRoute(to === 'tuner' ? 'tuner' : recommendTopic().id);
 
   let lesson = null;
   if (route.startsWith('learn:')) {
@@ -32,6 +35,7 @@ export default function App() {
 
   return (
     <SettingsProvider>
+      <DesktopBridge onNavigate={openFromTray} />
       <Suspense fallback={<Loading />}>
         {route === 'menu' && (
           <Menu

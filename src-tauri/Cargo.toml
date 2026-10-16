@@ -1,0 +1,34 @@
+[package]
+name = "musicgame"
+version = "0.1.0"
+description = "Sight-reading and fretboard practice for electric guitar"
+authors = ["Pietro Filippo"]
+license = ""
+repository = "https://github.com/PietroFilippo/Music-Game"
+edition = "2024"
+rust-version = "1.90"
+
+[lib]
+name = "musicgame_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.3", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "2.12.4", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-window-state = "2"
+# Already part of Tauri's runtime; used for the release timer.
+tokio = { version = "1", features = ["time"] }
+
+[profile.release]
+# A small binary matters more than build time for an app that idles in the tray.
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
