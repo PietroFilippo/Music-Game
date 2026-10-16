@@ -6,10 +6,11 @@ import { LESSONS } from './lessons';
 import { useI18n } from './hooks/useI18n';
 import type { GameId } from './types';
 
-type Route = 'menu' | 'stats' | 'tuner' | GameId | `learn:${GameId}`;
+type Route = 'menu' | 'stats' | 'tuner' | GameId | `learn:${GameId}` | `review:${string}`;
 
 const Stats = lazy(() => import('./Stats').then(m => ({ default: m.Stats })));
 const Tuner = lazy(() => import('./Tuner').then(m => ({ default: m.Tuner })));
+const ReviewSession = lazy(() => import('./review/ReviewSession').then(m => ({ default: m.ReviewSession })));
 
 function Loading() {
   const { t } = useI18n();
@@ -27,6 +28,7 @@ export default function App() {
     if (Lesson) lesson = <Lesson key={route} onExit={back} onPractice={() => setRoute(gameId)} />;
   }
   const Game = route in GAMES ? GAMES[route as GameId] : null;
+  const reviewModule = route.startsWith('review:') ? route.slice('review:'.length) : null;
 
   return (
     <SettingsProvider>
@@ -35,12 +37,14 @@ export default function App() {
           <Menu
             onPlay={setRoute}
             onLearn={id => setRoute(`learn:${id}`)}
+            onReview={moduleId => setRoute(`review:${moduleId}`)}
             onNavigate={setRoute}
           />
         )}
         {route === 'stats' && <Stats onBack={back} />}
         {route === 'tuner' && <Tuner onBack={back} />}
         {Game && <Game key={route} onExit={back} />}
+        {reviewModule && <ReviewSession key={route} moduleId={reviewModule} onExit={back} />}
         {lesson}
       </Suspense>
     </SettingsProvider>

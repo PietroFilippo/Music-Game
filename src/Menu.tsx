@@ -3,6 +3,7 @@ import { Icon } from './components/Icon';
 import { SettingsSheet } from './components/SettingsSheet';
 import { COURSE_MODULES } from './curriculum';
 import { useI18n } from './hooks/useI18n';
+import { weakItems } from './store/attempts';
 import { getScore } from './store/scores';
 import { readStored, writeStored } from './store/storage';
 import type { GameId, ScoreRecord } from './types';
@@ -15,6 +16,8 @@ export type Destination = 'stats' | 'tuner';
 interface Props {
   onPlay: (id: GameId) => void;
   onLearn: (id: GameId) => void;
+  /** Opens the Review weak spots session of a module. */
+  onReview: (moduleId: string) => void;
   onNavigate: (to: Destination) => void;
 }
 
@@ -47,7 +50,7 @@ function loadExpanded(): Record<string, boolean> {
   return defaults;
 }
 
-export function Menu({ onPlay, onLearn, onNavigate }: Props) {
+export function Menu({ onPlay, onLearn, onReview, onNavigate }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(loadExpanded);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -57,6 +60,7 @@ export function Menu({ onPlay, onLearn, onNavigate }: Props) {
     writeStored(EXPANSION_KEY, next);
   };
 
+  const now = Date.now();
   const pick = recommendTopic();
   const pickModule = COURSE_MODULES.find(m => m.games.includes(pick.id))!;
   const pickScore = getScore(pick.id);
@@ -99,6 +103,9 @@ export function Menu({ onPlay, onLearn, onNavigate }: Props) {
             const weakest = [...played].sort((a, b) => a.rec!.best - b.rec!.best)[0];
             const average = played.length
               ? Math.round(played.reduce((sum, r) => sum + r.rec!.best, 0) / played.length) : 0;
+            // Review appears once a module has answer history, and is enabled while something is due.
+            const history = weakItems(module.games, now);
+            const due = history.filter(c => c.due).length;
             return (
               <section key={module.id} className={`card${planned ? ' planned' : ''}`} aria-labelledby={`module-${module.id}`}>
                 <div className="modhead">
@@ -120,6 +127,15 @@ export function Menu({ onPlay, onLearn, onNavigate }: Props) {
                     {open ? t('home.hideTopics') : planned ? t('home.showPlanned') : t('home.showTopics', { n: module.games.length })}
                     <Icon name="chevronDown" size={16} />
                   </button>
+                  {history.length > 0 && (
+                    <button type="button" className="btn btn-ghost sm" style={{ flex: '0 0 auto' }} disabled={due === 0}
+                      aria-describedby={due === 0 ? `review-hint-${module.id}` : undefined} onClick={() => onReview(module.id)}>
+                      {due > 0 ? t('review.openCount', { n: due }) : t('review.open')}
+                    </button>
+                  )}
+                  {history.length > 0 && due === 0 && (
+                    <span id={`review-hint-${module.id}`} className="muted small" style={{ alignSelf: 'center' }}>{t('review.caughtUp')}</span>
+                  )}
                 </div>
                 <div id={contentId} hidden={!open}>
                   {!planned && (
