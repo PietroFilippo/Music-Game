@@ -1,4 +1,5 @@
 import { lazy, type ComponentType } from 'react';
+import type { ModuleFourId } from './module-four/questions';
 import type { GameId } from '../types';
 import type { ModuleOneId } from './module-one/questions';
 import type { ModuleTwoId } from './module-two/questions';
@@ -46,4 +47,14 @@ export const GAMES: Record<GameId, ComponentType<GameProps>> = {
   'inversoes-triades': moduleThreeGame('inversoes-triades'),
   'arpejos-triades': moduleThreeGame('arpejos-triades'),
   'triades-progressoes': moduleThreeGame('triades-progressoes'),
+  'tetrades': moduleFourGame('tetrades'),
+  'tetrades-formacoes': moduleFourGame('tetrades-formacoes'),
+  'arpejos-tetrades': moduleFourGame('arpejos-tetrades'),
+  'tetrades-aplicacao': moduleFourGame('tetrades-aplicacao'),
 };
+
+function moduleFourGame(id: ModuleFourId) {
+  return lazy(() => import('./module-four/ModuleFourGame').then(m => ({
+    default: (props: GameProps) => <m.ModuleFourGame {...props} id={id} />,
+  })));
+}

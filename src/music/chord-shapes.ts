@@ -83,3 +83,29 @@ export function voiceLeadingDistance(from: FretPosition[], to: FretPosition[]): 
   const a = pitches(from);
   return pitches(to).reduce((sum, p, i) => sum + Math.abs(p - a[i]), 0);
 }
+
+/** Strings and tone indices are both supplied from bass to treble. Upper-voice order is not inversion. */
+export function orderedVoicings(root: SpelledNote, quality: ChordQuality, strings: readonly number[], order: readonly number[], options: ShapeOptions = {}): ShapeTone[][] {
+  const { maxFret = 12, maxSpan = 5 } = options;
+  const count = quality.tones.length;
+  if (strings.length !== count || order.length !== count || order[0] !== 0
+    || new Set(strings).size !== count || new Set(order).size !== count
+    || strings.some(s => !Number.isInteger(s) || s < 0 || s > 5)
+    || order.some(i => !Number.isInteger(i) || i < 0 || i >= count)) return [];
+  const pc = spelledPitchClass(root);
+  const out: ShapeTone[][] = [];
+  const visit = (shape: ShapeTone[]) => {
+    if (shape.length === count) { out.push(shape); return; }
+    const i = shape.length;
+    const toneIndex = order[i];
+    for (let fret = 0; fret <= maxFret; fret++) {
+      const position = { string: strings[i], fret };
+      if (pitchClassAt(position) !== (pc + quality.tones[toneIndex].semitones) % 12) continue;
+      if (shape.length && soundingMidi(position) <= soundingMidi(shape.at(-1)!.position)) continue;
+      const next = [...shape, { position, toneIndex, degree: degree(quality, toneIndex) }];
+      if (span(next.map(t => t.position)) <= maxSpan) visit(next);
+    }
+  };
+  visit([]);
+  return out;
+}

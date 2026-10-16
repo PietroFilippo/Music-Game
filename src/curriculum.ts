@@ -29,7 +29,7 @@ export const COURSE_MODULES: readonly CourseModule[] = [
     topicKeys: [],
   },
   {
-    id: 'sevenths', number: 4, games: [],
-    topicKeys: ['sevenths.formulas', 'sevenths.voicings', 'sevenths.arpeggios', 'sevenths.application'],
+    id: 'sevenths', number: 4, games: ['tetrades', 'tetrades-formacoes', 'arpejos-tetrades', 'tetrades-aplicacao'],
+    topicKeys: [],
   },
 ];
