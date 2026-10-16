@@ -3,6 +3,7 @@ import type { QuizRound } from '../hooks/useQuizRound';
 import { useI18n } from '../hooks/useI18n';
 import { usePageHidden } from '../hooks/usePageHidden';
 import { useSettings } from '../SettingsContext';
+import { keyIsTaken } from './AnswerBank';
 import { Icon } from './Icon';
 import { SettingsSheet } from './SettingsSheet';
 
@@ -47,6 +48,21 @@ export function GameShell({ title, onExit, quiz, feedback, review = false, revie
   // settings sheet, in a background tab or with the desktop window in the tray.
   const { setPaused } = quiz;
   useEffect(() => setPaused(settingsOpen || hidden), [settingsOpen, hidden]);
+  const autoAdvance = settings.advanceMode === 'auto';
+  // Continue takes focus after an answer; Enter still continues if focus has
+  // moved off every control since.
+  const { answered, next } = quiz;
+  useEffect(() => {
+    if (!answered || progress.done || autoAdvance) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter' || keyIsTaken(event)) return;
+      if ((event.target as HTMLElement | null)?.closest?.('button, a, [role="button"], [tabindex]')) return;
+      event.preventDefault();
+      next();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [answered, progress.done, autoAdvance, next]);
 
   const topbar = (
     <header className="topbar" data-tauri-drag-region="deep">
@@ -124,7 +140,6 @@ export function GameShell({ title, onExit, quiz, feedback, review = false, revie
   const answeredCount = progress.history.length;
   const last = quiz.reviews[quiz.reviews.length - 1];
   const verdict = quiz.expired ? 'timeout' : quiz.correct ? 'correct' : 'wrong';
-  const autoAdvance = settings.advanceMode === 'auto';
 
   return (
     <div className="page quiz">

@@ -15,6 +15,7 @@ The course has four module sections. Each can be expanded independently, and the
   - The header shows a 10-segment round strip, correct and wrong counts, a countdown ring when timed, and a sound toggle.
   - Feedback arrives in a bottom sheet, so Continue stays in one place; in automatic mode the button shows the advance delay. Fretboard topics add a Listen button that plays the answer: one note, both notes of an interval, a scale, a strummed chord or an arpeggio.
   - Opening Settings mid-quiz pauses the timer and any automatic advance.
+  - Keys 1–4 pick the matching answer button, in reading order. In manual mode, Enter continues after an answer.
   - Results compare the score with the previous best and last play, and list each missed round with the right answer. After misses, Review these N replays the missed questions once each, without changing scores.
 - **Phones:** a selectable fretboard splits into frets 0–6 and 7–12, so each fret is a large touch target.
 - **Lessons** have a step strip and a sticky Previous/Next bar.
@@ -47,7 +48,7 @@ All seven topics of the fretboard module are available in Portuguese and English
 | Topic | Practice |
 | --- | --- |
 | Strings and Tuning | Name the highlighted string, name open-string notes, find the string tuned to a note, and tap a string on the fretboard |
-| Natural Notes on the Neck | Name a marked position or a tab number, and tap a requested note on a given string, frets 0–12 |
+| Natural Notes on the Neck | Name a marked position or a tab number, and tap a requested note on a given string (highlighted on the neck), frets 0–12 |
 | Sharps and Flats | Name the frets between natural notes (with both spellings); name the note one or two frets up (with sharps) or down (with flats); find a sharp or flat on a string; read sharps and flats on the staff |
 | Octaves on the Neck | Tap the octave two strings over (two frets up, or three when crossing the 3rd and 2nd strings); tap the same pitch on the next string; classify two marked positions as one octave, two octaves, the same pitch or different notes |
 | Intervals | Name the interval between a root and a marked note; tap a requested interval on a given string; name the interval between two spelled notes, such as C → E♭ (minor 2nd to octave) |

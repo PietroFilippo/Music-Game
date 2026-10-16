@@ -74,6 +74,25 @@ describe('module 2 games', () => {
     expect(getScore(id)!.plays).toBe(1);
   });
 
+  it('answers with number keys and continues with Enter', () => {
+    const deck = startGame('notas-braco');
+    for (const question of deck) {
+      const { answer } = question;
+      if (answer.kind === 'choice') {
+        // A shortcut is ignored while a modifier is held.
+        fireEvent.keyDown(window, { key: '1', ctrlKey: true });
+        expect(screen.queryByRole('status')).toBeNull();
+        fireEvent.keyDown(window, { key: String(answer.choices.findIndex(c => c.value === answer.correct) + 1) });
+      } else {
+        answerCorrectly(question);
+      }
+      expect(screen.getByRole('status').textContent).toContain('Correct!');
+      (document.activeElement as HTMLElement).blur();
+      fireEvent.keyDown(document.body, { key: 'Enter' });
+    }
+    expect(getScore('notas-braco')).toMatchObject({ last: 100 });
+  });
+
   it('reviews a wrong fretboard answer and locks the board', () => {
     const deck = startGame('notas-braco');
     const index = deck.findIndex(q => q.answer.kind === 'board');
