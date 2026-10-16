@@ -33,6 +33,7 @@
 .question-hint { color: var(--muted); }
 .question-hint b { color: var(--fg); }
 .question-note { font-size: 72px; line-height: 1.15; color: var(--accent); font-weight: 700; }
+.question-keys { width: 100%; display: flex; justify-content: center; }
 .question-text { font-size: 40px; }
 .sound-scenario { max-width: 560px; margin: 0; padding: 24px; background: var(--surface); border-radius: 12px; font-size: 22px; line-height: 1.5; }
 /* How to answer. Hints about keys show only with a mouse or trackpad. */
@@ -89,6 +90,13 @@ p.key-hint, span.key-hint { display: none; }
 .stage .vis .question-note { font-size: clamp(88px, 40px + 5vw, 140px); }
 .stage .vis .sound-scenario { max-width: 720px; font-size: var(--t2); }
 .stage .vis .question-figure { zoom: 2.2; }
+/* Short windows (1366 × 768, 1100 × 720): a tighter column, so more of the
+   answered round fits above Continue. */
+@media (max-height: 800px) {
+  .stage .col, .feedback-col { gap: var(--s3); }
+  .stage .answers-col { gap: 10px; }
+  .stage .answers-col .answer { min-height: 52px; }
+}
 
 /* Feedback after an answer: the verdict, the answer, the explanation and the
    solution, then Continue. */
