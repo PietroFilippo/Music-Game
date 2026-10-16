@@ -4,6 +4,7 @@ export const GAME_IDS = [
   'propriedades-som', 'notas-teclado', 'cordas-afinacao', 'notas-braco', 'sustenidos-bemois',
   'oitavas', 'intervalos', 'escalas', 'leitura-braco',
   'triades', 'inversoes-triades', 'arpejos-triades', 'triades-progressoes',
+  'tetrades', 'tetrades-formacoes', 'arpejos-tetrades', 'tetrades-aplicacao',
 ] as const;
 export type GameId = typeof GAME_IDS[number];
 

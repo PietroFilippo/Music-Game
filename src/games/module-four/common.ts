@@ -8,7 +8,10 @@ import { noteKey, type Copy, type FretboardQuestion } from '../fretboard/model';
 import { ROOTS as TRIAD_ROOTS, shapeBoard } from '../module-three/common';
 
 export { board, hiddenBoard, positionsOf, shapeBoard, shapeKey } from '../module-three/common';
-export const ROOTS: SpelledNote[] = [...TRIAD_ROOTS, { letter: 'C', accidental: '#' }, { letter: 'G', accidental: '#' }];
+export const ROOTS: SpelledNote[] = [...TRIAD_ROOTS,
+  { letter: 'C', accidental: '#' }, { letter: 'G', accidental: '#' },
+  { letter: 'D', accidental: '#' }, { letter: 'A', accidental: 'b' },
+];
 // Both arrays run from low to high. Tone indices 0,1,2,3 mean root, third, fifth, seventh.
 export const VOICING_LAYOUTS = [
   { strings: [5, 3, 2, 1], order: [0, 3, 1, 2] },
@@ -35,6 +38,9 @@ export const baseQuestion = (c: Copy, e: SeventhExample) => ({
   chord: { root: e.root, quality: e.quality }, explanation: describeChord(c, e), reveal: shapeBoard(e.shape),
   sound: { notes: e.shape.map(t => soundingMidi(t.position)), spacing: 0.03 },
 });
+export const rootedBoard = (shape: ShapeTone[]) => ({ ...shapeBoard(shape), markers: shape.map(t => ({
+  ...t.position, label: t.toneIndex === 0 ? 'R' : '?', tone: t.toneIndex === 0 ? 'root' as const : 'plain' as const,
+})) });
 export const VOICING_EXAMPLES: SeventhExample[] = ROOTS.flatMap(root => SEVENTH_QUALITIES.filter(q => spellsCleanly(root, SEVENTHS[q]))
   .flatMap(quality => VOICING_LAYOUTS.flatMap(l => orderedVoicings(root, SEVENTHS[quality], l.strings, l.order).map(shape => ({ root, quality, shape })))));
 export const SEVENTH_EXAMPLES = ROOTS.flatMap(root => SEVENTH_QUALITIES.flatMap(quality => {
