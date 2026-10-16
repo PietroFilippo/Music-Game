@@ -1,11 +1,70 @@
-/* Stats */
-.sumgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
-.sumgrid div { background: var(--bg-sunken); border-radius: 10px; padding: 10px 6px; }
-.sumgrid b { display: block; font-size: 20px; }
-.sumgrid span { font-size: 12px; color: var(--muted); }
-.srow { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); }
-.srow > div:first-child { flex: 1; min-width: 0; }
-.sname { font-weight: 600; font-size: 15px; }
-.snums { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; font-size: 13px; color: var(--muted); }
-.snums b { color: var(--fg); font-weight: 600; }
-.snums .low b { color: var(--amber); }
+/* Stats (REDESIGN.md 7.6): four tiles, then one card per module with a table
+   of plays and scores. Module cards: one column below 1000 px, two up to
+   1599 px, four from 1600 px. */
+.stats-main { gap: var(--s4); }
+@media (min-width: 1000px) {
+  .stats-main { max-width: none; padding-bottom: var(--s5); }
+}
+
+.stats-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 768px) {
+  .stats-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.stats-tile {
+  display: flex; flex-direction: column; gap: 2px; padding: 12px 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-ctl);
+}
+.stats-tile b { font-size: 28px; font-weight: 600; line-height: 1.1; }
+.stats-tile span { font-size: var(--t-1); color: var(--muted); }
+
+.stats-modules { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); align-items: start; }
+@media (min-width: 1000px) {
+  .stats-modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1600px) {
+  .stats-modules { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.stats-mod { container: stats-mod / inline-size; }
+.stats-mod h3 { font-size: var(--t1); font-weight: 700; line-height: 1.3; margin-top: 2px; }
+.stats-due { margin-top: 2px; font-size: 14px; color: var(--amber); }
+
+/* The table: Topic · Plays · Avg · Best · Last, and a reset button on rows with data. */
+.stats-table { margin-top: var(--s3); }
+.stats-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, 50px) var(--tap-sm);
+  grid-template-areas: 'name plays avg best last reset';
+  column-gap: 6px; align-items: center; min-height: 56px; padding: 6px 0; border-top: 1px solid var(--line);
+}
+.stats-head { min-height: 0; padding: 0 0 8px; border-top: 0; font-size: var(--t-1); font-weight: 500; color: var(--muted); }
+.stats-name { grid-area: name; font-weight: 600; line-height: 1.3; overflow-wrap: break-word; }
+.stats-head .stats-name { font-weight: 500; }
+.stats-plays { grid-area: plays; }
+.stats-avg { grid-area: avg; }
+.stats-best { grid-area: best; }
+.stats-last { grid-area: last; }
+.stats-plays, .stats-avg, .stats-best, .stats-last { text-align: right; white-space: nowrap; }
+.stats-reset { position: relative; grid-area: reset; display: flex; justify-content: flex-end; }
+.stats-num { position: relative; display: inline-block; font-weight: 600; }
+.stats-num.low { color: var(--amber); }
+/* Hangs under the number so the row's numbers stay on one line. */
+.stats-low { position: absolute; top: 100%; right: 0; font: 400 11px/1.2 var(--font); color: var(--muted); }
+.stats-dash { color: var(--line-strong); }
+.stats-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* Narrow cards (phones, and the four-column grid below about 1880 px): the
+   topic gets its own line and the numbers sit under their headers. */
+@container stats-mod (max-width: 399px) {
+  .stats-row {
+    grid-template-columns: minmax(0, 1fr) repeat(4, 46px) var(--tap-sm);
+    grid-template-areas: 'name name name name name reset' '. plays avg best last reset';
+    row-gap: 2px; align-items: start; padding: 8px 0;
+  }
+  .stats-head { grid-template-areas: 'name plays avg best last reset'; padding: 0 0 8px; }
+  .stats-reset { align-self: center; }
+  .stats-low { position: static; display: block; }
+}
+
+.stats-reset-all p { margin-top: 10px; font-size: 14px; color: var(--muted); }
+
+/* Nothing played yet: one line and the way in. */
+.stats-empty { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s4); max-width: 560px; padding: var(--s5); }
+.stats-empty p { color: var(--fg-2); line-height: 1.55; }

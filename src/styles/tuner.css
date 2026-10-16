@@ -1,20 +1,65 @@
-/* Tuner */
-.tuner { width: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
-.tuner-intro, .tuner-waiting { color: var(--muted); line-height: 1.6; }
-.tuner-display { width: 100%; min-height: 168px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
-.tuner-string { font-size: 34px; font-weight: 700; }
-.tuner-state { font-size: 16px; font-weight: 600; }
-.tuner-inTune { color: var(--accent); }
-.tuner-low, .tuner-high { color: var(--amber); }
-.tuner-meter { position: relative; width: 100%; max-width: 420px; height: 18px; border-radius: 9px; background: var(--line); }
-.tuner-zone { position: absolute; left: 45%; width: 10%; top: 0; bottom: 0; border-radius: 4px; background: rgba(127, 224, 180, 0.35); }
-.tuner-needle { position: absolute; top: -5px; width: 4px; height: 28px; border-radius: 2px; transform: translateX(-50%); background: currentColor; transition: left 0.12s linear; }
-.tuner-detail { color: var(--muted); font-size: 13px; }
+/* Tuner (REDESIGN.md 7.7). Below 1000 px one centered column with the strings
+   as six tiles; from 1000 px the readout on the left and the strings as a list
+   in a card on the right. */
+.tuner { width: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+/* On one column the notes go under the strings; see `order` below. */
+.tuner-left { display: contents; }
+.tuner-intro { font-size: 14px; line-height: 1.55; color: var(--muted); }
+
+/* The readout keeps its full layout while idle (hidden), so starting the
+   microphone does not change the card's height. */
+.tuner-readout { display: grid; padding: 20px; }
+.tuner-reading, .tuner-waiting { grid-area: 1 / 1; }
+.tuner-reading { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.tuner-reading.is-idle { visibility: hidden; }
+.tuner-waiting { align-self: center; justify-self: center; max-width: 48ch; line-height: 1.6; color: var(--muted); text-wrap: balance; }
+.tuner-note { font-size: var(--t4); font-weight: 600; line-height: 1; }
+.tuner-state { font-weight: 600; color: var(--amber); }
+.tuner-inTune .tuner-state { color: var(--accent); }
+.tuner-meter { position: relative; width: 100%; height: 22px; margin-top: 4px; border-radius: 11px; background: var(--line-strong); }
+.tuner-tick { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--outline); }
+/* In tune: within 5 cents either side. */
+.tuner-zone { position: absolute; top: 0; bottom: 0; left: 45%; width: 10%; border-radius: 4px; background: rgba(127, 224, 180, 0.35); }
+.tuner-needle {
+  position: absolute; top: -6px; width: 4px; height: 34px; border-radius: 2px;
+  transform: translateX(-50%); background: var(--amber); transition: left 0.12s linear;
+}
+.tuner-inTune .tuner-needle { background: var(--accent); }
+.tuner-scale { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; width: 100%; margin-top: 2px; font-size: 14px; color: var(--muted); }
+.tuner-cents { font-weight: 600; color: var(--fg); }
+.tuner-detail { font-size: 14px; color: var(--muted); }
 .tuner-error { color: var(--danger); }
-.tuner-subtitle { margin-top: 12px; font-size: var(--t-1); font-weight: 500; color: var(--muted); }
-.tuner-strings { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-.tuner-string-button { min-width: 48px; min-height: 56px; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
-.tuner-string-button span { color: var(--muted); font-size: 11px; }
-.tuner-string-button strong { font-size: 18px; }
+.tuner-mic { align-self: center; }
+.tuner-notes { order: 2; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
+
+.tuner-strings-card { order: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 6px; }
+.tuner-strings-title { font-size: var(--t-1); font-weight: 500; color: var(--muted); }
+.tuner-strings { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.tuner-string-button {
+  min-width: 52px; min-height: 60px; padding: 6px 10px; border-radius: 10px;
+  border: 1px solid var(--outline); background: var(--surface); color: var(--fg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.tuner-string-button:hover { background: var(--surface-hover); }
 .tuner-string-button[aria-pressed='true'] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.tuner-note { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.tuner-string-n { font-size: 11px; color: var(--muted); }
+.tuner-string-button strong { font-size: 20px; font-weight: 600; }
+.tuner-string-play { display: none; }
+
+@media (min-width: 1000px) {
+  .tuner-main { max-width: 1200px; margin: 0; }
+  .tuner { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--s5); align-items: start; max-width: none; text-align: left; }
+  .tuner-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .tuner-intro { font-size: var(--t0); }
+  .tuner-readout { padding: 32px 28px; text-align: center; }
+  .tuner-reading { gap: 16px; }
+  .tuner-mic { align-self: flex-start; }
+  .tuner-strings-card {
+    align-items: stretch; gap: 12px; margin: 0; padding: var(--s4);
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card);
+  }
+  .tuner-strings-title { font-size: var(--t1); font-weight: 700; color: var(--fg); }
+  .tuner-strings { flex-direction: column; flex-wrap: nowrap; }
+  .tuner-string-button { flex-direction: row; justify-content: flex-start; gap: 14px; min-height: 56px; padding: 0 16px; }
+  .tuner-string-play { display: inline-flex; margin-left: auto; color: var(--muted); }
+}

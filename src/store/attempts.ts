@@ -178,6 +178,18 @@ export function dueItems(gameIds: readonly GameId[], now = Date.now()): ReviewCa
   return weakItems(gameIds, now).filter(c => c.due);
 }
 
+/** When the next of these games' answered items comes due, in epoch milliseconds; null without history. */
+export function nextDueAt(gameIds: readonly GameId[]): number | null {
+  const times = gameIds.flatMap(gameId => Object.values(getAttempts(gameId)).map(dueAt));
+  return times.length ? Math.min(...times) : null;
+}
+
+/** Calendar days from `now` until `at`: 0 for today, 1 for tomorrow, negative for past days. */
+export function calendarDaysUntil(at: number, now = Date.now()): number {
+  const day = (ms: number) => { const d = new Date(ms); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+  return Math.round((day(at) - day(now)) / 86_400_000);
+}
+
 export function resetAttempts(gameId?: GameId): void {
   if (!gameId) {
     removeStored(KEY);
