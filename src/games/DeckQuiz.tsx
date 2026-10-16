@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { GameShell } from '../components/GameShell';
+import { GameShell, type QuestionView } from '../components/GameShell';
 import { Icon } from '../components/Icon';
 import { useI18n, type Translate } from '../hooks/useI18n';
 import { useQuizRound, type QuizRound, type RoundReview } from '../hooks/useQuizRound';
@@ -9,7 +9,7 @@ import type { GameId, Language, Notation } from '../types';
 
 /** How one round looks: the question, the feedback after answering and its line in the results. */
 export interface DeckRound {
-  question: (quiz: QuizRound<string>) => ReactNode;
+  question: (quiz: QuizRound<string>) => QuestionView;
   feedback: (quiz: QuizRound<string>) => ReactNode;
   describe: (picked: string | undefined, t: Translate) => RoundReview;
 }
@@ -96,11 +96,9 @@ function DeckSession({ title, items, scoreAs, renderers, showTopic, onExit, onPl
     .map(r => items[r.round - 1]).map(i => [`${i.gameId} ${i.question.id}`, i])).values()];
 
   return (
-    <GameShell title={title} onExit={onExit} quiz={quiz} review={scoreAs === null} feedback={round.feedback(quiz)}
-      onPlayAgain={onPlayAgain} reviewMisses={{ count: missed.length, start: () => onReviewMisses(missed) }}>
-      {showTopic && <p className="eyebrow question-topic">{t(`games.${item.gameId}`)}</p>}
-      {round.question(quiz)}
-    </GameShell>
+    <GameShell title={title} onExit={onExit} quiz={quiz} review={scoreAs === null}
+      question={round.question(quiz)} feedback={round.feedback(quiz)} topic={showTopic ? t(`games.${item.gameId}`) : undefined}
+      onPlayAgain={onPlayAgain} reviewMisses={{ count: missed.length, start: () => onReviewMisses(missed) }} />
   );
 }
 

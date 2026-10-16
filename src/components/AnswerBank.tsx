@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Icon } from './Icon';
+import { useStage } from './Stage';
 
 interface Choice<V extends string | number> {
   value: V;
@@ -13,6 +14,10 @@ interface Props<V extends string | number> {
   lastPick?: V;
   correctValue?: V;
   reveal?: boolean;
+  /** A two-column grid, or one column with text on the left; defaults to one column in the two-pane stage. */
+  layout?: 'grid' | 'column';
+  /** Shows each button's number key (only with a mouse or trackpad); defaults to the column layout. */
+  keyHints?: boolean;
 }
 
 /** A key press meant for something else: a text field, a shortcut or an open dialog. */
@@ -23,9 +28,10 @@ export function keyIsTaken(event: KeyboardEvent) {
     || !!document.querySelector('[aria-modal="true"]');
 }
 
-// Answer buttons in a two-column grid (one column for long labels). After an
-// answer, the right choice and a wrong pick get an icon as well as a color.
-// Number keys 1–9 pick the matching button.
+// Answer buttons in a two-column grid (one column for long labels), or in one
+// column with text on the left in the two-pane stage. After an answer, the
+// right choice and a wrong pick get an icon as well as a color, and the others
+// dim. Number keys 1–9 pick the matching button.
 export function AnswerBank<V extends string | number>({
   choices,
   onPick,
@@ -33,9 +39,14 @@ export function AnswerBank<V extends string | number>({
   lastPick,
   correctValue,
   reveal: forceReveal,
+  layout,
+  keyHints,
 }: Props<V>) {
+  const { wide } = useStage();
+  const column = (layout ?? (wide ? 'column' : 'grid')) === 'column';
+  const showKeys = keyHints ?? column;
   const reveal = forceReveal || lastPick !== undefined;
-  const wide = choices.some(c => c.label.length > 14);
+  const long = choices.some(c => c.label.length > 14);
   const pick = useRef(onPick);
   pick.current = onPick;
 
@@ -52,7 +63,7 @@ export function AnswerBank<V extends string | number>({
   }, [choices, disabled]);
 
   return (
-    <div className={`answers${wide ? ' answers-wide' : ''}`}>
+    <div className={`answers${column ? ' answers-col' : long ? ' answers-wide' : ''}`}>
       {choices.map((c, i) => {
         const isCorrect = reveal && c.value === correctValue;
         const isWrongPick = reveal && c.value === lastPick && lastPick !== correctValue;
@@ -67,7 +78,8 @@ export function AnswerBank<V extends string | number>({
           >
             {isCorrect && <Icon name="check" size={18} />}
             {isWrongPick && <Icon name="cross" size={18} />}
-            {c.label}
+            <span className="answer-label">{c.label}</span>
+            {showKeys && i < 9 && <span className="kbd" aria-hidden="true">{i + 1}</span>}
           </button>
         );
       })}

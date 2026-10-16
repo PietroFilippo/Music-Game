@@ -240,6 +240,15 @@ const pt: Dict = {
   'prompts.pauta-ii.down': 'Conte {n} para BAIXO. Qual é a nota?',
   'prompts.claves': 'Qual nota esta clave fixa na pauta?',
   'prompts.clave-sol': 'Qual nota está na pauta?',
+  // Redesign: quiz and results
+  'quiz.boardHint': 'Toque na posição no braço. As setas movem, Enter seleciona.',
+  'quiz.keysHint': 'Pressione 1–{n} para responder.',
+  'quiz.enterHint': 'Enter ↵',
+  'quiz.autoHint': 'auto · {s} s',
+  'results.lesson': 'Lição',
+  'results.upNext': 'Próximo passo: {topic}',
+  'results.yourAnswer': 'Sua resposta',
+  'results.rightAnswer': 'Resposta certa',
 };
 
 const en: Dict = {
@@ -480,6 +489,15 @@ const en: Dict = {
   'prompts.pauta-ii.down': 'Count {n} DOWN. What is the note?',
   'prompts.claves': 'Which note does this clef anchor?',
   'prompts.clave-sol': 'Which note is on the staff?',
+  // Redesign: quiz and results
+  'quiz.boardHint': 'Tap the position on the neck. Arrow keys move, Enter selects.',
+  'quiz.keysHint': 'Press 1–{n} to answer.',
+  'quiz.enterHint': 'Enter ↵',
+  'quiz.autoHint': 'auto · {s} s',
+  'results.lesson': 'Lesson',
+  'results.upNext': 'Up next: {topic}',
+  'results.yourAnswer': 'Your answer',
+  'results.rightAnswer': 'Right answer',
 };
 
 const DICTS: Record<Language, Dict> = { pt, en };

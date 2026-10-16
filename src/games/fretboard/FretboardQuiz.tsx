@@ -4,6 +4,7 @@ import { GuitarTab } from '../../components/GuitarTab';
 import { HearButton } from '../../components/HearButton';
 import { MeasureNotation } from '../../components/MeasureNotation';
 import { PositionNotation } from '../../components/PositionNotation';
+import { BoardSlot, StageNotation, useStage } from '../../components/Stage';
 import { Staff } from '../../components/Staff';
 import { useI18n } from '../../hooks/useI18n';
 import type { QuizRound } from '../../hooks/useQuizRound';
@@ -11,13 +12,29 @@ import { parsePositionKey, positionKey, samePosition, soundingMidi, type FretPos
 import type { QuizItem } from '../../review/registry';
 import type { GameId } from '../../types';
 import { DeckQuiz, type DeckRound } from '../DeckQuiz';
-import { NECK_FRETS, type FretboardQuestion, type QuestionSound, type QuestionVisual } from './model';
+import { NECK_FRETS, type BoardView, type FretboardQuestion, type QuestionSound, type QuestionVisual } from './model';
 
-function QuestionIllustration({ visual }: { visual: QuestionVisual }) {
+type BoardRoom = 'interactive' | 'plain';
+
+// In the two-pane stage notation is drawn larger, keeping room for the neck
+// that is or will be shown under it.
+function QuestionIllustration({ visual, board }: { visual: QuestionVisual; board?: BoardRoom }) {
   switch (visual.kind) {
-    case 'tab': return <GuitarTab positions={[visual.position]} width={220} />;
-    case 'staff': return <Staff noteVexKey={visual.vexKey} height={180} />;
-    case 'measure': return <MeasureNotation notes={visual.notes} label={visual.label} />;
+    case 'tab': return (
+      <StageNotation width={220} height={140} max={520} board={board} share={board === 'interactive' ? 0.4 : 0.6}>
+        <GuitarTab positions={[visual.position]} width={220} />
+      </StageNotation>
+    );
+    case 'staff': return (
+      <StageNotation width={280} height={180} max={720} board={board} share={board === 'interactive' ? 0.45 : 0.7}>
+        <Staff noteVexKey={visual.vexKey} height={180} />
+      </StageNotation>
+    );
+    case 'measure': return (
+      <StageNotation width={500} height={310} max={900} board={board} share={0.8}>
+        <MeasureNotation notes={visual.notes} label={visual.label} />
+      </StageNotation>
+    );
     case 'text': return <div className="note-sequence question-text">{visual.text}</div>;
     case 'board': return <Fretboard frets={NECK_FRETS} {...visual.board} />;
   }
@@ -40,46 +57,61 @@ function pickedMarkers({ question, quiz }: RoundProps): FretMarker[] {
     : [];
 }
 
-function FretboardPrompt({ question, quiz }: RoundProps) {
+// The solution board: the reveal with the picked position marked.
+function solutionBoard(props: RoundProps): BoardView {
+  const { reveal } = props.question;
+  return { ...reveal, markers: [...(reveal.markers ?? []), ...pickedMarkers(props)] };
+}
+
+// The question's visual. In the two-pane stage an answered round draws its
+// solution on the question's own neck (disabled), so the learner compares their
+// tap with the answer in place; stacked, the feedback shows it on a second neck.
+function FretboardVisual({ question, quiz }: RoundProps) {
   const { t } = useI18n();
+  const { wide } = useStage();
   const { answer } = question;
-  const picked = pickedMarkers({ question, quiz });
+  const solved = wide && quiz.answered;
+  if (answer.kind === 'board') {
+    const board = solved
+      ? { ...answer.board, ...solutionBoard({ question, quiz }) }
+      : { ...answer.board, markers: [...(answer.board.markers ?? []), ...pickedMarkers({ question, quiz })] };
+    return (
+      <>
+        {answer.visual && <QuestionIllustration visual={answer.visual} board="interactive" />}
+        <Fretboard
+          frets={NECK_FRETS}
+          {...board}
+          onSelect={p => quiz.pick(positionKey(p), answer.accepts.some(a => samePosition(a, p)))}
+          disabled={quiz.answered}
+          label={t('fretboard.answerLabel')}
+        />
+      </>
+    );
+  }
+  if (answer.visual.kind === 'board') {
+    return solved ? <Fretboard frets={NECK_FRETS} {...solutionBoard({ question, quiz })} /> : <QuestionIllustration visual={answer.visual} />;
+  }
   return (
-    <div className="question">
-      <p className="question-prompt">{question.prompt}</p>
-      {answer.kind === 'board' && answer.visual && <div className="question-visual">
-        <QuestionIllustration visual={answer.visual} />
-      </div>}
-      <div className="question-visual">
-        {answer.kind === 'board' ? (
-          <Fretboard
-            frets={NECK_FRETS}
-            {...answer.board}
-            markers={[...(answer.board.markers ?? []), ...picked]}
-            onSelect={p => quiz.pick(positionKey(p), answer.accepts.some(a => samePosition(a, p)))}
-            disabled={quiz.answered}
-            label={t('fretboard.answerLabel')}
-          />
-        ) : <QuestionIllustration visual={answer.visual} />}
-      </div>
-      {answer.kind === 'choice' && (
-        <AnswerBank choices={answer.choices} correctValue={answer.correct} lastPick={quiz.picked}
-          reveal={quiz.expired} disabled={quiz.answered} onPick={value => quiz.pick(value, value === answer.correct)} />
-      )}
-    </div>
+    <>
+      <QuestionIllustration visual={answer.visual} board="plain" />
+      {solved ? <Fretboard frets={NECK_FRETS} {...solutionBoard({ question, quiz })} /> : wide && <BoardSlot />}
+    </>
   );
 }
 
 function FretboardFeedback({ question, quiz }: RoundProps) {
+  const { wide } = useStage();
   const sound = questionSound(question);
   return (
     <>
       <p className="feedback-explanation">{question.explanation}</p>
       {sound && <div className="feedback-listen"><HearButton notes={sound.notes} spacing={sound.spacing} /></div>}
-      <div className="feedback-visual">
-        <Fretboard frets={NECK_FRETS} {...question.reveal} markers={[...(question.reveal.markers ?? []), ...pickedMarkers({ question, quiz })]} />
-        {question.notation && <PositionNotation position={question.notation} flat={question.notation.flat} />}
-      </div>
+      {(!wide || question.notation) && (
+        <div className="feedback-visual">
+          {!wide && <Fretboard frets={NECK_FRETS} {...solutionBoard({ question, quiz })} />}
+          {question.notation && <PositionNotation position={question.notation} flat={question.notation.flat} />}
+        </div>
+      )}
     </>
   );
 }
@@ -87,10 +119,22 @@ function FretboardFeedback({ question, quiz }: RoundProps) {
 /**
  * Shows a fretboard question, answered with choices or by tapping the neck.
  * Feedback shows the solution on the neck, as tab and staff, and can play it.
+ * In the two-pane stage the solution is drawn on the question's neck instead.
  */
 export function fretboardRound({ question }: { question: FretboardQuestion }): DeckRound {
   return {
-    question: quiz => <FretboardPrompt question={question} quiz={quiz} />,
+    question: quiz => {
+      const { answer } = question;
+      return {
+        prompt: question.prompt,
+        visual: <FretboardVisual question={question} quiz={quiz} />,
+        answers: answer.kind === 'choice' ? (
+          <AnswerBank choices={answer.choices} correctValue={answer.correct} lastPick={quiz.picked}
+            reveal={quiz.expired} disabled={quiz.answered} onPick={value => quiz.pick(value, value === answer.correct)} />
+        ) : undefined,
+        choices: answer.kind === 'choice' ? answer.choices.length : 0,
+      };
+    },
     feedback: quiz => <FretboardFeedback question={question} quiz={quiz} />,
     describe: (picked, t) => {
       const where = (p: FretPosition) => (p.fret === 0
