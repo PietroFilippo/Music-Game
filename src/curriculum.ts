@@ -25,8 +25,8 @@ export const COURSE_MODULES: readonly CourseModule[] = [
     topicKeys: [],
   },
   {
-    id: 'triads', number: 3, games: [],
-    topicKeys: ['triads.formulas', 'triads.voicings', 'triads.arpeggios', 'triads.application'],
+    id: 'triads', number: 3, games: ['triades', 'inversoes-triades', 'arpejos-triades', 'triades-progressoes'],
+    topicKeys: [],
   },
   {
     id: 'sevenths', number: 4, games: [],

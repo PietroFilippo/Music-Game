@@ -3,6 +3,7 @@ export const GAME_IDS = [
   'notacao-alfabetica', 'nome-figuras', 'notas-descendentes',
   'propriedades-som', 'notas-teclado', 'cordas-afinacao', 'notas-braco', 'sustenidos-bemois',
   'oitavas', 'intervalos', 'escalas', 'leitura-braco',
+  'triades', 'inversoes-triades', 'arpejos-triades', 'triades-progressoes',
 ] as const;
 export type GameId = typeof GAME_IDS[number];
 
