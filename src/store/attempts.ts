@@ -35,32 +35,28 @@ type Attempts = Partial<Record<GameId, Record<string, unknown>>>;
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
-const isBox = (value: unknown): value is Box => typeof value === 'number' && value in BOX_INTERVAL_DAYS;
-const count = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : 0);
+const isCount = (value: unknown): value is number => Number.isInteger(value) && (value as number) >= 0;
+const isBox = (value: unknown): value is Box => Number.isInteger(value) && (value as number) >= 1 && (value as number) <= 5;
 
 /** Records saved before scheduling have no box: each correct answer since the last miss is one step up from box 1. */
-export const boxFromStreak = (streak: number): Box => Math.min(5, 1 + Math.max(0, Math.floor(streak))) as Box;
+export const boxFromStreak = (streak: number): Box => Math.min(5, 1 + streak) as Box;
 
 export function nextBox(previous: Box | undefined, result: AttemptResult): Box {
   return result === 'correct' ? Math.min(5, (previous ?? 1) + 1) as Box : 1;
 }
 
-// Saved data may be hand-edited, partial or from an older version. Fill gaps
-// with neutral values and skip anything that never recorded an answer.
+// Saved data may be hand-edited, truncated or from an older version. A record
+// without a box predates scheduling and is fine; any other missing or invalid
+// field makes it unusable, so it is skipped rather than used for arithmetic,
+// and the next answer to that question starts a fresh record.
 function readItem(raw: unknown): ItemRecord | null {
   if (!isObject(raw)) return null;
-  const seen = count(raw.seen);
-  if (seen === 0) return null;
-  const streak = Math.min(count(raw.streak), seen);
-  return {
-    seen,
-    correct: Math.min(count(raw.correct), seen),
-    streak,
-    last: RESULTS.includes(raw.last as AttemptResult) ? raw.last as AttemptResult : streak > 0 ? 'correct' : 'wrong',
-    lastSeen: typeof raw.lastSeen === 'string' ? raw.lastSeen : '',
-    avgMs: count(raw.avgMs),
-    box: isBox(raw.box) ? raw.box : boxFromStreak(streak),
-  };
+  const { seen, correct, streak, last, lastSeen, avgMs, box } = raw;
+  if (!isCount(seen) || !isCount(correct) || !isCount(streak) || seen === 0 || correct > seen || streak > correct) return null;
+  if (typeof avgMs !== 'number' || !Number.isFinite(avgMs) || avgMs < 0) return null;
+  if (!RESULTS.includes(last as AttemptResult) || typeof lastSeen !== 'string') return null;
+  if (box !== undefined && !isBox(box)) return null;
+  return { seen, correct, streak, last: last as AttemptResult, lastSeen, avgMs, box: box ?? boxFromStreak(streak) };
 }
 
 function readAll(): Attempts {

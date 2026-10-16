@@ -69,7 +69,7 @@ describe('saved answer history', () => {
 
   it('derives a box for records saved before scheduling without rewriting them', () => {
     const old = (streak: number) => ({
-      seen: 6, correct: 4, streak, last: streak ? 'correct' : 'wrong', lastSeen: new Date(at(1)).toISOString(), avgMs: 900,
+      seen: 8, correct: 6, streak, last: streak ? 'correct' : 'wrong', lastSeen: new Date(at(1)).toISOString(), avgMs: 900,
     });
     save({ 'pauta-i': { a: old(0), b: old(1), c: old(3), d: old(6) } });
     expect(Object.values(getAttempts('pauta-i')).map(r => r.box)).toEqual([1, 2, 4, 5]);
@@ -78,28 +78,45 @@ describe('saved answer history', () => {
     expect(JSON.parse(localStorage.getItem('musicgame.attempts')!)['pauta-i'].c).toEqual(old(3));
     // The next answer continues from the derived box.
     expect(recordAttempt('pauta-i', 'c', 'correct', 500).box).toBe(5);
-    expect(recordAttempt('pauta-i', 'b', 'wrong', 500)).toMatchObject({ box: 1, seen: 7, correct: 4, streak: 0 });
+    expect(recordAttempt('pauta-i', 'b', 'wrong', 500)).toMatchObject({ box: 1, seen: 9, correct: 6, streak: 0 });
   });
 
-  it('tolerates corrupt and partial records', () => {
+  it('skips corrupt and partial records instead of doing arithmetic on them', () => {
+    const valid = { seen: 4, correct: 3, streak: 2, last: 'correct', lastSeen: 'yesterday', avgMs: 812.5 };
     save({
       'pauta-i': {
-        ok: { seen: 2, correct: 1, streak: 1, last: 'correct', lastSeen: 'yesterday', avgMs: 'fast', box: 9 },
+        ok: valid,
+        boxed: { ...valid, box: 4 },
+        badBox: { ...valid, box: 9 },
+        fractionalBox: { ...valid, box: 2.5 },
+        slowText: { ...valid, avgMs: 'fast' },
+        noLast: { ...valid, last: undefined },
+        oddLast: { ...valid, last: 'maybe' },
+        noDate: { ...valid, lastSeen: 17 },
+        tooManyCorrect: { ...valid, correct: 5 },
+        longStreak: { ...valid, streak: 4 },
+        negative: { ...valid, seen: -1 },
+        fractional: { ...valid, seen: 4.5 },
+        stringCount: { ...valid, seen: '4' },
+        neverSeen: { ...valid, seen: 0, correct: 0, streak: 0 },
         empty: {}, text: 'oops', list: [1, 2], none: null,
       },
       claves: 'broken',
       'clave-sol': [],
     });
-    expect(getAttempts('pauta-i')).toEqual({
-      ok: { seen: 2, correct: 1, streak: 1, last: 'correct', lastSeen: 'yesterday', avgMs: 0, box: 2 },
-    });
+    expect(getAttempts('pauta-i')).toEqual({ ok: { ...valid, box: 3 }, boxed: { ...valid, box: 4 } });
     expect(getAttempts('claves')).toEqual({});
     // An unreadable date counts as due now.
-    expect(dueItems(['pauta-i', 'claves', 'clave-sol'], at(1)).map(c => c.itemId)).toEqual(['ok']);
+    expect(dueItems(['pauta-i', 'claves', 'clave-sol'], at(1)).map(c => c.itemId)).toEqual(['ok', 'boxed']);
+    // The next answer to a skipped question starts over.
     expect(recordAttempt('claves', 'bass', 'wrong', 500)).toMatchObject({ seen: 1, box: 1 });
-    expect(recordAttempt('pauta-i', 'empty', 'correct', 500)).toMatchObject({ seen: 1, correct: 1, box: 2 });
+    expect(recordAttempt('pauta-i', 'slowText', 'correct', 500)).toMatchObject({ seen: 1, correct: 1, avgMs: 500, box: 2 });
+    expect(JSON.parse(localStorage.getItem('musicgame.attempts')!)['pauta-i'].badBox).toEqual({ ...valid, box: 9 });
     save('not an object');
     expect(weakItems(['pauta-i'])).toEqual([]);
     expect(hasAttempts(['pauta-i'])).toBe(false);
+    save([{ seen: 1 }]);
+    expect(recordAttempt('pauta-i', 'g/4', 'correct', 500).seen).toBe(1);
+    expect(Object.keys(getAttempts('pauta-i'))).toEqual(['g/4']);
   });
 });
