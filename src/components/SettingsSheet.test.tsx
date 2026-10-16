@@ -18,7 +18,7 @@ describe('settings sheet', () => {
     expect(sound.getAttribute('aria-checked')).toBe('false');
     expect(screen.queryByRole('slider')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Automatic' }));
-    expect(screen.getByRole('slider', { name: 'Delay' })).toBeDefined();
+    expect(screen.getByRole('slider', { name: 'Wait' })).toBeDefined();
     expect(loadSettings()).toMatchObject({ difficulty: 'hard', notation: 'solfege', sound: false, advanceMode: 'auto' });
 
     fireEvent.keyDown(dialog, { key: 'Escape' });

@@ -19,10 +19,14 @@
 .notation-pair { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
 .notation-pair figure { margin: 0; display: flex; flex-direction: column; align-items: center; }
 .notation-pair figcaption { font-size: var(--t-1); font-weight: 500; color: var(--muted); margin-top: auto; padding-top: 6px; }
-.explorer { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+/* Fretboard explorer: toggles, the board as wide as its container allows, then
+   the readout beside the written note (stacked when narrow). */
+.explorer { width: 100%; display: flex; flex-direction: column; align-items: center; gap: var(--s4); }
 .explorer-toggles { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.toggle-chip { min-height: var(--tap-sm); padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 14px; }
+.toggle-chip { min-height: var(--tap-sm); padding: 7px 16px; border-radius: 999px; border: 1px solid var(--outline); background: var(--elevated); color: var(--fg); font-size: 14px; }
+.toggle-chip:hover { border-color: var(--accent); }
 .toggle-chip[aria-pressed='true'] { background: var(--accent-strong); color: var(--on-accent); border-color: var(--accent-strong); font-weight: 600; }
-.explorer-readout { min-height: 52px; font-size: 15px; line-height: 1.5; }
-.explorer-readout strong { display: block; color: var(--accent); font-size: 22px; }
+.explorer-detail { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s3) var(--s6); }
+.explorer-readout { min-width: 180px; min-height: 52px; font-size: 15px; line-height: 1.5; }
+.explorer-readout strong { display: block; color: var(--accent); font-size: var(--t3); line-height: 1.2; }
 .explorer-hint { color: var(--muted); font-size: 14px; }

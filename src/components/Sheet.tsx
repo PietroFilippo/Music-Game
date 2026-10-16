@@ -3,7 +3,7 @@ import { useI18n } from '../hooks/useI18n';
 import { useModalFocus } from '../hooks/useModalFocus';
 import { Icon } from './Icon';
 
-// A modal panel: a bottom sheet on phones, a centered panel on wider screens.
+// A modal panel: a bottom sheet under 640 px, a centered dialog from 640 px (styles/settings.css).
 // Escape and the backdrop close it, Tab stays inside, and focus returns to the opener.
 export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   const { t } = useI18n();

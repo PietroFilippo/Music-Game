@@ -20,7 +20,8 @@ export function ModuleOneLesson({ id, onExit, onPractice }: LessonProps & { id: 
   const name = (letter: LetterNote) => noteLabel(letter, settings.notation, lang);
   const step = (ptTitle: string, enTitle: string, pt: string, en: string, visual: ReactNode): LessonStep => ({
     title: text(ptTitle, enTitle),
-    body: <><p className="lesson-copy">{text(pt, en)}</p><div className="lesson-visual">{visual}</div></>,
+    body: <p className="lesson-copy">{text(pt, en)}</p>,
+    visual,
   });
   const sequence = (letters: LetterNote[], arrow = '→') => <div className="note-sequence">
     {letters.map((letter, i) => <span key={i}>{i > 0 && `${arrow} `}{name(letter)}</span>)}

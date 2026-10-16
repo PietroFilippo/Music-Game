@@ -80,7 +80,7 @@ const D_STRING_FRETS: FretPosition[] = [
 ];
 
 function Text({ children }: { children: ReactNode }) {
-  return <p style={{ maxWidth: 560, margin: '0 auto 22px' }}>{children}</p>;
+  return <p className="lesson-copy">{children}</p>;
 }
 
 function NoteCycle({ labelFor }: { labelFor: (l: LetterNote) => string }) {
@@ -142,66 +142,47 @@ export function PautaIILesson({ onExit, onPractice }: LessonProps) {
   const steps: LessonStep[] = [
     {
       title: c[0].title,
-      body: (
-        <>
-          <Text>{c[0].text}</Text>
-          <NoteCycle labelFor={labelFor} />
-        </>
+      body: <Text>{c[0].text}</Text>,
+      visual: (
+        <NoteCycle labelFor={labelFor} />
       ),
     },
     {
       title: c[1].title,
-      body: (
-        <>
-          <Text>{c[1].text}</Text>
-          <StaffDiagram width={560} height={175} notes={scaleNotes} numberLines />
-        </>
+      body: <Text>{c[1].text}</Text>,
+      visual: (
+        <StaffDiagram width={560} height={175} notes={scaleNotes} numberLines />
       ),
     },
     {
       title: c[2].title,
-      body: (
-        <>
-          <Text>{c[2].text}</Text>
-          <StaffDiagram width={400} height={175} notes={countUpNotes} numberLines />
-        </>
+      body: <Text>{c[2].text}</Text>,
+      visual: (
+        <StaffDiagram width={400} height={175} notes={countUpNotes} numberLines />
       ),
     },
     {
       title: c[3].title,
-      body: (
-        <>
-          <Text>{c[3].text}</Text>
-          <StaffDiagram width={360} height={175} notes={countDownNotes} numberLines />
-        </>
+      body: <Text>{c[3].text}</Text>,
+      visual: (
+        <StaffDiagram width={360} height={175} notes={countDownNotes} numberLines />
       ),
     },
     {
       title: c[4].title,
-      body: (
-        <>
-          <Text>{c[4].text}</Text>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 18,
-            }}
-          >
-            <StaffDiagram clef="treble" width={300} height={175} notes={guitarNotes} />
-            <Fretboard positions={D_STRING_FRETS} highlightFirst={false} />
-          </div>
-        </>
+      body: <Text>{c[4].text}</Text>,
+      visual: (
+        <div className="lesson-stack">
+          <StaffDiagram clef="treble" width={300} height={175} notes={guitarNotes} />
+          <Fretboard positions={D_STRING_FRETS} highlightFirst={false} />
+        </div>
       ),
     },
     {
       title: c[5].title,
-      body: (
-        <>
-          <Text>{c[5].text}</Text>
-          <NoteCycle labelFor={labelFor} />
-        </>
+      body: <Text>{c[5].text}</Text>,
+      visual: (
+        <NoteCycle labelFor={labelFor} />
       ),
     },
   ];

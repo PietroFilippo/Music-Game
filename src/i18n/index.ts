@@ -253,6 +253,10 @@ const pt: Dict = {
   'stats.start': 'Começar pelo Módulo 1',
   'tuner.stringLabel': '{n}ª corda',
   'tuner.cents': '{cents} cents',
+  // Redesign: lessons and settings
+  'lesson.steps': 'Passos',
+  'lesson.stepN': 'Passo {n}',
+  'lesson.done': 'concluído',
 };
 
 const en: Dict = {
@@ -472,9 +476,9 @@ const en: Dict = {
   'stats.cancel': 'Cancel',
   'stats.delete': 'Delete',
   'settings.language': 'Language',
-  'settings.notation': 'Note names',
+  'settings.notation': 'Notation',
   'settings.advance': 'After answer',
-  'settings.autoDelay': 'Delay',
+  'settings.autoDelay': 'Wait',
   'notation.letter': 'Letter names (C-D-E)',
   'notation.solfege': 'Solfege (Do-Re-Mi)',
   'notation.both': 'Letters + solfege',
@@ -506,6 +510,10 @@ const en: Dict = {
   'stats.start': 'Start with Module 1',
   'tuner.stringLabel': 'String {n}',
   'tuner.cents': '{cents} cents',
+  // Redesign: lessons and settings
+  'lesson.steps': 'Steps',
+  'lesson.stepN': 'Step {n}',
+  'lesson.done': 'done',
 };
 
 const DICTS: Record<Language, Dict> = { pt, en };
