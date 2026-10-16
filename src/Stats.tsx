@@ -3,7 +3,7 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { Icon } from './components/Icon';
 import { COURSE_MODULES } from './curriculum';
 import { useI18n } from './hooks/useI18n';
-import { resetAttempts } from './store/attempts';
+import { dueItems, hasAttempts, resetAttempts } from './store/attempts';
 import { getScore, resetAllScores, resetScore } from './store/scores';
 import { GAME_IDS, type GameId, type PlayRecord } from './types';
 
@@ -23,6 +23,9 @@ export function Stats({ onBack }: { onBack: () => void }) {
   const played = scores.filter(s => s.rec);
   const totalPlays = played.reduce((sum, s) => sum + (s.rec?.plays ?? 0), 0);
   const overall = average(played.flatMap(s => s.rec?.history ?? []));
+  // Answers are recorded before a quiz ends, so history can exist without a score; resets must reach it.
+  const anyHistory = played.length > 0 || hasAttempts(GAME_IDS);
+  const due = Object.fromEntries(COURSE_MODULES.map(m => [m.id, dueItems(m.games).length]));
   const fmt = (v: number | null | undefined) => (v === null || v === undefined ? '—' : `${v}%`);
 
   const confirmReset = () => {
@@ -53,6 +56,7 @@ export function Stats({ onBack }: { onBack: () => void }) {
           <section key={module.id} className="card" aria-labelledby={`stats-${module.id}`}>
             <p className="eyebrow">{t('course.number', { n: module.number })}</p>
             <h3 id={`stats-${module.id}`}>{t(`course.${module.id}.title`)}</h3>
+            {due[module.id] > 0 && <p className="muted small">{t('stats.due', { n: due[module.id] })}</p>}
             <div style={{ marginTop: 8 }}>
               {module.games.map(id => {
                 const rec = getScore(id);
@@ -68,7 +72,7 @@ export function Stats({ onBack }: { onBack: () => void }) {
                         <span className={rec && rec.last < LOW_SCORE ? 'low' : ''}>{t('common.last')} <b>{fmt(rec?.last)}</b></span>
                       </div>
                     </div>
-                    <button type="button" className="ibtn" disabled={!rec}
+                    <button type="button" className="ibtn" disabled={!rec && !hasAttempts([id])}
                       aria-label={t('stats.resetTopic', { game: t(`games.${id}`) })} onClick={() => setPending(id)}>
                       <Icon name="trash" size={18} />
                     </button>
@@ -79,7 +83,7 @@ export function Stats({ onBack }: { onBack: () => void }) {
           </section>
         ))}
         <div>
-          <button type="button" className="btn btn-danger" disabled={played.length === 0} onClick={() => setPending('all')}>
+          <button type="button" className="btn btn-danger" disabled={!anyHistory} onClick={() => setPending('all')}>
             {t('stats.resetAll')}
           </button>
           <p className="muted small" style={{ marginTop: 10 }}>{t('stats.resetHint')}</p>
