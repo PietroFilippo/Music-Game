@@ -2,7 +2,7 @@ import type { MarkerTone } from '../../components/Fretboard';
 import { fretsForLetter, naturalAt, naturalFrets, positionKey, type FretPosition } from '../../music/guitar';
 import { LETTERS, type LetterNote } from '../../music/notes';
 import { shuffle } from '../../music/theory';
-import { NECK_FRETS, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from './model';
+import { NECK_FRETS, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from '../fretboard/model';
 
 // Natural Notes on the Neck: name and find natural notes on frets 0–12.
 export function naturalNoteQuestions(c: Copy): ModuleTwoQuestion[][] {

@@ -7,7 +7,7 @@ import {
 import { shuffle } from '../../music/theory';
 import type { Language, Notation } from '../../types';
 
-// Module 2 stays between the open strings and the octave at fret 12.
+// Fretboard quizzes (modules 2–4) stay between the open strings and the octave at fret 12.
 export const NECK_FRETS = 12;
 export const STRINGS = Array.from({ length: STRING_COUNT }, (_, s) => s);
 
@@ -38,7 +38,15 @@ export interface NotatedPosition extends FretPosition {
   flat?: boolean;
 }
 
-export interface ModuleTwoQuestion {
+/** Sounding pitches (MIDI numbers) played by the feedback's Listen button. */
+export interface QuestionSound {
+  notes: number[];
+  /** Seconds between notes; near 0 strums them as a chord. */
+  spacing?: number;
+}
+
+export interface FretboardQuestion {
+  /** Stable across plays and languages, for answer history and review. */
   id: string;
   prompt: string;
   answer: QuestionAnswer;
@@ -47,7 +55,11 @@ export interface ModuleTwoQuestion {
   reveal: BoardView;
   /** Position shown as tablature and written notation after answering. */
   notation?: NotatedPosition;
+  /** What Listen plays after answering; defaults to the notation position's sounding pitch. */
+  sound?: QuestionSound;
 }
+
+export type ModuleTwoQuestion = FretboardQuestion;
 
 /** Choice value for a spelled note, e.g. "F#" or "Bb". */
 export const noteKey = (n: SpelledNote) => `${n.letter}${n.accidental}`;

@@ -1,7 +1,7 @@
 import { OPEN_STRING_LETTERS } from '../../music/guitar';
 import type { LetterNote } from '../../music/notes';
 import { shuffle } from '../../music/theory';
-import { NECK_FRETS, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from './model';
+import { NECK_FRETS, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from '../fretboard/model';
 
 const OPEN_NOTE_CHOICES: LetterNote[] = ['E', 'A', 'D', 'G', 'B'];
 

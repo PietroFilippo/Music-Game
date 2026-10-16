@@ -5,7 +5,7 @@ import {
   type Accidental, type LetterNote, type SpelledNote,
 } from '../../music/notes';
 import { shuffle } from '../../music/theory';
-import { NECK_FRETS, noteKey, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from './model';
+import { NECK_FRETS, noteKey, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from '../fretboard/model';
 
 const ACCIDENTAL_PITCH_CLASSES = [1, 3, 6, 8, 10];
 const MOVES = [1, 2, -1, -2];

@@ -1,7 +1,7 @@
 import type { FretMarker } from '../../components/Fretboard';
 import { naturalAt, naturalFrets, OPEN_STRING_MIDI, positionKey, soundingMidi, type FretPosition } from '../../music/guitar';
 import { shuffle } from '../../music/theory';
-import { NECK_FRETS, type BoardView, type Copy, type ModuleTwoQuestion } from './model';
+import { NECK_FRETS, type BoardView, type Copy, type ModuleTwoQuestion } from '../fretboard/model';
 
 export type PairRelation = 'octave' | 'two-octaves' | 'unison' | 'different';
 const RELATIONS: PairRelation[] = ['octave', 'two-octaves', 'unison', 'different'];
@@ -58,6 +58,7 @@ export function octaveQuestions(c: Copy): ModuleTwoQuestion[][] {
       ),
       reveal: board([{ ...p, label: label(p), tone: 'root' }, { ...target, label: label(target), tone: 'accent' }], [target.string]),
       notation: target,
+      sound: { notes: [soundingMidi(p), soundingMidi(target)] },
     };
   });
 
@@ -83,6 +84,7 @@ export function octaveQuestions(c: Copy): ModuleTwoQuestion[][] {
       ),
       reveal: board([{ ...p, label: label(p), tone: 'root' }, { ...target, label: label(target), tone: 'accent' }], [target.string]),
       notation: target,
+      sound: { notes: [soundingMidi(p), soundingMidi(target)] },
     };
   });
 
@@ -125,6 +127,7 @@ export function octaveQuestions(c: Copy): ModuleTwoQuestion[][] {
         { ...a, label: c.shortPitch(soundingMidi(a) % 12), tone: 'root' },
         { ...b, label: c.shortPitch(soundingMidi(b) % 12), tone: 'accent' },
       ]),
+      sound: { notes: [soundingMidi(a), soundingMidi(b)] },
     };
   });
 

@@ -3,7 +3,7 @@ import { naturalAt, naturalFrets, OPEN_STRING_MIDI, positionKey, soundingMidi, t
 import { INTERVALS, intervalBySemitones, spellInterval, type Interval } from '../../music/intervals';
 import { LETTERS, type SpelledNote } from '../../music/notes';
 import { shuffle } from '../../music/theory';
-import { NECK_FRETS, type BoardView, type Choice, type Copy, type ModuleTwoQuestion } from './model';
+import { NECK_FRETS, type BoardView, type Choice, type Copy, type ModuleTwoQuestion } from '../fretboard/model';
 
 // Spellings this course does not use yet.
 const RARE = new Set(['E#', 'B#', 'Fb', 'Cb']);
@@ -65,6 +65,7 @@ export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
     explanation: `${counting(root, target, interval.semitones)} ${text('É uma', 'That is a')} ${name(interval)}.`,
     reveal: board([rootMarker(root), { ...target, label: interval.degree, tone: 'accent' }]),
     notation: target,
+    sound: { notes: [soundingMidi(root), soundingMidi(target)] },
   }));
 
   const findOnBoard = sample(7, 3).map(({ interval, root, target }): ModuleTwoQuestion => ({
@@ -77,6 +78,7 @@ export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
     explanation: `${name(interval)}: ${interval.semitones} ${text('semitons', 'semitones')}. ${counting(root, target, interval.semitones)}`,
     reveal: board([rootMarker(root), { ...target, label: interval.degree, tone: 'accent' }], [target.string]),
     notation: target,
+    sound: { notes: [soundingMidi(root), soundingMidi(target)] },
   }));
 
   const spelled = LETTERS.flatMap(letter => INTERVALS
@@ -108,6 +110,7 @@ export function intervalQuestions(c: Copy): ModuleTwoQuestion[][] {
       ),
       reveal: board([rootMarker(rootPosition), { ...targetPosition, label: interval.degree, tone: 'accent' }]),
       notation: { ...targetPosition, flat: target.accidental === 'b' },
+      sound: { notes: [soundingMidi(rootPosition), soundingMidi(targetPosition)] },
     };
   });
 

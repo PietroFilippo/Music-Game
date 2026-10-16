@@ -3,7 +3,7 @@ import { OPEN_STRING_MIDI, positionKey, soundingMidi, type FretPosition } from '
 import { LETTERS, type SpelledNote } from '../../music/notes';
 import { SCALES, scaleNotes, type ScaleKind } from '../../music/scales';
 import { shuffle } from '../../music/theory';
-import { NECK_FRETS, noteKey, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from './model';
+import { NECK_FRETS, noteKey, STRINGS, type BoardView, type Copy, type ModuleTwoQuestion } from '../fretboard/model';
 
 interface Key {
   root: SpelledNote;
@@ -68,6 +68,7 @@ export function scaleQuestions(c: Copy): ModuleTwoQuestion[][] {
     const notes = scaleNotes(key.root, key.kind);
     return notes.slice(1).map((answer, i): ModuleTwoQuestion => {
       const degree = i + 2;
+      const degreePosition = scaleShape(key.position, key.kind)[degree - 1].position;
       const letterIndex = LETTERS.indexOf(answer.letter);
       const candidates = [-1, 0, 1].flatMap(d => (['', '#', 'b'] as const)
         .map((accidental): SpelledNote => ({ letter: LETTERS[(letterIndex + d + 7) % 7], accidental })))
@@ -86,7 +87,8 @@ export function scaleQuestions(c: Copy): ModuleTwoQuestion[][] {
           `${keyName(key)}: ${notesText(notes)}. The steps ${stepsText(key.kind)} (W = whole step, H = half step) lead to ${ordinal(degree)}: ${c.spelled(answer)}.`,
         ),
         reveal: shapeBoard(key, degree),
-        notation: { ...scaleShape(key.position, key.kind)[degree - 1].position, flat: answer.accidental === 'b' },
+        notation: { ...degreePosition, flat: answer.accidental === 'b' },
+        sound: { notes: [soundingMidi(key.position), soundingMidi(degreePosition)] },
       };
     });
   });
@@ -112,6 +114,7 @@ export function scaleQuestions(c: Copy): ModuleTwoQuestion[][] {
       ),
       reveal: board([{ ...key.position, label: 'R', tone: 'root' }, ...accepts.map(p => ({ ...p, label, tone: 'accent' as const }))]),
       notation: { ...accepts[0], flat: answer.accidental === 'b' },
+      sound: { notes: [soundingMidi(key.position), target] },
     };
   }));
 
@@ -143,6 +146,7 @@ export function scaleQuestions(c: Copy): ModuleTwoQuestion[][] {
         `It starts on ${c.spelled(key.root)} and follows ${stepsText(key.kind)}: ${keyName(key)}. ${keyName(relative)} uses the same notes but starts on ${c.spelled(relative.root)}.`,
       ),
       reveal: shapeBoard(key),
+      sound: { notes: scaleShape(key.position, key.kind).map(s => soundingMidi(s.position)), spacing: 0.3 },
     };
   });
 

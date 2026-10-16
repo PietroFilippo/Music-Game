@@ -11,6 +11,8 @@ import { createQuestionDeck, MODULE_TWO_IDS, type ModuleTwoQuestion } from './qu
 // Notation rendering is exercised in the browser; these tests cover gameplay.
 vi.mock('../../components/Staff', () => ({ Staff: () => <div>Staff diagram</div> }));
 vi.mock('../../components/GuitarTab', () => ({ GuitarTab: () => <div>Guitar tab</div> }));
+const playNotes = vi.fn();
+vi.mock('../../audio/sound', () => ({ playNotes: (...args: unknown[]) => playNotes(...args), playEffect: () => {} }));
 
 const cellName = (p: FretPosition) =>
   p.fret === 0 ? `String ${p.string + 1}, open` : `String ${p.string + 1}, fret ${p.fret}`;
@@ -75,5 +77,14 @@ describe('module 2 games', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.getByLabelText(`${index} correct`)).toBeDefined();
     expect(screen.getByLabelText('1 wrong')).toBeDefined();
+  });
+
+  it('plays the interval after an answer', () => {
+    const deck = startGame('intervalos');
+    answerCorrectly(deck[0]);
+    playNotes.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Listen' }));
+    expect(playNotes).toHaveBeenCalledWith(deck[0].sound!.notes, { spacing: 0.6 });
+    expect(deck[0].sound!.notes).toHaveLength(2);
   });
 });
