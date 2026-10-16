@@ -32,7 +32,7 @@ describe('settings and storage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
     fireEvent.click(screen.getByRole('button', { name: 'Português' }));
     fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
-    expect(screen.getByText('Treino de leitura — guitarra elétrica')).toBeDefined();
+    expect(screen.getByText('Próximo passo')).toBeDefined();
     const module1 = within(screen.getByRole('region', { name: 'Fundamentos de leitura musical' }));
     const toggle = module1.getByRole('button', { name: /Ocultar tópicos/ });
     fireEvent.click(toggle);
@@ -57,7 +57,8 @@ describe('review weak spots', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.getByRole('heading', { name: 'Review complete' })).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Back to course' }));
-    expect((module1().getByRole('button', { name: 'Review weak spots' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(module1().queryByRole('button', { name: /Review weak spots/ })).toBeNull();
+    expect(module1().getByText('Nothing to review today')).toBeDefined();
     expect(getAttempts('notas-teclado').D).toMatchObject({ seen: 2, box: 2 });
     expect(getScore('notas-teclado')).toBeUndefined();
   });

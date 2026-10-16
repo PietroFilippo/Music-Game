@@ -240,6 +240,19 @@ const pt: Dict = {
   'prompts.pauta-ii.down': 'Conte {n} para BAIXO. Qual é a nota?',
   'prompts.claves': 'Qual nota esta clave fixa na pauta?',
   'prompts.clave-sol': 'Qual nota está na pauta?',
+  // Redesign: home, stats and tuner
+  'home.scoreLine': 'Melhor {best}%, último {last}%',
+  'home.dueBadge': '{n} para revisar',
+  'home.nextReview.tomorrow': 'Próxima revisão amanhã',
+  'home.nextReview.days': 'Próxima revisão em {n} dias',
+  'stats.topic': 'Tópico',
+  'stats.avg': 'Média',
+  'stats.low': 'baixo',
+  'stats.dueLabel': 'para revisar',
+  'stats.empty': 'Nenhuma partida ainda. Suas pontuações e revisões aparecem aqui depois do primeiro jogo.',
+  'stats.start': 'Começar pelo Módulo 1',
+  'tuner.stringLabel': '{n}ª corda',
+  'tuner.cents': '{cents} cents',
 };
 
 const en: Dict = {
@@ -480,6 +493,19 @@ const en: Dict = {
   'prompts.pauta-ii.down': 'Count {n} DOWN. What is the note?',
   'prompts.claves': 'Which note does this clef anchor?',
   'prompts.clave-sol': 'Which note is on the staff?',
+  // Redesign: home, stats and tuner
+  'home.scoreLine': 'Best {best}%, last {last}%',
+  'home.dueBadge': '{n} due',
+  'home.nextReview.tomorrow': 'Next review tomorrow',
+  'home.nextReview.days': 'Next review in {n} days',
+  'stats.topic': 'Topic',
+  'stats.avg': 'Avg',
+  'stats.low': 'low',
+  'stats.dueLabel': 'due for review',
+  'stats.empty': 'No plays yet. Your scores and reviews show up here after your first game.',
+  'stats.start': 'Start with Module 1',
+  'tuner.stringLabel': 'String {n}',
+  'tuner.cents': '{cents} cents',
 };
 
 const DICTS: Record<Language, Dict> = { pt, en };

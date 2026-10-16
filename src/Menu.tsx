@@ -3,7 +3,8 @@ import { Icon } from './components/Icon';
 import { SettingsSheet } from './components/SettingsSheet';
 import { COURSE_MODULES } from './curriculum';
 import { useI18n } from './hooks/useI18n';
-import { weakItems } from './store/attempts';
+import { TWO_PANE, useMediaQuery } from './hooks/useMediaQuery';
+import { calendarDaysUntil, nextDueAt, weakItems } from './store/attempts';
 import { getScore } from './store/scores';
 import { readStored, writeStored } from './store/storage';
 import type { GameId, ScoreRecord } from './types';
@@ -38,6 +39,8 @@ export function recommendTopic(): { id: GameId; kind: 'continue' | 'next' } {
   return { id: weakest?.id ?? ids[0], kind: 'continue' };
 }
 
+// Below the two-pane width, modules with unplayed topics start open and the
+// others collapsed; the learner's own choices are remembered.
 function loadExpanded(): Record<string, boolean> {
   const defaults = Object.fromEntries(COURSE_MODULES.map(module =>
     [module.id, module.games.length > 0 && module.games.some(id => !getScore(id))]));
@@ -50,8 +53,31 @@ function loadExpanded(): Record<string, boolean> {
   return defaults;
 }
 
+const RING = { size: 44, stroke: 4 };
+
+/** Topics played out of the module's total, as a ring with the count inside. */
+function ProgressRing({ done, total, label }: { done: number; total: number; label: string }) {
+  const center = RING.size / 2;
+  const r = (RING.size - RING.stroke) / 2;
+  const circumference = 2 * Math.PI * r;
+  return (
+    <span className="home-ring" role="img" aria-label={label}>
+      <svg viewBox={`0 0 ${RING.size} ${RING.size}`} width={RING.size} height={RING.size} aria-hidden="true">
+        <circle className="home-ring-track" cx={center} cy={center} r={r} />
+        {done > 0 && (
+          <circle className="home-ring-fill" cx={center} cy={center} r={r} strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - done / total)} transform={`rotate(-90 ${center} ${center})`} />
+        )}
+      </svg>
+      <b className="readout" aria-hidden="true">{done}/{total}</b>
+    </span>
+  );
+}
+
 export function Menu({ onPlay, onLearn, onReview, onNavigate }: Props) {
   const { t } = useI18n();
+  // At two-pane widths every module is open: the grid absorbs the length.
+  const wide = useMediaQuery(TWO_PANE);
   const [expanded, setExpanded] = useState(loadExpanded);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const toggle = (id: string) => {
@@ -65,7 +91,13 @@ export function Menu({ onPlay, onLearn, onReview, onNavigate }: Props) {
   const pickModule = COURSE_MODULES.find(m => m.games.includes(pick.id))!;
   const pickScore = getScore(pick.id);
   const scoreLine = (rec: ScoreRecord | undefined) =>
-    rec ? t('home.bestLast', { best: rec.best, last: rec.last }) : t('home.notPlayed');
+    rec ? t('home.scoreLine', { best: rec.best, last: rec.last }) : t('home.notPlayed');
+  const nextReview = (gameIds: readonly GameId[]) => {
+    const at = nextDueAt(gameIds);
+    const days = at === null ? 0 : calendarDaysUntil(at, now);
+    if (days < 1) return null;
+    return days === 1 ? t('home.nextReview.tomorrow') : t('home.nextReview.days', { n: days });
+  };
 
   return (
     <div className="page home">
@@ -75,93 +107,95 @@ export function Menu({ onPlay, onLearn, onReview, onNavigate }: Props) {
         <button type="button" className="ibtn" aria-label={t('menu.tab.tuner')} onClick={() => onNavigate('tuner')}><Icon name="tuner" /></button>
         <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => setSettingsOpen(true)}><Icon name="settings" /></button>
       </header>
-      <main className="page-main home-layout">
-        <div className="home-side">
-          <p className="muted small">{t('menu.subtitle')}</p>
-          <section className="card hero" aria-labelledby="home-pick">
-            <p className="eyebrow">{t(pick.kind === 'continue' ? 'home.continue' : 'home.upNext')}</p>
+      <main className="page-main home-main">
+        <section className="home-hero" aria-labelledby="home-pick">
+          <div className="home-hero-text">
+            <p className="label">{t(pick.kind === 'continue' ? 'home.continue' : 'home.upNext')}</p>
             <h2 id="home-pick">{t(`games.${pick.id}`)}</h2>
-            <p className="muted small">{t('home.moduleRounds', { n: pickModule.number })} · {scoreLine(pickScore)}</p>
-            <div className="actions" style={{ marginTop: 14 }}>
-              <button type="button" className="btn btn-primary" onClick={() => onPlay(pick.id)}>
-                <Icon name="play" size={18} /> {t('common.practice')}
-              </button>
-              <button type="button" className="btn btn-secondary" style={{ flex: '0 0 auto' }} onClick={() => onLearn(pick.id)}>
-                <Icon name="book" size={18} /> {t('home.lesson')}
-              </button>
-            </div>
-          </section>
-        </div>
-        <div className="home-modules page-main" style={{ padding: 0 }}>
+            <p className="home-meta">
+              <span>{t('home.moduleRounds', { n: pickModule.number })}</span>
+              <span className="home-sep" aria-hidden="true" />
+              <span>{scoreLine(pickScore)}</span>
+            </p>
+          </div>
+          <div className="home-hero-actions">
+            <button type="button" className="btn btn-primary" onClick={() => onPlay(pick.id)}>
+              <Icon name="play" size={18} /> {t('common.practice')}
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={() => onLearn(pick.id)}>
+              <Icon name="book" size={18} /> {t('home.lesson')}
+            </button>
+          </div>
+        </section>
+        <div className="home-modules">
           {COURSE_MODULES.map(module => {
             const records = module.games.map(id => ({ id, rec: getScore(id) }));
-            const played = records.filter(r => r.rec);
-            const open = expanded[module.id];
+            const played = records.filter(r => r.rec).length;
+            const open = wide || expanded[module.id];
             const contentId = `module-content-${module.id}`;
             const planned = module.games.length === 0;
             const status = planned ? t('home.planned') : module.topicKeys.length ? t('home.inProgress') : '';
-            const weakest = [...played].sort((a, b) => a.rec!.best - b.rec!.best)[0];
-            const average = played.length
-              ? Math.round(played.reduce((sum, r) => sum + r.rec!.best, 0) / played.length) : 0;
-            // Review appears once a module has answer history, and is enabled while something is due.
+            // Review appears once a module has answer history; until something is due it says when it will be.
             const history = weakItems(module.games, now);
             const due = history.filter(c => c.due).length;
+            const next = history.length > 0 && due === 0 ? nextReview(module.games) : null;
             return (
-              <section key={module.id} className={`card${planned ? ' planned' : ''}`} aria-labelledby={`module-${module.id}`}>
-                <div className="modhead">
-                  <div>
-                    <p className="eyebrow">{t('course.number', { n: module.number })}{status && ` · ${status}`}</p>
+              <section key={module.id} className={`card home-mod${planned ? ' planned' : ''}`} aria-labelledby={`module-${module.id}`}>
+                <div className="home-mod-head">
+                  <div className="home-mod-title">
+                    <p className="label home-mod-label">
+                      <span>{t('course.number', { n: module.number })}{status && ` · ${status}`}</span>
+                      {due > 0 && <span className="home-due readout">{t('home.dueBadge', { n: due })}</span>}
+                    </p>
                     <h3 id={`module-${module.id}`}>{t(`course.${module.id}.title`)}</h3>
                   </div>
-                  {!planned && <div className="modpct"><b>{played.length}</b>/{module.games.length}</div>}
+                  {!planned && <ProgressRing done={played} total={module.games.length}
+                    label={t('home.progress', { done: played, total: module.games.length })} />}
                 </div>
-                {!planned && <div className="bar" aria-hidden="true"><span style={{ width: `${(played.length / module.games.length) * 100}%` }} /></div>}
-                <p className="muted small">
-                  {!planned && played.length === module.games.length
-                    ? `${t('home.complete', { avg: average })} · ${t('home.weakest', { topic: t(`games.${weakest.id}`), score: weakest.rec!.best })}`
-                    : t(`course.${module.id}.description`)}
-                </p>
-                <div className="actions" style={{ marginTop: 12 }}>
-                  <button type="button" className="btn btn-secondary sm" style={{ flex: '0 0 auto' }}
+                {!planned && (
+                  <div className="home-bar" aria-hidden="true">
+                    <span style={{ width: `${(played / module.games.length) * 100}%` }} />
+                  </div>
+                )}
+                {due > 0 ? (
+                  <button type="button" className="btn btn-secondary sm home-review" onClick={() => onReview(module.id)}>
+                    <Icon name="retry" size={16} /> {t('review.openCount', { n: due })}
+                  </button>
+                ) : history.length > 0 ? (
+                  <p className="home-note">
+                    <span>{t('review.caughtUp')}</span>
+                    {next && <><span className="home-sep" aria-hidden="true" /><span>{next}</span></>}
+                  </p>
+                ) : (
+                  <p className="home-note">{t(`course.${module.id}.description`)}</p>
+                )}
+                {!wide && (
+                  // Quiet while open, so the topics and Review lead; a full button while collapsed.
+                  <button type="button" className={`btn ${open ? 'btn-ghost' : 'btn-secondary'} sm home-toggle`}
                     aria-expanded={open} aria-controls={contentId} onClick={() => toggle(module.id)}>
                     {open ? t('home.hideTopics') : planned ? t('home.showPlanned') : t('home.showTopics', { n: module.games.length })}
                     <Icon name="chevronDown" size={16} />
                   </button>
-                  {history.length > 0 && (
-                    <button type="button" className="btn btn-ghost sm" style={{ flex: '0 0 auto' }} disabled={due === 0}
-                      aria-describedby={due === 0 ? `review-hint-${module.id}` : undefined} onClick={() => onReview(module.id)}>
-                      {due > 0 ? t('review.openCount', { n: due }) : t('review.open')}
-                    </button>
-                  )}
-                  {history.length > 0 && due === 0 && (
-                    <span id={`review-hint-${module.id}`} className="muted small" style={{ alignSelf: 'center' }}>{t('review.caughtUp')}</span>
-                  )}
-                </div>
-                <div id={contentId} hidden={!open}>
-                  {!planned && (
-                    <div className="topics">
-                      {records.map(({ id, rec }) => (
-                        <article key={id} className="topic" aria-label={t(`games.${id}`)}>
-                          <div>
-                            <div className="tname">{t(`games.${id}`)}</div>
-                            <div className="tscore">{scoreLine(rec)}</div>
-                          </div>
-                          <div className="tacts">
-                            <button type="button" className="btn btn-ghost sm" onClick={() => onLearn(id)}>
-                              <Icon name="book" size={18} /> {t('menu.learn')}
-                            </button>
-                            <button type="button" className="btn btn-primary sm" onClick={() => onPlay(id)}>
-                              {t('common.practice')}
-                            </button>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  )}
+                )}
+                <div id={contentId} className="home-topics" hidden={!open}>
+                  {records.map(({ id, rec }) => (
+                    <article key={id} className="home-topic" aria-label={t(`games.${id}`)}>
+                      <div className="home-topic-text">
+                        <div className="home-topic-name">{t(`games.${id}`)}</div>
+                        <div className="home-topic-score">{scoreLine(rec)}</div>
+                      </div>
+                      <button type="button" className="btn btn-ghost sm home-learn" onClick={() => onLearn(id)}>
+                        <Icon name="book" size={18} /> <span className="home-learn-text">{t('menu.learn')}</span>
+                      </button>
+                      <button type="button" className="btn btn-primary sm home-practice" onClick={() => onPlay(id)}>
+                        {t('common.practice')}
+                      </button>
+                    </article>
+                  ))}
                   {module.topicKeys.length > 0 && (
                     <>
-                      {!planned && <h4 className="eyebrow" style={{ marginTop: 16 }}>{t('course.upcoming')}</h4>}
-                      <ul className="coming">
+                      {!planned && <h4 className="label home-upcoming">{t('course.upcoming')}</h4>}
+                      <ul className="home-coming">
                         {module.topicKeys.map(key => <li key={key}>{t(`course.topics.${key}`)}</li>)}
                       </ul>
                     </>
