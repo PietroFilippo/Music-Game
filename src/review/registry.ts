@@ -1,6 +1,7 @@
 import type { FretboardQuestion } from '../games/fretboard/model';
 import { createQuestionPool as moduleOnePool, MODULE_ONE_IDS, type ModuleQuestion } from '../games/module-one/questions';
 import { createStaffPool, STAFF_GAME_IDS } from '../games/module-one/staff';
+import { createQuestionPool as moduleFourPool, MODULE_FOUR_IDS } from '../games/module-four/questions';
 import { createQuestionPool as moduleThreePool, MODULE_THREE_IDS } from '../games/module-three/questions';
 import { createQuestionPool as moduleTwoPool, MODULE_TWO_IDS } from '../games/module-two/questions';
 import type { GameId, Language, Notation } from '../types';
@@ -12,7 +13,7 @@ import type { GameId, Language, Notation } from '../types';
 //
 // To register a topic, add one line below. A new FretboardQuiz bank with
 // createQuestionPool(id, language, notation) needs only:
-//   ...fretboard(MODULE_THREE_IDS, moduleThreePool),
+//   ...fretboard(MODULE_FIVE_IDS, moduleFivePool),
 
 /** A question with the game it belongs to and the renderer family that shows it. */
 export type QuizItem =
@@ -38,6 +39,7 @@ export const REVIEW_TOPICS: Topics = {
   ...reading(MODULE_ONE_IDS, moduleOnePool),
   ...fretboard(MODULE_TWO_IDS, moduleTwoPool),
   ...fretboard(MODULE_THREE_IDS, moduleThreePool),
+  ...fretboard(MODULE_FOUR_IDS, moduleFourPool),
 };
 
 /** Finds a game's questions by ID in its current pool; unknown games and IDs give undefined. */
