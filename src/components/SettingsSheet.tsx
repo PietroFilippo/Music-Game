@@ -4,6 +4,8 @@ import { useI18n } from '../hooks/useI18n';
 import { noteLabel } from '../music/notes';
 import { AUTO_DELAY_MAX_MS, AUTO_DELAY_MIN_MS, useSettings } from '../SettingsContext';
 import { ADVANCE_MODES, DIFFICULTIES, LANGUAGES, NOTATIONS } from '../types';
+import { DesktopSettings } from '../desktop/DesktopSettings';
+import { ProgressTransfer } from './ProgressTransfer';
 import { Sheet } from './Sheet';
 
 interface Option<T> {
@@ -75,6 +77,8 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           <span aria-hidden="true" />
         </button>
       </div>
+      <DesktopSettings />
+      <ProgressTransfer />
       <p className="setting-hint">{t('settings.saved')}</p>
     </Sheet>
   );

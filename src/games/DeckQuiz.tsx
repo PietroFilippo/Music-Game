@@ -108,7 +108,7 @@ function NothingToReview({ title, onExit }: { title: string; onExit: () => void 
   const { t } = useI18n();
   return (
     <div className="page">
-      <header className="topbar">
+      <header className="topbar" data-tauri-drag-region="deep">
         <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onExit}><Icon name="back" /></button>
         <h1 className="topbar-title">{title}</h1>
       </header>

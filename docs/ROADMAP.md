@@ -48,6 +48,8 @@ All four sections can be expanded or collapsed independently, and the browser re
    - several Portuguese and English wording errors;
    - distractors that gave answers away in Modules 3 and 4.
 
+8. **Desktop app for Windows** (2026-10-16). A Tauri build has a frameless window with the app's own caption buttons, and lives in the tray: about 5 MB when idle, with the window rebuilt on demand. It also has a tray menu, starting with Windows, and progress export/import to move scores and answer history between the browser and the desktop app. See the README and `docs/design/DESKTOP.md`.
+
 **Next step:** test all four modules with learners, on real guitars and on phones, where the fretboard's touch targets are small. Compare the generated triad and seventh-chord shapes with the teacher's handouts. Test the tuner with real guitars and setups before starting play-to-answer. Use the feedback to refine explanations, difficulty and navigation.
 
 ## Module 2: fretboard and intervals

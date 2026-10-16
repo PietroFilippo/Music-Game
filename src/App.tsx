@@ -1,6 +1,8 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useReducer, useState } from 'react';
 import { SettingsProvider } from './SettingsContext';
 import { DesktopBridge, type DesktopRoute } from './desktop/DesktopBridge';
+import { DesktopChrome } from './desktop/DesktopChrome';
+import { PROGRESS_CHANGED } from './store/transfer';
 import { Menu, recommendTopic } from './Menu';
 import { GAMES } from './games';
 import { LESSONS } from './lessons';
@@ -21,6 +23,12 @@ function Loading() {
 export default function App() {
   const [route, setRoute] = useState<Route>('menu');
   const back = () => setRoute('menu');
+  // Screens read progress when they render; an import asks them to read it again.
+  const [, progressChanged] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    window.addEventListener(PROGRESS_CHANGED, progressChanged);
+    return () => window.removeEventListener(PROGRESS_CHANGED, progressChanged);
+  }, []);
   // The tray menu opens the tuner or the recommended topic.
   const openFromTray = (to: DesktopRoute) => setRoute(to === 'tuner' ? 'tuner' : recommendTopic().id);
 
@@ -35,7 +43,7 @@ export default function App() {
 
   return (
     <SettingsProvider>
-      <DesktopBridge onNavigate={openFromTray} />
+      <DesktopBridge onNavigate={openFromTray} screen={route} busy={!!Game || !!reviewModule} />
       <Suspense fallback={<Loading />}>
         {route === 'menu' && (
           <Menu
@@ -51,6 +59,7 @@ export default function App() {
         {reviewModule && <ReviewSession key={route} moduleId={reviewModule} onExit={back} />}
         {lesson}
       </Suspense>
+      <DesktopChrome />
     </SettingsProvider>
   );
 }

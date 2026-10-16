@@ -8,6 +8,8 @@ interface Props {
   confirmLabel: string;
   onCancel: () => void;
   onConfirm: () => void;
+  /** Destructive actions confirm in red; others in the accent color. */
+  tone?: 'danger' | 'accent';
 }
 
 export function ConfirmDialog({
@@ -17,6 +19,7 @@ export function ConfirmDialog({
   confirmLabel,
   onCancel,
   onConfirm,
+  tone = 'danger',
 }: Props) {
   const id = useId();
   const cancel = useRef<HTMLButtonElement>(null);
@@ -76,7 +79,7 @@ export function ConfirmDialog({
             onClick={onConfirm}
             style={{
               padding: '10px 18px',
-              background: 'var(--danger)',
+              background: tone === 'danger' ? 'var(--danger)' : 'var(--accent-strong)',
               color: '#0f0f0f',
               border: 'none',
               borderRadius: 8,

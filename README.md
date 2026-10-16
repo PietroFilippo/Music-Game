@@ -93,6 +93,26 @@ The tuner (wave icon on the home screen) checks standard tuning (E A D G B E, A 
 
 Pitch detection uses the YIN algorithm with the browser's voice processing turned off. Audio is analyzed on the device and never recorded or sent. The microphone needs a secure page (HTTPS or localhost) and the player's permission. An unplugged electric guitar is quiet, so an amp or audio interface works best.
 
+## Desktop app (Windows)
+
+A Tauri build runs the same app in its own window (`src-tauri/`).
+- **Window:** frameless, with Windows 11 caption buttons drawn by the app in the top-right corner (Minimize, Maximize/Restore, Close). The top bar and the window margins drag the window, and double-clicking them maximizes. The design and its decisions are in [docs/design/DESKTOP.md](docs/design/DESKTOP.md).
+- **Tray:** closing the window hides it to the tray; the first time, a short note says so. After five minutes hidden, the window and its web view are destroyed, so the idle app uses about 5 MB instead of about 180 MB. Clicking the tray icon rebuilds it in under a second.
+- **Tray menu:** Open musicgame; Continue: ‹topic› or Up next: ‹topic› (the recommended topic, disabled during a quiz); Tuner; Start with Windows; Quit. It follows the app's language, and the tray icon follows the taskbar's light or dark theme.
+- **Start with Windows** is off by default. When on, the app starts in the tray without a window. It can be switched in the tray menu or in Settings.
+- **Other behavior:** a second launch brings the running app forward, and the window remembers its size, position and maximized state.
+- **Storage:** separate from the browser version. Settings → Progress exports and imports scores and answer history to move them between the two.
+
+Build it on Windows with Node.js 22, Rust (stable, MSVC) and the Visual Studio C++ build tools; WebView2 ships with Windows 11.
+
+```sh
+npm run desktop:dev     # the app with live reload
+npm run desktop:build   # a per-user installer in src-tauri/target/release/bundle/nsis/
+npm run desktop:icons   # render the app and tray icons from src-tauri/icons/source/*.svg
+```
+
+The installer is about 1.4 MB. It installs per user, without administrator rights.
+
 ## Settings and progress
 
 All settings live in one sheet, opened from the gear icon on the home screen or during a quiz.
@@ -104,6 +124,7 @@ All settings live in one sheet, opened from the gear icon on the home screen or 
 - Changing the language or notation mid-quiz keeps the rounds and redraws the questions in the new format.
 - Sound effects for correct and wrong answers, timeouts and finished quizzes, on by default. They are plucked-string sounds synthesized in the browser, so the app ships no audio files. Browsers usually play sound only after the page has been clicked or tapped.
 - Local best/last scores, completed play counts, and per-play date/difficulty history.
+- Progress: Export progress… saves scores and answer history as one `.json` file (settings stay per device); Import progress… merges such a file after a confirmation. Importing never replaces anything: play histories are combined by date, best scores keep the higher value, the more recent record of each question wins, and importing the same file twice adds nothing. Use it to move progress between the browser and the desktop app.
 - Stats shows total plays, the overall average and topics played. Each module lists every topic's plays, average, best and last score, with low scores highlighted, and the number of questions due for review. Per-topic and global resets ask for confirmation, clear the answer history too (also for topics never finished), and preserve settings.
 
 Progress lives in `localStorage` under `musicgame.scores`, with settings under `musicgame.settings`. Every answer is also recorded per question under `musicgame.attempts`: times seen, times correct, current correct streak, last result, average answer time and a Leitner box (1–5). A correct answer moves a question up a box; a miss or timeout sends it back to box 1. Review weak spots uses the box to schedule questions: box 1 is due at once, then after 1, 3, 7 and 14 calendar days. Existing scores from before play-history support are preserved; averages use only plays with recorded history. Saved settings with unknown values fall back to the defaults, and malformed saved scores or answer records are skipped rather than trusted. There is no account or cloud sync. Leaving an unfinished quiz does not record a score, and any pending automatic advance is cancelled.
@@ -158,8 +179,11 @@ Music rendering is checked in a real browser rather than simulated by jsdom. Git
 ## Project structure
 
 ```text
+src-tauri/               Desktop shell (Rust): tray, window lifecycle, autostart, icons
+scripts/render-icons.mjs Renders the desktop icons from their SVG sources
 src/
   audio/                 Plucked-string synth, pitch detection and tuning math
+  desktop/               Desktop-only pieces: tray bridge, caption buttons, autostart setting
   curriculum.ts          Module order, game membership and upcoming topics
   components/            Shared UI, notation, keyboard, rhythm and fretboard diagrams
     Fretboard.tsx        Display and interactive fretboard with labeled markers

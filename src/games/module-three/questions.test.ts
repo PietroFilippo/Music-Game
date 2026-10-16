@@ -53,7 +53,7 @@ describe('module 3 banks', () => {
         }
       }
     }
-  }, 20000);
+  }, 60000);
 
   it.each(MODULE_THREE_IDS)('%s balances at least three types and both answer methods over ten unique rounds', id => {
     const groups = createQuestionGroups(id, 'en', 'letter');

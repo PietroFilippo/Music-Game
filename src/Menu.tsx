@@ -69,7 +69,7 @@ export function Menu({ onPlay, onLearn, onReview, onNavigate }: Props) {
 
   return (
     <div className="page home">
-      <header className="topbar">
+      <header className="topbar" data-tauri-drag-region="deep">
         <h1 className="wordmark">{t('menu.title')}</h1>
         <button type="button" className="ibtn" aria-label={t('menu.tab.stats')} onClick={() => onNavigate('stats')}><Icon name="stats" /></button>
         <button type="button" className="ibtn" aria-label={t('menu.tab.tuner')} onClick={() => onNavigate('tuner')}><Icon name="tuner" /></button>

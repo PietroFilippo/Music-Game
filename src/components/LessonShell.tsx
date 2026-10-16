@@ -21,12 +21,15 @@ export function LessonShell({ title, steps, onExit, onPractice }: Props) {
   const isLast = step === steps.length - 1;
 
   useEffect(() => {
-    if (typeof window.scrollTo === 'function' && !navigator.userAgent.includes('jsdom')) window.scrollTo(0, 0);
+    if (navigator.userAgent.includes('jsdom')) return;
+    // The desktop app scrolls #root instead of the window.
+    window.scrollTo?.(0, 0);
+    document.getElementById('root')?.scrollTo?.(0, 0);
   }, [step]);
 
   return (
     <div className="page">
-      <header className="topbar">
+      <header className="topbar" data-tauri-drag-region="deep">
         <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onExit}><Icon name="back" /></button>
         <h1 className="topbar-title">{title}</h1>
         <span className="chip">{step + 1} / {steps.length}</span>

@@ -64,6 +64,51 @@ function readAll(): Attempts {
   return isObject(saved) ? saved as Attempts : {};
 }
 
+type AllItems = Partial<Record<GameId, Record<string, ItemRecord>>>;
+
+/** The well-formed answer records in saved or imported data, by game and question. */
+export function parseAttempts(saved: unknown): AllItems {
+  if (!isObject(saved)) return {};
+  const out: AllItems = {};
+  for (const [gameId, items] of Object.entries(saved)) {
+    if (!isObject(items)) continue;
+    const valid: Record<string, ItemRecord> = {};
+    for (const [id, raw] of Object.entries(items)) {
+      const item = readItem(raw);
+      if (item) valid[id] = item;
+    }
+    if (Object.keys(valid).length) out[gameId as GameId] = valid;
+  }
+  return out;
+}
+
+/** Every saved answer record, for exporting progress. */
+export const allAttempts = (): AllItems => parseAttempts(readStored(KEY));
+
+export function saveAllAttempts(all: AllItems): void {
+  writeStored(KEY, all);
+}
+
+/**
+ * Adds imported answer history to this. For a question answered in both
+ * places, the more recent record wins: adding counts together would count the
+ * same answers twice when a file is imported again.
+ */
+export function mergeAttempts(current: AllItems, incoming: AllItems): { merged: AllItems; changed: number } {
+  const merged: AllItems = { ...current };
+  let changed = 0;
+  for (const [gameId, items] of Object.entries(incoming) as [GameId, Record<string, ItemRecord>][]) {
+    const mine = { ...(current[gameId] ?? {}) };
+    for (const [id, item] of Object.entries(items)) {
+      if (mine[id] && mine[id].lastSeen >= item.lastSeen) continue;
+      mine[id] = item;
+      changed += 1;
+    }
+    merged[gameId] = mine;
+  }
+  return { merged, changed };
+}
+
 export function recordAttempt(gameId: GameId, itemId: string, result: AttemptResult, ms: number, now = Date.now()): ItemRecord {
   const all = readAll();
   const items = isObject(all[gameId]) ? all[gameId]! : {};

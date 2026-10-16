@@ -42,7 +42,7 @@ export function Stats({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="page">
-      <header className="topbar">
+      <header className="topbar" data-tauri-drag-region="deep">
         <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onBack}><Icon name="back" /></button>
         <h1 className="topbar-title">{t('menu.tab.stats')}</h1>
       </header>

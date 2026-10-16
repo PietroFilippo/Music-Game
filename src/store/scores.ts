@@ -20,10 +20,12 @@ function readHistory(value: unknown): PlayRecord[] {
 // Saved data may be edited, corrupted or written by an older version. Keep
 // every well-formed record (scores from before play history get an empty
 // history) and skip the rest, so the menu and Stats never do math on bad values.
-function readAll(): Partial<Record<GameId, ScoreRecord>> {
-  const saved = readStored(KEY);
+type Scores = Partial<Record<GameId, ScoreRecord>>;
+
+/** The well-formed score records in saved or imported data. */
+export function parseScores(saved: unknown): Scores {
   if (!isObject(saved)) return {};
-  const all: Partial<Record<GameId, ScoreRecord>> = {};
+  const all: Scores = {};
   for (const [id, rec] of Object.entries(saved)) {
     if (!isObject(rec) || !isNumber(rec.best) || !isNumber(rec.last) || !isNumber(rec.plays)) continue;
     all[id as GameId] = {
@@ -31,6 +33,52 @@ function readAll(): Partial<Record<GameId, ScoreRecord>> {
     };
   }
   return all;
+}
+
+const readAll = (): Scores => parseScores(readStored(KEY));
+
+/** Every saved score record, for exporting progress. */
+export const allScores = readAll;
+
+export function saveAllScores(all: Scores): void {
+  writeStored(KEY, all);
+}
+
+/**
+ * Adds imported scores to these. Play histories are combined by date, so a
+ * file imported twice adds nothing; best keeps the higher value and last
+ * follows the most recent play. Plays from before play history (counted but
+ * not listed) are kept once, not added together.
+ */
+export function mergeScores(current: Scores, incoming: Scores): { merged: Scores; newPlays: number; topics: number } {
+  const merged: Scores = { ...current };
+  let newPlays = 0;
+  let topics = 0;
+  for (const [id, imported] of Object.entries(incoming) as [GameId, ScoreRecord][]) {
+    const mine = current[id];
+    if (!mine) {
+      merged[id] = imported;
+      newPlays += imported.plays;
+      topics += 1;
+      continue;
+    }
+    const byPlay = new Map([...mine.history, ...imported.history].map(p => [`${p.date}|${p.percent}`, p]));
+    const history = [...byPlay.values()].sort((a, b) => a.date.localeCompare(b.date));
+    const untracked = Math.max(mine.plays - mine.history.length, imported.plays - imported.history.length, 0);
+    const added = history.length - mine.history.length;
+    merged[id] = {
+      gameId: id,
+      best: Math.max(mine.best, imported.best),
+      last: history.length ? history[history.length - 1].percent : mine.last,
+      plays: history.length + untracked,
+      history,
+    };
+    if (added > 0) {
+      newPlays += added;
+      topics += 1;
+    }
+  }
+  return { merged, newPlays, topics };
 }
 
 export function getScore(id: GameId): ScoreRecord | undefined {

@@ -24,7 +24,7 @@ export function Tuner({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="page">
-      <header className="topbar">
+      <header className="topbar" data-tauri-drag-region="deep">
         <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onBack}><Icon name="back" /></button>
         <h1 className="topbar-title" id="tuner-title">{t('tuner.title')}</h1>
       </header>

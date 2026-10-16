@@ -15,13 +15,16 @@
         "label": "main",
         "title": "musicgame",
         "width": 1100,
-        "height": 760,
+        "height": 720,
         "minWidth": 400,
         "minHeight": 560,
         "center": true,
         "resizable": true,
         "visible": false,
-        "create": false
+        "create": false,
+        "decorations": false,
+        "shadow": true,
+        "transparent": false
       }
     ],
     "security": {
@@ -30,12 +33,13 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": [
+      "nsis"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
-      "icons/icon.icns",
       "icons/icon.ico"
     ],
     "shortDescription": "Sight-reading and fretboard practice for electric guitar",

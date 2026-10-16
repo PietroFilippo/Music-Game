@@ -10,3 +10,8 @@ export async function listenShell<T>(event: string, handler: (payload: T) => voi
   const { listen } = await import('@tauri-apps/api/event');
   return listen<T>(event, e => handler(e.payload));
 }
+
+export async function currentWindow() {
+  const { getCurrentWindow } = await import('@tauri-apps/api/window');
+  return getCurrentWindow();
+}

@@ -49,7 +49,7 @@ export function GameShell({ title, onExit, quiz, feedback, review = false, revie
   useEffect(() => setPaused(settingsOpen || hidden), [settingsOpen, hidden]);
 
   const topbar = (
-    <header className="topbar">
+    <header className="topbar" data-tauri-drag-region="deep">
       <button type="button" className="ibtn" aria-label={t('common.back')} onClick={onExit}><Icon name="back" /></button>
       <h1 className="topbar-title">{title}</h1>
       <button type="button" className="ibtn" aria-label={t(settings.sound ? 'quiz.soundOff' : 'quiz.soundOn')}
@@ -129,7 +129,7 @@ export function GameShell({ title, onExit, quiz, feedback, review = false, revie
   return (
     <div className="page quiz">
       {topbar}
-      <div className="quiz-progress">
+      <div className="quiz-progress" data-tauri-drag-region="deep">
         <div className="segs" aria-hidden="true">
           {Array.from({ length: progress.totalRounds }, (_, i) => (
             <span key={i} className={i < answeredCount ? (progress.history[i] ? 'ok' : 'bad') : i === progress.round ? 'cur' : ''} />
