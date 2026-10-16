@@ -49,7 +49,6 @@
 /* Hangs under the number so the row's numbers stay on one line. */
 .stats-low { position: absolute; top: 100%; right: 0; font: 400 11px/1.2 var(--font); color: var(--muted); }
 .stats-dash { color: var(--line-strong); }
-.stats-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 /* Narrow cards (phones, and the four-column grid below about 1880 px): the
    topic gets its own line and the numbers sit under their headers. */
 @container stats-mod (max-width: 399px) {

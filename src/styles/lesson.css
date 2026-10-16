@@ -2,10 +2,6 @@
    two-pane width (1000 px, TWO_PANE) a step list and the text on the left and a
    visual panel on the right; below it one centered column with a segment strip
    and a sticky Previous/Next bar. */
-.visually-hidden {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-}
 .lesson-heading { font-size: var(--t3); letter-spacing: -0.3px; line-height: 1.25; }
 .lesson-copy { max-width: 62ch; margin: 0 auto; font-size: var(--t0); line-height: 1.65; color: var(--fg-2); }
 .lesson-text { display: flex; flex-direction: column; gap: var(--s3); }

@@ -16,8 +16,8 @@ export const useStage = () => useContext(StageContext);
 /** The widest the stage draws a fretboard (XL), and its height per unit of width. */
 export const STAGE_NECK_MAX = 1160;
 const BOARD_RATIO = { interactive: 224 / 560, plain: 174 / 560 };
-// The paper around VexFlow output: padding and border.
-const PAPER = 18;
+// A little air around the drawing.
+const MARGIN = 8;
 
 interface NotationSize {
   /** The size the notation is drawn at, in px. */
@@ -40,10 +40,10 @@ export function StageNotation({ children, width, height, max, share = 0.7, board
   const stage = useStage();
   if (!stage.wide || !stage.width) return <>{children}</>;
   const boardHeight = board ? Math.min(stage.width, STAGE_NECK_MAX) * BOARD_RATIO[board] + 24 : 0;
-  const byHeight = (stage.height - boardHeight - PAPER) * (width / height);
+  const byHeight = (stage.height - boardHeight - MARGIN) * (width / height);
   const scaled = Math.max(width, Math.min(max, stage.width * share, byHeight));
   return (
-    <div className="stage-notation" style={{ '--notation-w': `${Math.round(scaled)}px` } as CSSProperties}>
+    <div className="stage-notation" style={{ '--notation-scale': (scaled / width).toFixed(3) } as CSSProperties}>
       {children}
     </div>
   );

@@ -238,7 +238,8 @@ describe('results', () => {
     // Nothing else is played yet, so the next topic starts with its lesson.
     expect(screen.getByRole('button', { name: 'Up next: Staff I — Lines & Spaces' })).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Lesson' }));
-    expect(await screen.findByRole('navigation', { name: /^Step 1 of/ }, { timeout: 5000 })).toBeDefined();
+    expect(await screen.findByRole('navigation', { name: 'Steps' }, { timeout: 5000 })).toBeDefined();
+    expect(screen.getByText(/^Step 1 of/)).toBeDefined();
     expect(screen.getByRole('heading', { level: 1, name: 'Keyboard Notes' })).toBeDefined();
   });
 });

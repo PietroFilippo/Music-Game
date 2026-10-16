@@ -93,7 +93,7 @@ export function Stats({ onBack, onStart }: Props) {
                       <span className="stats-avg" role="columnheader">{t('stats.avg')}</span>
                       <span className="stats-best" role="columnheader">{t('common.best')}</span>
                       <span className="stats-last" role="columnheader">{t('common.last')}</span>
-                      <span className="stats-reset" role="columnheader"><span className="stats-hidden">{t('stats.reset')}</span></span>
+                      <span className="stats-reset" role="columnheader"><span className="visually-hidden">{t('stats.reset')}</span></span>
                     </div>
                     {module.games.map(id => {
                       const rec = getScore(id);

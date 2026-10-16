@@ -81,6 +81,11 @@ h1, h2, h3 { font-family: var(--font-display); }
 .small { font-size: 14px; }
 /* Small sentence-case labels: section names, captions, the module number. */
 .label { font-size: var(--t-1); font-weight: 500; color: var(--muted); }
+/* Text for screen readers only. */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 /* Numbers that are read like a display: scores, counts, timers, cents, Hz. */
 .readout { font-family: var(--font-readout); font-variant-numeric: tabular-nums; }
 /* A keyboard key hint, shown only with a mouse or trackpad. */

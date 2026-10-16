@@ -32,7 +32,7 @@ function QuestionIllustration({ visual, board }: { visual: QuestionVisual; board
     );
     case 'measure': return (
       <StageNotation width={500} height={310} max={900} board={board} share={0.8}>
-        <MeasureNotation notes={visual.notes} label={visual.label} />
+        <MeasureNotation notes={visual.notes} label={visual.label} highlightIndex={visual.highlight} />
       </StageNotation>
     );
     case 'text': return <div className="note-sequence question-text">{visual.text}</div>;

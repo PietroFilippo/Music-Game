@@ -330,13 +330,13 @@ function Results({ quiz, review = false, reviewMisses, onPlayAgain, onExit }: Re
                     <span className="missed-answers">
                       <span className="was">
                         <Icon name={r.given === undefined ? 'clock' : 'cross'} size={14} />
-                        <span className="sr-only">{t('results.yourAnswer')}: </span>
+                        <span className="visually-hidden">{t('results.yourAnswer')}: </span>
                         {r.given ?? t('results.timeout')}
                       </span>
                       <span className="missed-arrow" aria-hidden="true">→</span>
                       <span className="is">
                         <Icon name="check" size={14} />
-                        <span className="sr-only">{t('results.rightAnswer')}: </span>
+                        <span className="visually-hidden">{t('results.rightAnswer')}: </span>
                         {r.correct}
                       </span>
                     </span>

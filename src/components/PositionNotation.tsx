@@ -9,7 +9,7 @@ import { Staff } from './Staff';
 // two-pane column; wider layouts scale the pair up with --notation-scale.
 export function PositionNotation({ position, flat = false }: { position: FretPosition; flat?: boolean }) {
   const { t } = useI18n();
-  const narrow = useMediaQuery('(max-width: 480px), (min-width: 1000px) and (max-width: 1199px)');
+  const narrow = useMediaQuery('(max-width: 480px), (min-width: 1000px) and (max-width: 1299px)');
   const width = narrow ? 156 : 200;
   return (
     <div className="notation-pair">

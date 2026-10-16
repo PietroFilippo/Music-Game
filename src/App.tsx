@@ -65,7 +65,7 @@ export default function App() {
             onNavigate={setRoute}
           />
         )}
-        {route === 'stats' && <Stats onBack={back} />}
+        {route === 'stats' && <Stats onBack={back} onStart={id => setRoute(`learn:${id}`)} />}
         {route === 'tuner' && <Tuner onBack={back} />}
         {Game && <QuizNavContext.Provider value={nav}><Game key={route} onExit={back} /></QuizNavContext.Provider>}
         {reviewModule && <ReviewSession key={route} moduleId={reviewModule} onExit={back} />}
