@@ -44,6 +44,8 @@ export interface QuizRound<V> {
 interface Options<V> {
   /** Stable ID of the question shown in the current round, for answer history. */
   itemId?: () => string;
+  /** Game whose answer history the current round updates; defaults to the scored game. Reviews mix games. */
+  itemGameId?: () => GameId;
   /** Describes the current round for the results screen. */
   review?: (picked: V | undefined) => RoundReview;
   onRestart?: () => void;
@@ -53,8 +55,9 @@ interface Options<V> {
 // configured delay in automatic mode, or by `next` in manual mode. Pending
 // timers are cleared when the round changes or the game unmounts. Answers,
 // timeouts and the finished quiz play feedback sounds unless sound is off.
-// Each answer or timeout is recorded against the question's stable ID.
-export function useQuizRound<V>(gameId: GameId, rounds: number, options: Options<V> = {}): QuizRound<V> {
+// Each answer or timeout is recorded against the question's stable ID. The
+// finished play is scored under `gameId`; null makes it an unscored review.
+export function useQuizRound<V>(gameId: GameId | null, rounds: number, options: Options<V> = {}): QuizRound<V> {
   const { settings } = useSettings();
   const progress = useGameProgress(gameId, rounds);
   const [answer, setAnswer] = useState<Answer<V> | null>(null);
@@ -79,7 +82,8 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, options: Options
 
   const record = (result: AttemptResult, picked?: V) => {
     const itemId = optionsRef.current.itemId?.();
-    if (itemId) recordAttempt(gameId, itemId, result, Date.now() - roundStartedAt.current);
+    const itemGameId = optionsRef.current.itemGameId?.() ?? gameId;
+    if (itemId && itemGameId) recordAttempt(itemGameId, itemId, result, Date.now() - roundStartedAt.current);
     const review = optionsRef.current.review?.(picked);
     if (review) {
       const round = progress.round + 1;

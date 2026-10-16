@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { playEffect } from '../audio/sound';
 import { SettingsProvider } from '../SettingsContext';
 import { getAttempts } from '../store/attempts';
+import { getScore, recordScore } from '../store/scores';
 import { useQuizRound } from './useQuizRound';
 
 vi.mock('../audio/sound', () => ({ playEffect: vi.fn() }));
@@ -52,6 +53,29 @@ describe('quiz round sounds', () => {
       q1: { seen: 1, correct: 1, last: 'correct', avgMs: 1500 },
       q2: { seen: 1, correct: 0, last: 'timeout', avgMs: 4000 },
     });
+  });
+
+  it('records each round under its own game and scores nothing in a review', () => {
+    saveSettings({});
+    recordScore('claves', 70, 'none');
+    const scoresBefore = localStorage.getItem('musicgame.scores');
+    const rounds = [['claves', 'treble'], ['pauta-i', 'g/4']] as const;
+    let round = 0;
+    const { result } = renderHook(() => useQuizRound<string>(null, 2, {
+      itemGameId: () => rounds[round][0],
+      itemId: () => rounds[round][1],
+    }), { wrapper });
+    act(() => result.current.pick('G', true));
+    act(() => result.current.next());
+    round = 1;
+    act(() => result.current.pick('A', false));
+    act(() => result.current.next());
+    expect(result.current.progress.done).toBe(true);
+    expect(result.current.progress.summary).toBeNull();
+    expect(localStorage.getItem('musicgame.scores')).toBe(scoresBefore);
+    expect(getScore('pauta-i')).toBeUndefined();
+    expect(getAttempts('claves').treble).toMatchObject({ seen: 1, last: 'correct', box: 2 });
+    expect(getAttempts('pauta-i')['g/4']).toMatchObject({ seen: 1, last: 'wrong', box: 1 });
   });
 
   it('stays silent when sounds are off', () => {
