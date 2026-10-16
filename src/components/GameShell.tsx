@@ -13,8 +13,8 @@ interface Props {
   feedback?: ReactNode;
   /** An unscored review: its results have no best or last score to compare with. */
   review?: boolean;
-  /** Offered with the missed rounds on the results screen, to replay just those. */
-  onReviewMisses?: () => void;
+  /** Offered with the missed rounds on the results screen: replays the `count` distinct questions missed. */
+  reviewMisses?: { count: number; start: () => void };
   /** Replaces restarting the same quiz from the results screen. */
   onPlayAgain?: () => void;
   children: ReactNode;
@@ -36,7 +36,7 @@ function TimerRing({ fraction, seconds }: { fraction: number; seconds: number })
   );
 }
 
-export function GameShell({ title, onExit, quiz, feedback, review = false, onReviewMisses, onPlayAgain, children }: Props) {
+export function GameShell({ title, onExit, quiz, feedback, review = false, reviewMisses, onPlayAgain, children }: Props) {
   const { t } = useI18n();
   const { settings, setSound } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -101,9 +101,9 @@ export function GameShell({ title, onExit, quiz, feedback, review = false, onRev
                   ))}
                 </ul>
               )}
-              {misses.length > 0 && onReviewMisses && (
-                <button type="button" className="btn btn-secondary btn-block" style={{ marginTop: 10 }} onClick={onReviewMisses}>
-                  <Icon name="retry" /> {t(misses.length === 1 ? 'results.reviewThis' : 'results.reviewThese', { n: misses.length })}
+              {misses.length > 0 && reviewMisses && reviewMisses.count > 0 && (
+                <button type="button" className="btn btn-secondary btn-block" style={{ marginTop: 10 }} onClick={reviewMisses.start}>
+                  <Icon name="retry" /> {t(reviewMisses.count === 1 ? 'results.reviewThis' : 'results.reviewThese', { n: reviewMisses.count })}
                 </button>
               )}
             </section>

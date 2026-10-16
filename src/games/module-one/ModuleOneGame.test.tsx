@@ -77,6 +77,25 @@ describe('original module 1 games', () => {
     expect(getScore(id)).toMatchObject({ plays: 1, last: 100 });
     expect(Object.keys(getAttempts(id)).sort()).toEqual([...new Set(deck.map(q => q.id))].sort());
   });
+
+  it('replays a question missed in several rounds only once', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.37);
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', notation: 'letter', advanceMode: 'manual' }));
+    const deck = createStaffDeck('claves', 'en', 'letter');
+    render(<SettingsProvider><ModuleOneGame id="claves" onExit={() => {}} /></SettingsProvider>);
+    const missedId = deck[0].id;
+    for (const question of deck) {
+      const pick = question.choices.find(c => (c.value === question.correct) !== (question.id === missedId))!;
+      fireEvent.click(screen.getByRole('button', { name: pick.label }));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
+    const misses = deck.filter(q => q.id === missedId).length;
+    expect(misses).toBeGreaterThan(1);
+    expect(screen.getByText(`To review (${misses})`)).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Review this one' }));
+    expect(screen.getByText('Round 1 of 1')).toBeDefined();
+    expect(getAttempts('claves')[missedId]).toMatchObject({ seen: misses, box: 1 });
+  });
 });
 
 describe('module 1 results', () => {

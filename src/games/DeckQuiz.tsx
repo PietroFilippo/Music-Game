@@ -46,8 +46,8 @@ interface Session {
 }
 
 // Runs a deck of questions as a quiz. After misses, "Review these" replays just
-// the missed questions as an unscored review; their answers still update the
-// history. Every new deck remounts the session, so no round state or timer
+// the missed questions, each once, as an unscored review; their answers still
+// update the history. Every new deck remounts the session, so no round state or timer
 // carries over. Changing the language or notation mid-quiz keeps the rounds and
 // their order and rebuilds each question from its ID through the registry.
 export function DeckQuiz({ title, scoreAs, createDeck, renderers, onExit, showTopic = false }: Props) {
@@ -91,11 +91,13 @@ function DeckSession({ title, items, scoreAs, renderers, showTopic, onExit, onPl
   });
   const item = quiz.answered && answeredOn ? answeredOn : items[quiz.progress.round];
   const round = roundView(item, renderers);
-  const missed = quiz.reviews.filter(r => r.result !== 'correct').map(r => items[r.round - 1]);
+  // Small pools repeat within a deck; a question missed twice is replayed once.
+  const missed = [...new Map(quiz.reviews.filter(r => r.result !== 'correct')
+    .map(r => items[r.round - 1]).map(i => [`${i.gameId} ${i.question.id}`, i])).values()];
 
   return (
     <GameShell title={title} onExit={onExit} quiz={quiz} review={scoreAs === null} feedback={round.feedback(quiz)}
-      onPlayAgain={onPlayAgain} onReviewMisses={missed.length > 0 ? () => onReviewMisses(missed) : undefined}>
+      onPlayAgain={onPlayAgain} reviewMisses={{ count: missed.length, start: () => onReviewMisses(missed) }}>
       {showTopic && <p className="eyebrow question-topic">{t(`games.${item.gameId}`)}</p>}
       {round.question(quiz)}
     </GameShell>
