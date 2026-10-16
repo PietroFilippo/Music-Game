@@ -1,5 +1,7 @@
 # Design brief: three UI directions for musicgame
 
+This is the first design round. The current interface follows the 2026-10-16 redesign in [REDESIGN.md](REDESIGN.md); the desktop window chrome is in [DESKTOP.md](DESKTOP.md).
+
 Mocks: `mocks/index.html` links to the three boards. Static HTML with inline CSS and SVG (works offline): the seven screens in 390 px phone frames plus desktop frames, with captions and a tokens panel.
 
 ## UX problems in the current app

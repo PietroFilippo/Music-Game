@@ -1,0 +1,125 @@
+/* Direction A (Stage) tokens and components, copied from redesign.build.mjs so
+   the prototype screens match the approved boards. The notation tokens at the
+   end are the new ones proposed in round 2. */
+.screen {
+  --bg: #151816; --bg-sunken: #101312; --surface: #1d211e; --elevated: #262b27;
+  --fg: #f2f4f0; --fg-2: #c9cec8; --muted: #9aa39b;
+  --accent: #7fe0b4; --accent-strong: #3ccf95; --accent-soft: rgba(127, 224, 180, .18); --on-accent: #0c1711;
+  --danger: #f08a7e; --danger-soft: rgba(240, 138, 126, .14); --amber: #f2b84b;
+  --line: #2d332e; --line-strong: #3a423b; --outline: #5a655d; --focus: #9cf0cc;
+  --paper: #f4f3ee; --ink: #1b1e1b;
+  /* round 2: notation */
+  --staff-line: #7c867e;
+  --notation-bg: var(--bg);
+  --paper-quiet: #dcd9cf;
+  /* aliases so the real Fretboard.tsx picks up the new palette */
+  --bg-card: var(--surface); --fg-muted: var(--muted); --warn: var(--amber); --border: var(--line-strong);
+  --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --font-readout: 'Bahnschrift', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --t-1: 13px; --t0: clamp(15px, 14px + .2vw, 17px); --t1: clamp(16px, 15px + .25vw, 18px); --t2: clamp(19px, 17px + .5vw, 24px);
+  --t3: clamp(22px, 19px + .8vw, 30px); --t-answer: clamp(18px, 16px + .4vw, 22px);
+  --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --gutter: clamp(16px, 2vw, 40px);
+  --r-card: 16px; --r-ctl: 12px; --tap: 52px; --tap-sm: 44px; --caption-w: 138px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: #151816; }
+.screen { position: relative; height: 100vh; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: var(--t0); line-height: 1.45; }
+.screen.tall { height: auto; min-height: 100vh; overflow: visible; }
+.screen h1, .screen h2, .screen h3, .screen p { margin: 0; }
+.screen h1, .screen h2, .screen h3 { font-family: var(--font-display); letter-spacing: -.2px; }
+.readout { font-family: var(--font-readout); font-variant-numeric: tabular-nums; font-weight: 600; }
+.muted { color: var(--muted); } .small { font-size: var(--t-1); }
+.label { font-size: var(--t-1); color: var(--muted); }
+svg.ic { flex: none; }
+
+.top { display: flex; align-items: center; gap: 6px; min-height: 56px; padding: 8px 10px 6px; flex: none; }
+.desktop .top { padding-right: calc(var(--caption-w) + 10px); }
+.top h1 { flex: 1; font-size: var(--t1); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ibtn { width: var(--tap-sm); height: var(--tap-sm); flex: none; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 12px; background: transparent; color: var(--fg); }
+.caption { position: absolute; top: 0; right: 0; z-index: 100; display: flex; }
+.caption-btn { width: 46px; height: 32px; display: grid; place-items: center; color: var(--fg); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); }
+.btn { min-height: var(--tap); padding: 10px 18px; border-radius: var(--r-ctl); display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; font: inherit; font-size: var(--t0); font-weight: 600; color: var(--fg); white-space: nowrap; }
+.btn-primary { background: var(--accent-strong); color: var(--on-accent); }
+.btn-secondary { background: var(--elevated); border-color: var(--outline); }
+.btn-block { width: 100%; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; } .actions .btn { flex: 1; }
+.chip { font-size: var(--t-1); color: var(--muted); border: 1px solid var(--line-strong); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.kbd { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--outline); border-bottom-width: 2px; font: 600 12px var(--font-readout); color: var(--muted); background: var(--bg); }
+.hear { min-height: var(--tap-sm); padding: 8px 16px; border-radius: 999px; border: 1px solid var(--outline); background: var(--surface); color: var(--fg); font: inherit; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; }
+.toggle-chip { min-height: var(--tap-sm); padding: 6px 14px; border-radius: 999px; border: 1px solid var(--outline); background: var(--elevated); color: var(--fg); font: inherit; font-size: 15px; }
+.toggle-chip[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); font-weight: 600; }
+
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .answers.col { grid-template-columns: 1fr; }
+.answer { min-height: 60px; padding: 8px 14px; border-radius: var(--r-ctl); display: flex; align-items: center; gap: 10px; background: var(--elevated); border: 1px solid var(--outline); color: var(--fg); font: inherit; font-size: var(--t-answer); font-weight: 600; text-align: left; }
+.answer .lbl { flex: 1; }
+.answer.ok { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+.answer.ok .kbd { color: var(--on-accent); border-color: rgba(12, 23, 17, .35); background: transparent; }
+.answer.dim { opacity: .55; } .answer.hover { border-color: var(--accent); }
+
+.progress { display: flex; align-items: center; gap: 12px; padding: 0 var(--gutter) 8px; flex: none; }
+.segs { display: flex; gap: 4px; flex: 1; max-width: 420px; }
+.segs span { flex: 1; height: 6px; border-radius: 3px; background: var(--line-strong); }
+.segs .ok { background: var(--accent); } .segs .bad { background: var(--danger); } .segs .cur { box-shadow: inset 0 0 0 2px var(--accent); }
+.round { font-weight: 600; white-space: nowrap; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--elevated); font-family: var(--font-readout); }
+.pill-ok { color: var(--accent); } .pill-bad { color: var(--danger); }
+.verdict { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--r-ctl); font-size: var(--t1); font-weight: 700; }
+.verdict-ok { background: var(--accent-soft); color: var(--accent); } .verdict-bad { background: var(--danger-soft); color: var(--danger); }
+.explain { line-height: 1.55; color: var(--fg-2); }
+
+.page { display: flex; flex-direction: column; height: 100%; min-height: 100%; }
+.main { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--s4); padding: 4px var(--gutter) var(--s5); }
+.stage { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 32%); gap: var(--s5); padding: 0 var(--gutter) var(--s4); }
+.stage .vis { display: flex; align-items: center; justify-content: center; min-width: 0; padding: var(--s2) 0; }
+.stage .col { display: flex; flex-direction: column; gap: var(--s4); min-height: 0; --notation-bg: var(--bg); }
+.stage .col .grow { flex: 1; }
+.prompt { font-family: var(--font-display); font-size: var(--t2); font-weight: 600; line-height: 1.3; }
+.lesson { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(320px, 36%) minmax(0, 1fr); gap: var(--s6); padding: 4px var(--gutter) var(--s4); }
+.lesson .text { display: flex; flex-direction: column; min-height: 0; }
+.steps { display: flex; flex-direction: column; gap: 2px; margin: 0 0 var(--s4); padding: 0; list-style: none; }
+.steps li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; font-size: var(--t-1); color: var(--muted); }
+.steps li i { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--outline); font: 600 11px var(--font-readout); font-style: normal; flex: none; }
+.steps li.done i { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.steps li.cur { background: var(--elevated); color: var(--fg); font-weight: 600; } .steps li.cur i { border-color: var(--accent); color: var(--accent); }
+.copy { font-size: var(--t0); line-height: 1.65; color: var(--fg-2); max-width: 62ch; }
+.vispanel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s5); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s5); --notation-bg: var(--surface); min-width: 0; }
+.stickybar { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px 16px; background: linear-gradient(180deg, rgba(21, 24, 22, 0), var(--bg) 35%); }
+.well { background: var(--bg-sunken); border-radius: 12px; padding: 12px 16px; --notation-bg: var(--bg-sunken); }
+
+/* the real Fretboard.tsx, without its 560 px cap */
+.vis .fretboard, .vispanel .fretboard, .explorer .fretboard { max-width: none !important; }
+.fretboard { display: block; width: 100%; height: auto; font-family: var(--font); }
+.fretboard-split { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.fretboard-range { align-self: flex-start; font-size: var(--t-1); color: var(--muted); }
+.fret-cell { fill: transparent; }
+.explorer { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.explorer-toggles { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.explorer-readout { min-height: 52px; font-size: 15px; line-height: 1.5; text-align: center; }
+.explorer-readout strong { display: block; color: var(--accent); font-size: 22px; }
+
+/* notation wrappers: today's card, the quiet paper, and ink (no card) */
+.notation-pair { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.notation-pair figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; align-self: stretch; }
+.notation-pair figcaption { color: var(--muted); font-size: var(--t-1); margin-top: auto; }
+.vex-stave { display: inline-block; max-width: 100%; line-height: 0; }
+.vex-paper { padding: 8px 4px; border-radius: 8px; background: #fafafa; border: 1px solid #e5e5e5; }
+.vex-quiet { padding: 8px 6px; border-radius: 12px; background: var(--paper-quiet); }
+.vex-ink, .vex-linked { padding: 0; background: transparent; }
+.vex-stave text { font-family: inherit; }
+
+/* the directions strip (not an app screen) */
+.strip { padding: 28px var(--gutter) 60px; display: flex; flex-direction: column; gap: 28px; }
+.strip h2 { font-size: 20px; } .strip h3 { font-size: 14px; color: var(--muted); font-weight: 500; }
+.strip .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.strip .cell { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.strip .cell.on-surface { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 20px; --notation-bg: var(--surface); }
+
+@media (max-width: 999px) {
+  .stage { display: flex; flex-direction: column; gap: 12px; }
+  .stage .col { --notation-bg: var(--bg); }
+  .lesson { display: flex; flex-direction: column; }
+}

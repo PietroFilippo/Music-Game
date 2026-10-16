@@ -6,19 +6,23 @@ The course has four module sections. Each can be expanded independently, and the
 
 ## Interface
 
-- **Home** opens on a Continue card. It recommends the most recent topic if its last score was under 80%, otherwise the next unplayed topic, otherwise the weakest one.
-- **Module cards** show progress and can expand to list topics, each with Learn and Practice buttons.
-- **Review weak spots:** once a module has answer history, its card offers Review weak spots with the number of questions due, or shows "Nothing to review today" when none are. A session takes up to ten due questions across the module's topics, missed ones first, and does not change scores.
+The layout follows [docs/design/REDESIGN.md](docs/design/REDESIGN.md). From 1000 px wide, quizzes, lessons and results use two panes; narrower windows and phones get one column.
+
+- **Home** is a course board. A Continue band on top recommends the most recent topic if its last score was under 80%, otherwise the next unplayed topic, otherwise the weakest one. Below it, every module has a progress ring, a due-for-review badge and its topics, each with Learn and Practice. On wide windows the modules sit side by side (four columns from 1600 px) with every topic listed; in one column, modules whose topics have all been played start collapsed.
+- **Review weak spots:** once a module has answer history, its card offers Review weak spots with the number of questions due, or says "Nothing to review today" and when the next review comes. A session takes up to ten due questions across the module's topics, missed ones first, and does not change scores.
 - **Header icons** open Stats, the Tuner and Settings.
-- **Settings** is a sheet, also reachable during a quiz.
+- **Settings** opens as a centered dialog on wide screens and as a bottom sheet on phones, also during a quiz.
 - **Quizzes:**
-  - The header shows a 10-segment round strip, correct and wrong counts, a countdown ring when timed, and a sound toggle.
-  - Feedback arrives in a bottom sheet, so Continue stays in one place; in automatic mode the button shows the advance delay. Fretboard topics add a Listen button that plays the answer: one note, both notes of an interval, a scale, a strummed chord or an arpeggio.
+  - The header shows a round strip, correct and wrong counts, a countdown ring when timed, and a sound toggle.
+  - In two panes the neck, staff or text is on the left (the neck up to 1160 px wide) and the question, answers and feedback are in a column on the right. After an answer the solution is drawn on the same neck and Continue stays at the bottom of the column. In one column the feedback follows the question, with Continue pinned to the bottom of the screen.
+  - Fretboard topics add a Listen button that plays the answer: one note, both notes of an interval, a scale, a strummed chord or an arpeggio.
+  - Keys 1–9 pick the matching answer; with a mouse, the answers show their number keys. On the neck, the arrow keys move and Enter selects. Enter or Space continues after an answer, and in automatic mode skips the wait.
   - Opening Settings mid-quiz pauses the timer and any automatic advance.
-  - Keys 1–4 pick the matching answer button, in reading order. In manual mode, Enter continues after an answer.
-  - Results compare the score with the previous best and last play, and list each missed round with the right answer. After misses, Review these N replays the missed questions once each, without changing scores.
+  - Results compare the score with the previous best and last play, list each missed round with the right answer, and offer Play again, Lesson and Back to course. After misses, Review these N replays the missed questions once each, without changing scores. After a perfect score, the next recommended topic is offered.
+- **Lessons:** in two panes, the step list, explanation and Previous/Next are on the left and the diagram, fretboard and Listen buttons in a panel on the right; in one column, a step strip and a sticky Previous/Next bar. The ← and → keys change steps (inside the fretboard explorer they move its cursor).
+- **Notation** is drawn in the app's colors, without a white card: staff lines in a quiet grey, notes in white, a highlighted note in mint with a ring and a bold label. Tabs draw their six lines like the fretboard's strings, named E B G D A E from string 1 at the top (or in solfège), with the played string lit. Staves grow with the room they have, about twice as large in the lesson panel.
+- **Stats** shows totals (plays, average, topics played, due for review) and one table per module; scores under 60% are marked "low".
 - **Phones:** a selectable fretboard splits into frets 0–6 and 7–12, so each fret is a large touch target.
-- **Lessons** have a step strip and a sticky Previous/Next bar.
 
 ## Module 1
 
@@ -88,9 +92,9 @@ The voicings follow the layouts of the teacher's handout described in the [roadm
 ## Tuner
 
 The tuner (wave icon on the home screen) checks standard tuning (E A D G B E, A = 440 Hz) through the microphone:
-- It names the nearest open string and whether to tighten or loosen it.
-- It shows a cents meter; within ±5 cents counts as in tune.
-- Each open string can be played as a plucked reference tone, synthesized within 1 cent of the target.
+- It names the nearest open string on a large readout and whether to tighten or loosen it.
+- It shows a cents meter with ticks; within ±5 cents counts as in tune. The readout keeps its size while idle, so nothing moves when listening starts.
+- Each open string can be played as a plucked reference tone, synthesized within 1 cent of the target. On wide screens the six strings are a list beside the readout, and the string being heard is outlined.
 
 Pitch detection uses the YIN algorithm with the browser's voice processing turned off. Audio is analyzed on the device and never recorded or sent. The microphone needs a secure page (HTTPS or localhost) and the player's permission. An unplugged electric guitar is quiet, so an amp or audio interface works best.
 
@@ -190,6 +194,8 @@ src/
     Fretboard.tsx        Display and interactive fretboard with labeled markers
     FretboardExplorer.tsx  Free exploration of positions, names, tab and staff
     MeasureNotation.tsx  A 4/4 measure as written notation over rhythmic tab
+    notation.ts          Shared VexFlow drawing: colors, rings, tab strings, scaling
+    Stage.tsx            The two-pane quiz layout and notation sizing in its left pane
   games/index.tsx        Lazy-loaded game registry
   games/DeckQuiz.tsx     Quiz runner for decks that can mix question types
   games/fretboard/       Shared fretboard quiz: question model, balanced decks, renderer
@@ -205,6 +211,7 @@ src/
   music/                 Notes, rhythm, guitar positions, intervals, scales, chords,
                          chord shapes and harmonized scales
   store/                 Browser-local scores and safe storage access
+  styles.css, styles/    Design tokens (styles/base.css) and one stylesheet per screen
   test/                  Test environment setup
 ```
 

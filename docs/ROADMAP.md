@@ -162,6 +162,15 @@ Design mockups are in [`docs/design/`](design/README.md). They show three direct
 
 The mockups' "Review weak spots" entry and the results screen's "Review these N" are built.
 
+## Redesign for large windows (implemented 2026-10-16)
+
+The spec and its approved decisions are in [`docs/design/REDESIGN.md`](design/REDESIGN.md), with the desktop window chrome in [`DESKTOP.md`](design/DESKTOP.md). Direction A (Stage) is built:
+- New palette, type scale and spacing, with greys that take a trace of green, sentence-case labels and Bahnschrift for numbers.
+- Two panes from 1000 px. Quizzes put the neck (up to 1160 px) or staff on the left and the question, answers and feedback in a right-hand column, so feedback no longer covers the board. Lessons get a step list and a visual panel.
+- Home as a course board, Stats as tiles and per-module tables, a tuner with a large readout, Settings as a dialog on wide screens.
+- Notation in the app's colors instead of white cards, tabs drawn like the neck's strings, and staves that grow with the room.
+- Keys 1–9 to answer and Enter or Space to continue, a Lesson button on results, and the target string marked in "find X on string N" questions.
+
 ## Teaching and implementation principles
 
 - Use the guitar fretboard as the main visual in future modules, supported by tablature and staff notation. Keep the existing keyboard lesson as a short reference for understanding note layout.
