@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Fretboard } from '../components/Fretboard';
 import { HearButton } from '../components/HearButton';
 import { LessonShell, type LessonStep } from '../components/LessonShell';
@@ -27,7 +27,8 @@ export function ModuleThreeLesson({ id, onExit, onPractice }: LessonProps & { id
   const { text } = c;
   const step = (ptTitle: string, enTitle: string, pt: string, en: string, visual: ReactNode): LessonStep => ({
     title: text(ptTitle, enTitle),
-    body: <><p className="lesson-copy">{text(pt, en)}</p><div className="lesson-visual">{visual}</div></>,
+    body: <p className="lesson-copy">{text(pt, en)}</p>,
+    visual,
   });
   const voicing = (root: SpelledNote, quality: TriadQuality, inversion = 0, strings: readonly number[] = STRING_SETS[0]): TriadExample => ({
     root, quality, shape: closeVoicings(root, TRIADS[quality], strings).find(s => s[0].toneIndex === inversion)!,
@@ -35,7 +36,7 @@ export function ModuleThreeLesson({ id, onExit, onPractice }: LessonProps & { id
   const arpeggio = (root: SpelledNote, position: FretPosition, quality: 'major' | 'minor'): TriadExample => ({
     root, quality, shape: beginnerArpeggios(position, quality)[0],
   });
-  const panel = (e: TriadExample, spacing = 0.03, heading?: string) => <div className="reference-card">
+  const panel = (e: TriadExample, spacing = 0.03, heading?: string) => <div className="reference-card chord-panel">
     {heading && <strong>{heading}</strong>}
     <p className="lesson-copy">{describeChord(c, e)}</p>
     <Fretboard frets={12} {...shapeBoard(e.shape)} />
@@ -70,7 +71,7 @@ export function ModuleThreeLesson({ id, onExit, onPractice }: LessonProps & { id
       step('Ouça, leia e compare', 'Listen, read and compare',
         'Compare as quatro qualidades. A fundamental fica igual; observe qual terça e qual quinta mudam. Na pauta da guitarra, as notas são escritas uma oitava acima do som real. Os botões tocam a altura real.',
         'Compare all four qualities. The root stays the same; notice which third and fifth change. Guitar staff notes are written one octave above their sounding pitch. The buttons play the actual sounding pitches.',
-        <>{TRIAD_QUALITIES.map(q => <div key={q}>{panel(voicing(C, q), 0.03, TRIADS[q].name[lang])}</div>)}
+        <>{TRIAD_QUALITIES.map(q => <Fragment key={q}>{panel(voicing(C, q), 0.03, TRIADS[q].name[lang])}</Fragment>)}
           <StaffDiagram clef="treble" width={320} height={170} notes={cm.shape.map(s => ({ vexKey: writtenVexKey(s.position), label: s.degree }))} /></>),
       step('No seu instrumento', 'On your guitar',
         'Toque C e Cm lentamente, dizendo os nomes e os graus. Depois compare Cm com Cm(♭5), e C com C(♯5). Abafe as cordas fora do grupo marcado. Toque cada nota separadamente para conferir a terça e a quinta antes de tocar o acorde inteiro.',
@@ -87,7 +88,7 @@ export function ModuleThreeLesson({ id, onExit, onPractice }: LessonProps & { id
       step('Quatro grupos de cordas', 'Four string sets',
         'Use os grupos 1–2–3, 2–3–4, 3–4–5 e 4–5–6. Toque apenas as três cordas marcadas. Aqui, cada grupo mostra C em posição fundamental; compare as casas, sem perder R–3–5.',
         'Use sets 1–2–3, 2–3–4, 3–4–5 and 4–5–6. Play only the three marked strings. Here each set shows C in root position; compare the frets while keeping track of R–3–5.',
-        <>{STRING_SETS.map(strings => <div key={strings[0]}>{panel(voicing(C, 'major', 0, strings), 0.03, text(`Cordas ${strings.map(s => s + 1).join('–')}`, `Strings ${strings.map(s => s + 1).join('–')}`))}</div>)}</>),
+        <>{STRING_SETS.map(strings => <Fragment key={strings[0]}>{panel(voicing(C, 'major', 0, strings), 0.03, text(`Cordas ${strings.map(s => s + 1).join('–')}`, `Strings ${strings.map(s => s + 1).join('–')}`))}</Fragment>)}</>),
       step('A diferença entre a 3ª e a 2ª corda', 'The offset between strings 3 and 2',
         'As cordas vizinhas ficam a 5 semitons, exceto da 3ª para a 2ª: são 4. Ao mover um desenho em direção às cordas agudas, a nota que passa da 3ª para a 2ª corda avança uma casa; no sentido inverso, recua uma casa. Não copie as casas sem conferir as notas.',
         'Adjacent strings are 5 semitones apart, except strings 3 and 2: they are 4 apart. When moving a shape toward the higher strings, the note that crosses from string 3 to string 2 moves one fret higher; in the other direction, it moves one fret lower. Check the notes instead of copying frets blindly.',
@@ -95,7 +96,7 @@ export function ModuleThreeLesson({ id, onExit, onPractice }: LessonProps & { id
       step('Menor também tem três posições', 'Minor has three positions too',
         'Na tríade menor, os graus são R–♭3–5. A regra do baixo continua: R = posição fundamental, ♭3 = 1ª inversão, 5 = 2ª inversão. Identifique a fundamental mesmo quando ela não é a nota mais grave.',
         'In a minor triad the degrees are R–♭3–5. The bass rule stays the same: R = root position, ♭3 = 1st inversion, 5 = 2nd inversion. Find the root even when it is not the lowest note.',
-        <>{[0, 1, 2].map(i => <div key={i}>{panel(voicing(G, 'minor', i))}</div>)}</>),
+        <>{[0, 1, 2].map(i => <Fragment key={i}>{panel(voicing(G, 'minor', i))}</Fragment>)}</>),
       step('No seu instrumento', 'On your guitar',
         'No grupo 1–2–3, toque as três posições de G e depois de Gm. Diga o grau do baixo e encontre R em cada uma. Repita no grupo 2–3–4. Abafe as outras cordas e deixe cada nota soar limpa antes de acelerar.',
         'On strings 1–2–3, play the three positions of G, then Gm. Say the bass degree and find R in each shape. Repeat on strings 2–3–4. Mute other strings and let each note sound cleanly before speeding up.', panel(voicing(G, 'major'))),

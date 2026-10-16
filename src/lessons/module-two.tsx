@@ -27,7 +27,8 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
   const text = (pt: string, en: string) => (lang === 'pt' ? pt : en);
   const step = (ptTitle: string, enTitle: string, pt: string, en: string, visual: ReactNode): LessonStep => ({
     title: text(ptTitle, enTitle),
-    body: <><p className="lesson-copy">{text(pt, en)}</p><div className="lesson-visual">{visual}</div></>,
+    body: <p className="lesson-copy">{text(pt, en)}</p>,
+    visual,
   });
   // A labeled natural-note marker.
   const at = (string: number, fret: number, tone: MarkerTone = 'plain'): FretMarker => ({
@@ -54,8 +55,9 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
   // A marker labeled with a degree such as R, ♭3 or 5.
   const degree = (string: number, fret: number, label: string, tone: MarkerTone = 'accent'): FretMarker =>
     ({ string, fret, label, tone });
+  // Listen buttons sit on their own row, under the diagram they play.
   const listen = (...buttons: { notes: number[]; label?: string; spacing?: number }[]) =>
-    <div className="lesson-visual">{buttons.map((b, i) => <HearButton key={i} {...b} />)}</div>;
+    <div className="lesson-listen">{buttons.map((b, i) => <HearButton key={i} {...b} />)}</div>;
 
   // A scale shape labeled with degrees, and the same notes as sounding pitches for playback.
   const shape = (root: FretPosition, kind: ScaleKind) => scaleShape(root, kind).map(({ position, degree: label }, i) =>

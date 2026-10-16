@@ -72,7 +72,7 @@ const COPY: Record<Language, StepCopy[]> = {
 const G4_FRETS = fretsForVexKey('g/4');
 
 function Text({ children }: { children: ReactNode }) {
-  return <p style={{ maxWidth: 560, margin: '0 auto 22px' }}>{children}</p>;
+  return <p className="lesson-copy">{children}</p>;
 }
 
 export function ClavesLesson({ onExit, onPractice }: LessonProps) {
@@ -84,105 +84,86 @@ export function ClavesLesson({ onExit, onPractice }: LessonProps) {
   const steps: LessonStep[] = [
     {
       title: c[0].title,
-      body: (
-        <>
-          <Text>{c[0].text}</Text>
-          <StaffDiagram
-            width={320}
-            height={175}
-            notes={[{ vexKey: 'g/4', label: '?', highlight: true }]}
-            numberLines
-          />
-        </>
+      body: <Text>{c[0].text}</Text>,
+      visual: (
+        <StaffDiagram
+          width={320}
+          height={175}
+          notes={[{ vexKey: 'g/4', label: '?', highlight: true }]}
+          numberLines
+        />
       ),
     },
     {
       title: c[1].title,
-      body: (
-        <>
-          <Text>{c[1].text}</Text>
-          <StaffDiagram
-            clef="treble"
-            width={320}
-            height={175}
-            notes={[{ vexKey: 'g/4', label: labelFor('G'), highlight: true }]}
-            numberLines
-          />
-        </>
+      body: <Text>{c[1].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="treble"
+          width={320}
+          height={175}
+          notes={[{ vexKey: 'g/4', label: labelFor('G'), highlight: true }]}
+          numberLines
+        />
       ),
     },
     {
       title: c[2].title,
-      body: (
-        <>
-          <Text>{c[2].text}</Text>
-          <StaffDiagram
-            clef="bass"
-            width={320}
-            height={175}
-            notes={[{ vexKey: 'f/3', label: labelFor('F'), highlight: true }]}
-            numberLines
-          />
-        </>
+      body: <Text>{c[2].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="bass"
+          width={320}
+          height={175}
+          notes={[{ vexKey: 'f/3', label: labelFor('F'), highlight: true }]}
+          numberLines
+        />
       ),
     },
     {
       title: c[3].title,
-      body: (
-        <>
-          <Text>{c[3].text}</Text>
-          <StaffDiagram
-            clef="alto"
-            width={320}
-            height={175}
-            notes={[{ vexKey: 'c/4', label: labelFor('C'), highlight: true }]}
-            numberLines
-          />
-        </>
+      body: <Text>{c[3].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="alto"
+          width={320}
+          height={175}
+          notes={[{ vexKey: 'c/4', label: labelFor('C'), highlight: true }]}
+          numberLines
+        />
       ),
     },
     {
       title: c[4].title,
-      body: (
-        <>
-          <Text>{c[4].text}</Text>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 18,
-            }}
-          >
-            <StaffDiagram
-              clef="treble"
-              width={300}
-              height={175}
-              notes={[{ vexKey: 'g/4', label: labelFor('G'), highlight: true }]}
-            />
-            <Fretboard positions={G4_FRETS} />
-          </div>
-        </>
+      body: <Text>{c[4].text}</Text>,
+      visual: (
+        <div className="lesson-stack">
+          <StaffDiagram
+            clef="treble"
+            width={300}
+            height={175}
+            notes={[{ vexKey: 'g/4', label: labelFor('G'), highlight: true }]}
+          />
+          <Fretboard positions={G4_FRETS} />
+        </div>
       ),
     },
     {
       title: c[5].title,
-      body: (
-        <>
-          <Text>{c[5].text}</Text>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              gap: 14,
-            }}
-          >
-            <StaffDiagram clef="treble" width={170} />
-            <StaffDiagram clef="bass" width={170} />
-            <StaffDiagram clef="alto" width={170} />
-          </div>
-        </>
+      body: <Text>{c[5].text}</Text>,
+      visual: (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: 14,
+          }}
+        >
+          <StaffDiagram clef="treble" width={170} />
+          <StaffDiagram clef="bass" width={170} />
+          <StaffDiagram clef="alto" width={170} />
+        </div>
       ),
     },
   ];

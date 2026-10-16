@@ -26,9 +26,10 @@ export function ModuleFourLesson({ id, onExit, onPractice }: LessonProps & { id:
   const { text } = c;
   const n = (letter: SpelledNote['letter'], accidental: SpelledNote['accidental'] = '') => c.spelled({ letter, accidental });
   const step = (ptTitle: string, enTitle: string, pt: string, en: string, visual: ReactNode): LessonStep => ({
-    title: text(ptTitle, enTitle), body: <><p className="lesson-copy">{text(pt, en)}</p><div className="lesson-visual">{visual}</div></>,
+    title: text(ptTitle, enTitle), body: <p className="lesson-copy">{text(pt, en)}</p>,
+    visual,
   });
-  const panel = (e: SeventhExample, spacing = 0.03, heading?: string) => <div className="reference-card">
+  const panel = (e: SeventhExample, spacing = 0.03, heading?: string) => <div className="reference-card chord-panel">
     {heading && <strong>{heading}</strong>}
     <p className="lesson-copy">{describeChord(c, e)}</p>
     <Fretboard frets={12} {...shapeBoard(e.shape)} />

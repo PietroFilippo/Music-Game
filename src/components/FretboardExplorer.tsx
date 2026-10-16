@@ -53,18 +53,21 @@ export function FretboardExplorer({ initial, showSameNote = false }: { initial?:
         showFretNumbers
         onSelect={setSelected}
       />
-      <div className="explorer-readout" aria-live="polite">
-        {selected ? (
-          <>
-            <strong>{pitchClassLabel(pitchClassAt(selected), settings.notation, settings.language)}</strong>
-            {selected.fret === 0
-              ? t('explorer.openPosition', { string: selected.string + 1 })
-              : t('explorer.position', { string: selected.string + 1, fret: selected.fret })}
-            {!naturalAt(selected) && <> · {t('explorer.accidental')}</>}
-          </>
-        ) : <p className="explorer-hint">{t('explorer.hint')}</p>}
+      {/* The readout and the written note: side by side when there is room. */}
+      <div className="explorer-detail">
+        <div className="explorer-readout" aria-live="polite">
+          {selected ? (
+            <>
+              <strong>{pitchClassLabel(pitchClassAt(selected), settings.notation, settings.language)}</strong>
+              {selected.fret === 0
+                ? t('explorer.openPosition', { string: selected.string + 1 })
+                : t('explorer.position', { string: selected.string + 1, fret: selected.fret })}
+              {!naturalAt(selected) && <> · {t('explorer.accidental')}</>}
+            </>
+          ) : <p className="explorer-hint">{t('explorer.hint')}</p>}
+        </div>
+        {selected && <PositionNotation position={selected} />}
       </div>
-      {selected && <PositionNotation position={selected} />}
     </div>
   );
 }

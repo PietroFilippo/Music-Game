@@ -81,7 +81,7 @@ const SCALE_NOTES: DiagramNote[] = TREBLE_POSITIONS.map(p => ({
 const E4_FRETS = fretsForVexKey('e/4');
 
 function Text({ children }: { children: ReactNode }) {
-  return <p style={{ maxWidth: 560, margin: '0 auto 22px' }}>{children}</p>;
+  return <p className="lesson-copy">{children}</p>;
 }
 
 function Caption({ children }: { children: ReactNode }) {
@@ -104,77 +104,60 @@ export function PautaILesson({ onExit, onPractice }: LessonProps) {
   const steps: LessonStep[] = [
     {
       title: c[0].title,
-      body: (
-        <>
-          <Text>{c[0].text}</Text>
-          <StaffDiagram width={360} />
-        </>
+      body: <Text>{c[0].text}</Text>,
+      visual: (
+        <StaffDiagram width={360} />
       ),
     },
     {
       title: c[1].title,
-      body: (
-        <>
-          <Text>{c[1].text}</Text>
-          <StaffDiagram width={360} numberLines numberSpaces />
-        </>
+      body: <Text>{c[1].text}</Text>,
+      visual: (
+        <StaffDiagram width={360} numberLines numberSpaces />
       ),
     },
     {
       title: c[2].title,
-      body: (
-        <>
-          <Text>{c[2].text}</Text>
+      body: <Text>{c[2].text}</Text>,
+      visual: (
+        <div className="lesson-stack">
           <StaffDiagram width={520} notes={SCALE_NOTES} />
           <Caption>{c[2].caption}</Caption>
-        </>
+        </div>
       ),
     },
     {
       title: c[3].title,
-      body: (
-        <>
-          <Text>{c[3].text}</Text>
-          <StaffDiagram width={400} height={175} notes={refNotes} numberLines />
-        </>
+      body: <Text>{c[3].text}</Text>,
+      visual: (
+        <StaffDiagram width={400} height={175} notes={refNotes} numberLines />
       ),
     },
     {
       title: c[4].title,
-      body: (
-        <>
-          <Text>{c[4].text}</Text>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 18,
-            }}
-          >
-            <StaffDiagram
-              clef="treble"
-              width={300}
-              height={175}
-              notes={[{ vexKey: 'e/4', label: label('E'), highlight: true }]}
-            />
-            <Fretboard positions={E4_FRETS} />
-          </div>
-        </>
+      body: <Text>{c[4].text}</Text>,
+      visual: (
+        <div className="lesson-stack">
+          <StaffDiagram
+            clef="treble"
+            width={300}
+            height={175}
+            notes={[{ vexKey: 'e/4', label: label('E'), highlight: true }]}
+          />
+          <Fretboard positions={E4_FRETS} />
+        </div>
       ),
     },
     {
       title: c[5].title,
-      body: (
-        <>
-          <Text>{c[5].text}</Text>
-          <StaffDiagram
-            width={360}
-            notes={[{ vexKey: 'b/4', highlight: true }]}
-            numberLines
-            numberSpaces
-          />
-        </>
+      body: <Text>{c[5].text}</Text>,
+      visual: (
+        <StaffDiagram
+          width={360}
+          notes={[{ vexKey: 'b/4', highlight: true }]}
+          numberLines
+          numberSpaces
+        />
       ),
     },
   ];

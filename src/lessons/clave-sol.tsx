@@ -69,7 +69,7 @@ const COPY: Record<Language, StepCopy[]> = {
 };
 
 function Text({ children }: { children: ReactNode }) {
-  return <p style={{ maxWidth: 560, margin: '0 auto 22px' }}>{children}</p>;
+  return <p className="lesson-copy">{children}</p>;
 }
 
 export function ClaveSolLesson({ onExit, onPractice }: LessonProps) {
@@ -94,97 +94,78 @@ export function ClaveSolLesson({ onExit, onPractice }: LessonProps) {
   const steps: LessonStep[] = [
     {
       title: c[0].title,
-      body: (
-        <>
-          <Text>{c[0].text}</Text>
-          <StaffDiagram
-            clef="treble"
-            width={320}
-            height={175}
-            notes={[{ vexKey: 'g/4', label: labelFor('G'), highlight: true }]}
-            numberLines
-          />
-        </>
+      body: <Text>{c[0].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="treble"
+          width={320}
+          height={175}
+          notes={[{ vexKey: 'g/4', label: labelFor('G'), highlight: true }]}
+          numberLines
+        />
       ),
     },
     {
       title: c[1].title,
-      body: (
-        <>
-          <Text>{c[1].text}</Text>
-          <StaffDiagram
-            clef="treble"
-            width={320}
-            height={175}
-            notes={gabNotes(['A']).slice(0, 2)}
-            numberLines
-          />
-        </>
+      body: <Text>{c[1].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="treble"
+          width={320}
+          height={175}
+          notes={gabNotes(['A']).slice(0, 2)}
+          numberLines
+        />
       ),
     },
     {
       title: c[2].title,
-      body: (
-        <>
-          <Text>{c[2].text}</Text>
-          <StaffDiagram
-            clef="treble"
-            width={340}
-            height={175}
-            notes={gabNotes(['B'])}
-            numberLines
-          />
-        </>
+      body: <Text>{c[2].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="treble"
+          width={340}
+          height={175}
+          notes={gabNotes(['B'])}
+          numberLines
+        />
       ),
     },
     {
       title: c[3].title,
-      body: (
-        <>
-          <Text>{c[3].text}</Text>
-          <StaffDiagram
-            clef="treble"
-            width={340}
-            height={175}
-            notes={gabNotes(['G', 'A', 'B'])}
-            numberLines
-            numberSpaces
-          />
-        </>
+      body: <Text>{c[3].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="treble"
+          width={340}
+          height={175}
+          notes={gabNotes(['G', 'A', 'B'])}
+          numberLines
+          numberSpaces
+        />
       ),
     },
     {
       title: c[4].title,
-      body: (
-        <>
-          <Text>{c[4].text}</Text>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 18,
-            }}
-          >
-            <StaffDiagram clef="treble" width={340} height={175} notes={gabNotes(['G', 'A', 'B'])} />
-            <Fretboard markers={gabFrets} frets={5} />
-          </div>
-        </>
+      body: <Text>{c[4].text}</Text>,
+      visual: (
+        <div className="lesson-stack">
+          <StaffDiagram clef="treble" width={340} height={175} notes={gabNotes(['G', 'A', 'B'])} />
+          <Fretboard markers={gabFrets} frets={5} />
+        </div>
       ),
     },
     {
       title: c[5].title,
-      body: (
-        <>
-          <Text>{c[5].text}</Text>
-          <StaffDiagram
-            clef="treble"
-            width={320}
-            height={175}
-            notes={[{ vexKey: 'a/4', label: '?', highlight: true }]}
-            numberLines
-          />
-        </>
+      body: <Text>{c[5].text}</Text>,
+      visual: (
+        <StaffDiagram
+          clef="treble"
+          width={320}
+          height={175}
+          notes={[{ vexKey: 'a/4', label: '?', highlight: true }]}
+          numberLines
+        />
       ),
     },
   ];
