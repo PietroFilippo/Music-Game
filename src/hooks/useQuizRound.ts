@@ -37,6 +37,10 @@ export interface QuizRound<V> {
   needsContinue: boolean;
   /** Every answered round of the current play, in order. */
   reviews: ReviewedRound[];
+  /** True while something covers the quiz, such as the settings sheet. */
+  paused: boolean;
+  /** Stops the answer timer and holds any automatic advance until unpaused. */
+  setPaused: (paused: boolean) => void;
   pick: (value: V, correct: boolean) => void;
   next: () => void;
 }
@@ -44,6 +48,8 @@ export interface QuizRound<V> {
 interface Options<V> {
   /** Stable ID of the question shown in the current round, for answer history. */
   itemId?: () => string;
+  /** Game whose answer history the current round updates; defaults to the scored game. Reviews mix games. */
+  itemGameId?: () => GameId;
   /** Describes the current round for the results screen. */
   review?: (picked: V | undefined) => RoundReview;
   onRestart?: () => void;
@@ -53,13 +59,17 @@ interface Options<V> {
 // configured delay in automatic mode, or by `next` in manual mode. Pending
 // timers are cleared when the round changes or the game unmounts. Answers,
 // timeouts and the finished quiz play feedback sounds unless sound is off.
-// Each answer or timeout is recorded against the question's stable ID.
-export function useQuizRound<V>(gameId: GameId, rounds: number, options: Options<V> = {}): QuizRound<V> {
+// Each answer or timeout is recorded against the question's stable ID. The
+// finished play is scored under `gameId`; null makes it an unscored review.
+// While paused, the round cannot time out and an automatic advance waits; it
+// restarts its full delay on resume so the feedback is visible again first.
+export function useQuizRound<V>(gameId: GameId | null, rounds: number, options: Options<V> = {}): QuizRound<V> {
   const { settings } = useSettings();
   const progress = useGameProgress(gameId, rounds);
   const [answer, setAnswer] = useState<Answer<V> | null>(null);
   const [expired, setExpired] = useState(false);
   const [reviews, setReviews] = useState<ReviewedRound[]>([]);
+  const [paused, setPaused] = useState(false);
   const locked = useRef(false);
   const submittedRound = useRef<number | null>(null);
   const answered = answer !== null || expired;
@@ -79,7 +89,8 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, options: Options
 
   const record = (result: AttemptResult, picked?: V) => {
     const itemId = optionsRef.current.itemId?.();
-    if (itemId) recordAttempt(gameId, itemId, result, Date.now() - roundStartedAt.current);
+    const itemGameId = optionsRef.current.itemGameId?.() ?? gameId;
+    if (itemId && itemGameId) recordAttempt(itemGameId, itemId, result, Date.now() - roundStartedAt.current);
     const review = optionsRef.current.review?.(picked);
     if (review) {
       const round = progress.round + 1;
@@ -103,14 +114,25 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, options: Options
   nextRef.current = next;
 
   useEffect(() => {
-    if (!answered || settings.advanceMode !== 'auto') return;
+    if (!answered || paused || settings.advanceMode !== 'auto') return;
     const timeout = window.setTimeout(() => nextRef.current(), settings.autoAdvanceDelayMs);
     return () => window.clearTimeout(timeout);
-  }, [answered, settings.advanceMode, settings.autoAdvanceDelayMs, progress.round]);
+  }, [answered, paused, settings.advanceMode, settings.autoAdvanceDelayMs, progress.round]);
+
+  // Time spent paused does not count toward the recorded answer time.
+  const pausedAt = useRef<number | null>(null);
+  const pause = (value: boolean) => {
+    if (value && pausedAt.current === null) pausedAt.current = Date.now();
+    if (!value && pausedAt.current !== null) {
+      roundStartedAt.current += Date.now() - pausedAt.current;
+      pausedAt.current = null;
+    }
+    setPaused(value);
+  };
 
   const timer = useAnswerTimer({
     seconds,
-    running: !answered && !progress.done,
+    running: !answered && !progress.done && !paused,
     resetKey: progress.round,
     onExpire: () => {
       if (locked.current) return;
@@ -150,6 +172,8 @@ export function useQuizRound<V>(gameId: GameId, rounds: number, options: Options
     timerFraction: timer.fraction,
     needsContinue: answered && settings.advanceMode === 'manual',
     reviews,
+    paused,
+    setPaused: pause,
     pick,
     next,
   };

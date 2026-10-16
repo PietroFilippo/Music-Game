@@ -30,6 +30,30 @@ describe.each([
     expect(answers().every(b => (b as HTMLButtonElement).disabled)).toBe(true);
   });
 
+  it('holds the timer and the automatic advance while settings are open', () => {
+    vi.useFakeTimers();
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', advanceMode: 'auto', difficulty: 'hard' }));
+    render(<SettingsProvider><Game onExit={() => {}} /></SettingsProvider>);
+    const settings = () => fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    const close = () => fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    const feedback = () => screen.queryByRole('region', { name: 'Answer feedback' });
+    act(() => vi.advanceTimersByTime(2000));
+    settings();
+    act(() => vi.advanceTimersByTime(10000));
+    expect(feedback()).toBeNull();
+    close();
+    act(() => vi.advanceTimersByTime(1500));
+    expect(feedback()).toBeNull();
+    act(() => vi.advanceTimersByTime(1000));
+    expect(feedback()!.textContent).toContain('Time is up');
+    settings();
+    act(() => vi.advanceTimersByTime(5000));
+    expect(screen.getByText('Round 1 of 10')).toBeDefined();
+    close();
+    act(() => vi.advanceTimersByTime(900));
+    expect(screen.getByText('Round 2 of 10')).toBeDefined();
+  });
+
   it('cancels a pending automatic advance when the player leaves', () => {
     vi.useFakeTimers();
     localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', advanceMode: 'auto' }));

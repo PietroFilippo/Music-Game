@@ -2,7 +2,12 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { loadSettings } from './SettingsContext';
+import { getAttempts, recordAttempt } from './store/attempts';
 import { getScore, recordScore, resetAllScores } from './store/scores';
+
+// Notation rendering is exercised in the browser.
+vi.mock('./components/Staff', () => ({ Staff: () => <div>Staff diagram</div> }));
+vi.mock('./components/GuitarTab', () => ({ GuitarTab: () => <div>Guitar tab</div> }));
 
 describe('settings and storage', () => {
   it('replaces invalid saved settings with defaults', () => {
@@ -35,6 +40,25 @@ describe('settings and storage', () => {
     expect(recordScore('pauta-i', 80, 'none')).toMatchObject({ plays: 1, last: 80 });
     expect(getScore('pauta-i')).toBeUndefined();
     expect(() => resetAllScores()).not.toThrow();
+  });
+});
+
+describe('review weak spots', () => {
+  it('opens from the module card and records answers without a score', async () => {
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', notation: 'letter', advanceMode: 'manual' }));
+    recordAttempt('notas-teclado', 'D', 'wrong', 900);
+    render(<App />);
+    const module1 = () => within(screen.getByRole('region', { name: 'Music-reading foundations' }));
+    fireEvent.click(module1().getByRole('button', { name: 'Review weak spots · 1' }));
+    expect(await screen.findByText('Round 1 of 1', {}, { timeout: 5000 })).toBeDefined();
+    expect(screen.getByRole('heading', { name: 'Review · Module 1' })).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'D' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByRole('heading', { name: 'Review complete' })).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Back to course' }));
+    expect((module1().getByRole('button', { name: 'Review weak spots' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(getAttempts('notas-teclado').D).toMatchObject({ seen: 2, box: 2 });
+    expect(getScore('notas-teclado')).toBeUndefined();
   });
 });
 

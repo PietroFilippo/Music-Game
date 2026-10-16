@@ -1,6 +1,6 @@
 import { noteLabel, LETTERS, type LetterNote } from '../../music/notes';
 import { beatLabel, RHYTHM_VALUES, type RhythmId } from '../../music/rhythm';
-import { shuffle, TREBLE_POSITIONS } from '../../music/theory';
+import { shuffle, TREBLE_POSITIONS, type ClefInfo } from '../../music/theory';
 import type { Language, Notation } from '../../types';
 
 export const MODULE_ONE_IDS = [
@@ -35,20 +35,36 @@ export const SOUND_EXAMPLES: { property: SoundProperty; pt: string; en: string }
 
 export type QuestionVisual =
   | { kind: 'staff'; vexKey: string }
+  | { kind: 'clef'; clef: ClefInfo['vexClef'] }
   | { kind: 'text'; text: string }
   | { kind: 'rhythm'; value: RhythmId }
   | { kind: 'descending'; notes: string[] }
   | { kind: 'sound'; text: string }
   | { kind: 'keyboard'; note: LetterNote };
 
+// The question shape for all of Module 1, including the four original staff games.
 export interface ModuleQuestion {
   id: string;
   prompt: string;
   visual: QuestionVisual;
+  /** A labeled detail under the visual, such as the starting note. */
+  hint?: { label: string; value: string };
+  /** How the round reads in the results list; defaults to the prompt. */
+  summary?: string;
   choices: { value: string; label: string }[];
   correct: string;
   explanation: string;
+  /** Written note whose first guitar position the feedback shows. */
   fretKey?: string;
+  /** Also show that position as tablature and written notation. */
+  notation?: boolean;
+}
+
+/** Ten rounds from a pool, each pass through it shuffled, so small pools repeat evenly. */
+export function fillDeck<T>(pool: T[], rounds = 10): T[] {
+  const deck: T[] = [];
+  while (deck.length < rounds) deck.push(...shuffle(pool));
+  return deck.slice(0, rounds);
 }
 
 export function descendingNote(start: LetterNote, steps: number): LetterNote {
@@ -130,8 +146,5 @@ export function createQuestionPool(id: ModuleOneId, language: Language, notation
 }
 
 export function createQuestionDeck(id: ModuleOneId, language: Language, notation: Notation): ModuleQuestion[] {
-  const pool = createQuestionPool(id, language, notation);
-  const deck: ModuleQuestion[] = [];
-  while (deck.length < 10) deck.push(...shuffle(pool));
-  return deck.slice(0, 10);
+  return fillDeck(createQuestionPool(id, language, notation));
 }

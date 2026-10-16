@@ -2,12 +2,15 @@ import { StrictMode } from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SettingsProvider } from '../../SettingsContext';
+import { getAttempts } from '../../store/attempts';
 import { getScore } from '../../store/scores';
 import { ModuleOneGame } from './ModuleOneGame';
 import { createQuestionDeck, MODULE_ONE_IDS } from './questions';
+import { createStaffDeck, STAFF_GAME_IDS } from './staff';
 
 // Notation rendering is exercised in the browser; these tests cover gameplay.
 vi.mock('../../components/Staff', () => ({ Staff: () => <div>Staff diagram</div> }));
+vi.mock('../../components/GuitarTab', () => ({ GuitarTab: () => <div>Guitar tab</div> }));
 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
@@ -56,6 +59,42 @@ describe('module 1 games', () => {
     unmount();
     expect(vi.getTimerCount()).toBe(0);
     expect(getScore('notacao-alfabetica')).toBeUndefined();
+  });
+});
+
+describe('original module 1 games', () => {
+  it.each(STAFF_GAME_IDS)('%s plays from its bank and records answers under the bank IDs', id => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.37);
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', notation: 'letter', advanceMode: 'manual' }));
+    const deck = createStaffDeck(id, 'en', 'letter');
+    render(<SettingsProvider><ModuleOneGame id={id} onExit={() => {}} /></SettingsProvider>);
+    for (const question of deck) {
+      expect(screen.getByText(question.prompt)).toBeDefined();
+      fireEvent.click(screen.getByRole('button', { name: question.choices.find(c => c.value === question.correct)!.label }));
+      expect(screen.getByRole('status').textContent).toContain(question.explanation);
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
+    expect(getScore(id)).toMatchObject({ plays: 1, last: 100 });
+    expect(Object.keys(getAttempts(id)).sort()).toEqual([...new Set(deck.map(q => q.id))].sort());
+  });
+
+  it('replays a question missed in several rounds only once', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.37);
+    localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en', notation: 'letter', advanceMode: 'manual' }));
+    const deck = createStaffDeck('claves', 'en', 'letter');
+    render(<SettingsProvider><ModuleOneGame id="claves" onExit={() => {}} /></SettingsProvider>);
+    const missedId = deck[0].id;
+    for (const question of deck) {
+      const pick = question.choices.find(c => (c.value === question.correct) !== (question.id === missedId))!;
+      fireEvent.click(screen.getByRole('button', { name: pick.label }));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
+    const misses = deck.filter(q => q.id === missedId).length;
+    expect(misses).toBeGreaterThan(1);
+    expect(screen.getByText(`To review (${misses})`)).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Review this one' }));
+    expect(screen.getByText('Round 1 of 1')).toBeDefined();
+    expect(getAttempts('claves')[missedId]).toMatchObject({ seen: misses, box: 1 });
   });
 });
 

@@ -8,9 +8,15 @@ import { SettingsSheet } from './SettingsSheet';
 interface Props {
   title: string;
   onExit: () => void;
-  quiz: Pick<QuizRound<unknown>, 'progress' | 'expired' | 'answered' | 'correct' | 'seconds' | 'timerFraction' | 'reviews' | 'next'>;
+  quiz: Pick<QuizRound<unknown>, 'progress' | 'expired' | 'answered' | 'correct' | 'seconds' | 'timerFraction' | 'reviews' | 'setPaused' | 'next'>;
   /** Explanation and visuals shown in the feedback sheet after an answer. */
   feedback?: ReactNode;
+  /** An unscored review: its results have no best or last score to compare with. */
+  review?: boolean;
+  /** Offered with the missed rounds on the results screen: replays the `count` distinct questions missed. */
+  reviewMisses?: { count: number; start: () => void };
+  /** Replaces restarting the same quiz from the results screen. */
+  onPlayAgain?: () => void;
   children: ReactNode;
 }
 
@@ -30,11 +36,16 @@ function TimerRing({ fraction, seconds }: { fraction: number; seconds: number })
   );
 }
 
-export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
+export function GameShell({ title, onExit, quiz, feedback, review = false, reviewMisses, onPlayAgain, children }: Props) {
   const { t } = useI18n();
   const { settings, setSound } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { progress } = quiz;
+  // The sheet covers the quiz, so a round must not time out or advance behind it.
+  const showSettings = (open: boolean) => {
+    setSettingsOpen(open);
+    quiz.setPaused(open);
+  };
 
   const topbar = (
     <header className="topbar">
@@ -44,12 +55,12 @@ export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
         onClick={() => setSound(!settings.sound)}>
         <Icon name={settings.sound ? 'sound' : 'mute'} />
       </button>
-      <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => setSettingsOpen(true)}>
+      <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => showSettings(true)}>
         <Icon name="settings" />
       </button>
     </header>
   );
-  const settingsSheet = settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />;
+  const settingsSheet = settingsOpen && <SettingsSheet onClose={() => showSettings(false)} />;
 
   if (progress.done) {
     const pct = Math.round((progress.correctCount / progress.totalRounds) * 100);
@@ -60,11 +71,12 @@ export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
         {topbar}
         <main className="page-main results">
           <section className="card result-hero">
-            <h2 className="eyebrow">{t('common.complete')}</h2>
+            <h2 className="eyebrow">{t(review ? 'results.reviewComplete' : 'common.complete')}</h2>
             <div className="result-score">
               <span className="bignum">{pct}%</span>
               <span className="muted">{t('results.correctOf', { n: progress.correctCount, total: progress.totalRounds })}</span>
             </div>
+            {review && <p className="muted small">{t('results.reviewNote')}</p>}
             <div className="chips">
               {previousBest !== undefined && pct > previousBest && <span className="chip chip-accent">{t('results.newBest')}</span>}
               {previousBest !== undefined && <span className="chip">{t('results.best')} <b>{Math.max(pct, previousBest)}%</b></span>}
@@ -89,10 +101,15 @@ export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
                   ))}
                 </ul>
               )}
+              {misses.length > 0 && reviewMisses && reviewMisses.count > 0 && (
+                <button type="button" className="btn btn-secondary btn-block" style={{ marginTop: 10 }} onClick={reviewMisses.start}>
+                  <Icon name="retry" /> {t(reviewMisses.count === 1 ? 'results.reviewThis' : 'results.reviewThese', { n: reviewMisses.count })}
+                </button>
+              )}
             </section>
           )}
           <div className="actions">
-            <button type="button" className="btn btn-primary" onClick={progress.restart}>
+            <button type="button" className="btn btn-primary" onClick={onPlayAgain ?? progress.restart}>
               <Icon name="retry" /> {t('common.again')}
             </button>
             <button type="button" className="btn btn-secondary" onClick={onExit}>{t('results.backToCourse')}</button>

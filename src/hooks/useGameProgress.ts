@@ -20,7 +20,10 @@ export interface GameProgress {
   restart: () => void;
 }
 
-export function useGameProgress(gameId: GameId, totalRounds: number): GameProgress {
+// A finished play is scored once under `gameId`. Reviews pass null: they record
+// no play and leave best, last and play counts alone, so quiz scores stay
+// comparable over time.
+export function useGameProgress(gameId: GameId | null, totalRounds: number): GameProgress {
   const { settings } = useSettings();
   const [history, setHistory] = useState<boolean[]>([]);
   const [summary, setSummary] = useState<PlaySummary | null>(null);
@@ -31,7 +34,7 @@ export function useGameProgress(gameId: GameId, totalRounds: number): GameProgre
   const round = Math.min(history.length, Math.max(totalRounds - 1, 0));
 
   useEffect(() => {
-    if (!done || scoreRecorded.current) return;
+    if (!done || scoreRecorded.current || gameId === null) return;
     const before = getScore(gameId);
     const pct = Math.round((correctCount / totalRounds) * 100);
     recordScore(gameId, pct, settings.difficulty);
