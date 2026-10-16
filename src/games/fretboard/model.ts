@@ -6,6 +6,7 @@ import {
 } from '../../music/notes';
 import { shuffle } from '../../music/theory';
 import type { Language, Notation } from '../../types';
+import type { MeasureNote } from '../../music/measure';
 
 // Fretboard quizzes (modules 2–4) stay between the open strings and the octave at fret 12.
 export const NECK_FRETS = 12;
@@ -22,6 +23,7 @@ export type QuestionVisual =
   | { kind: 'board'; board: BoardView }
   | { kind: 'tab'; position: FretPosition }
   | { kind: 'staff'; vexKey: string }
+  | { kind: 'measure'; notes: MeasureNote[]; label: string }
   | { kind: 'text'; text: string };
 
 export interface Choice {
@@ -31,7 +33,7 @@ export interface Choice {
 
 export type QuestionAnswer =
   | { kind: 'choice'; visual: QuestionVisual; choices: Choice[]; correct: string }
-  | { kind: 'board'; board: BoardView; accepts: FretPosition[] };
+  | { kind: 'board'; board: BoardView; accepts: FretPosition[]; visual?: QuestionVisual };
 
 /** A position shown as tablature and written notation; `flat` spells it with a flat. */
 export interface NotatedPosition extends FretPosition {

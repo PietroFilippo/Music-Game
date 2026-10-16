@@ -4,11 +4,15 @@ import { FretboardExplorer } from '../components/FretboardExplorer';
 import { GuitarTab } from '../components/GuitarTab';
 import { HearButton } from '../components/HearButton';
 import { LessonShell, type LessonStep } from '../components/LessonShell';
+import { MeasureNotation } from '../components/MeasureNotation';
+import { PositionNotation } from '../components/PositionNotation';
 import { StaffDiagram } from '../components/StaffDiagram';
 import type { ModuleTwoId } from '../games/module-two/questions';
+import { createCopy } from '../games/fretboard/model';
+import { measureSound, READING_MEASURES } from '../games/module-two/reading';
 import { scaleShape } from '../games/module-two/scales';
 import { useI18n } from '../hooks/useI18n';
-import { naturalAt, naturalFrets, OPEN_STRING_LETTERS, pitchClassAt, soundingMidi, writtenVexKey, type FretPosition } from '../music/guitar';
+import { fretsForVexKey, naturalAt, naturalFrets, OPEN_STRING_LETTERS, pitchClassAt, soundingMidi, writtenVexKey, type FretPosition } from '../music/guitar';
 import { INTERVALS } from '../music/intervals';
 import { scaleNotes, type ScaleKind } from '../music/scales';
 import { shortNoteLabel, spell, spelledLabel, type SpelledNote } from '../music/notes';
@@ -61,8 +65,43 @@ export function ModuleTwoLesson({ id, onExit, onPractice }: LessonProps & { id: 
     const relative = scaleNotes({ letter, accidental }, 'major')[5];
     return `${shortSpelled({ letter, accidental })} ${text('maior', 'major')} ↔ ${shortSpelled(relative)} ${text('menor', 'minor')}`;
   };
+  const readingCopy = createCopy(lang, settings.notation);
+  const quarterPhrase = READING_MEASURES[2].notes;
+  const mixedPhrase = READING_MEASURES[4].notes;
+  const measureLabel = text('Compasso em 4/4: pauta e tablatura com ritmo', '4/4 measure: staff and rhythmic tab');
+  const sameE = fretsForVexKey('e/4', 12);
 
   const lessons: Record<ModuleTwoId, LessonStep[]> = {
+    'leitura-braco': [
+      step('Duas maneiras de ler', 'Two ways to read',
+        `A pauta mostra altura e ritmo; a tablatura indica corda e casa. O 0 indica corda solta. A guitarra é escrita uma oitava acima do som: a 6ª corda solta soa ${readingCopy.name('E')}2, mas aparece como ${readingCopy.name('E')}3, no espaço abaixo de três linhas suplementares.`,
+        `The staff shows pitch and rhythm; tab gives the string and fret. A 0 means an open string. Guitar notation is written one octave above the sound: open string 6 sounds ${readingCopy.name('E')}2 but is written as ${readingCopy.name('E')}3, in the space below three ledger lines.`,
+        <><PositionNotation position={{ string: 5, fret: 0 }} />{listen({ notes: [soundingMidi({ string: 5, fret: 0 })] })}</>),
+      step('Uma nota, vários lugares', 'One note, several places',
+        `${readingCopy.name('E')}4, na primeira linha da pauta, soa igual na 4ª corda, casa 2; na 5ª, casa 7; e na 6ª, casa 12. A pauta sozinha não escolhe a corda. A tablatura escolhe uma dessas posições. Compare a altura e a oitava, não apenas o nome da nota.`,
+        `${readingCopy.name('E')}4 on the bottom staff line sounds the same on string 4 fret 2, string 5 fret 7, and string 6 fret 12. The staff alone does not choose a string. Tab selects one of these positions. Match the pitch and octave, not just the note name.`,
+        <>
+          <StaffDiagram clef="treble" notes={[{ vexKey: 'e/4' }]} />
+          <Fretboard stringLabels="name" showFretNumbers markers={sameE.map(p => at(p.string, p.fret, 'accent'))} />
+          {listen({ notes: sameE.map(soundingMidi) })}
+        </>),
+      step('Ritmo na tablatura', 'Rhythm in tab',
+        'Números sozinhos não informam a duração. Nesta tablatura, as hastes e barras também mostram o ritmo: cada número abaixo de uma barra é uma colcheia. Duas colcheias ocupam um tempo quando a semínima vale um tempo. Leia os números da esquerda para a direita, alinhados às notas da pauta.',
+        'Numbers alone do not tell you the duration. In this tab, stems and beams also show rhythm: each number under a beam is an eighth note. Two eighth notes take one beat when the quarter note gets one beat. Read the numbers from left to right, aligned with the staff notes.',
+        <><MeasureNotation notes={READING_MEASURES[3].notes} label={measureLabel} />{listen(measureSound(READING_MEASURES[3].notes))}</>),
+      step('Conte quatro tempos', 'Count four beats',
+        'Retome as figuras rítmicas do Módulo 1. Em 4/4, a semínima vale 1 tempo; a mínima, 2; a semibreve, 4; e a colcheia, meio tempo. Aqui: mínima nos tempos 1–2, semínima no 3 e duas colcheias no 4 (conte “4 e”). Na dúvida sobre a duração de um número, confira a figura na pauta. O áudio toca as alturas com espaçamento uniforme, sem reproduzir este ritmo misto.',
+        'Recall the rhythm figures from Module 1. In 4/4, a quarter note gets 1 beat; a half note, 2; a whole note, 4; and an eighth note, half a beat. Here: a half note on beats 1–2, a quarter on 3, and two eighths on 4 (count “4 and”). If a tab number’s duration is unclear, check the staff symbol. Audio plays the pitches evenly, without reproducing this mixed rhythm.',
+        <><MeasureNotation notes={mixedPhrase} label={measureLabel} />{listen(measureSound(mixedPhrase))}</>),
+      step('Leia uma frase curta', 'Read a short phrase',
+        `Na 1ª corda, leia 3 – 5 – 7 – 5: ${['G', 'A', 'B', 'A'].map(n => readingCopy.name(n as 'G' | 'A' | 'B')).join(' – ')}. São quatro semínimas, uma por tempo: 1, 2, 3, 4. Primeiro conte, depois encontre as casas e toque. A nota na pauta e o número logo abaixo representam o mesmo ataque.`,
+        `On string 1, read 3 – 5 – 7 – 5: ${['G', 'A', 'B', 'A'].map(n => readingCopy.name(n as 'G' | 'A' | 'B')).join(' – ')}. These are four quarter notes, one per beat: 1, 2, 3, 4. Count first, then locate the frets and play. Each staff note and the number directly below represent the same attack.`,
+        <><MeasureNotation notes={quarterPhrase} label={measureLabel} />{listen(measureSound(quarterPhrase))}</>),
+      step('No seu instrumento', 'On your guitar',
+        'Conte quatro tempos em voz alta. Na 1ª corda, toque as casas 3 – 5 – 7 – 5, uma por tempo, e repita quatro vezes sem parar a contagem. Depois toque a casa 3 por dois tempos, a 5 por um tempo e as casas 7 e 5 por meio tempo cada. Por fim, toque a primeira frase na 2ª corda, casas 8 – 10 – 12 – 10: as notas escritas e o ritmo continuam iguais.',
+        'Count four beats aloud. On string 1, play frets 3 – 5 – 7 – 5, one per beat, and repeat four times without stopping the count. Then hold fret 3 for two beats, fret 5 for one beat, and frets 7 and 5 for half a beat each. Finally, play the first phrase on string 2 at frets 8 – 10 – 12 – 10: the written notes and rhythm stay the same.',
+        <><MeasureNotation notes={quarterPhrase} label={measureLabel} />{listen(measureSound(quarterPhrase))}</>),
+    ],
     'cordas-afinacao': [
       step('Seis cordas, numeradas de 1 a 6', 'Six strings, numbered 1 to 6',
         'As cordas são numeradas da mais fina para a mais grossa. A 1ª corda é a mais fina e aguda; a 6ª é a mais grossa e grave. Segurando a guitarra para tocar, a 1ª corda é a que fica mais perto do chão.',

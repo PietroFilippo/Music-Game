@@ -4,6 +4,7 @@ import { Fretboard, type FretMarker } from '../../components/Fretboard';
 import { GameShell } from '../../components/GameShell';
 import { GuitarTab } from '../../components/GuitarTab';
 import { HearButton } from '../../components/HearButton';
+import { MeasureNotation } from '../../components/MeasureNotation';
 import { PositionNotation } from '../../components/PositionNotation';
 import { Staff } from '../../components/Staff';
 import { useI18n } from '../../hooks/useI18n';
@@ -15,7 +16,8 @@ import { NECK_FRETS, type FretboardQuestion, type QuestionSound, type QuestionVi
 function QuestionIllustration({ visual }: { visual: QuestionVisual }) {
   switch (visual.kind) {
     case 'tab': return <GuitarTab positions={[visual.position]} width={220} />;
-    case 'staff': return <Staff noteVexKey={visual.vexKey} />;
+    case 'staff': return <Staff noteVexKey={visual.vexKey} height={180} />;
+    case 'measure': return <MeasureNotation notes={visual.notes} label={visual.label} />;
     case 'text': return <div className="note-sequence question-text">{visual.text}</div>;
     case 'board': return <Fretboard frets={NECK_FRETS} {...visual.board} />;
   }
@@ -73,6 +75,9 @@ export function FretboardQuiz({ gameId, createDeck, onExit }: Props) {
     </>}>
       <div className="question">
         <p className="question-prompt">{question.prompt}</p>
+        {answer.kind === 'board' && answer.visual && <div className="question-visual">
+          <QuestionIllustration visual={answer.visual} />
+        </div>}
         <div className="question-visual">
           {answer.kind === 'board' ? (
             <Fretboard
