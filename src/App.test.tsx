@@ -55,7 +55,13 @@ describe('menu', () => {
     expect(section.getByRole('heading', { name: 'Coming next' })).toBeDefined();
     expect(section.getByText('Connections between staff, tablature, fretboard and rhythm')).toBeDefined();
     const module3 = within(screen.getByRole('region', { name: 'Triads, chords and arpeggios' }));
-    expect(module3.getByText('Module 3 · planned')).toBeDefined();
-    expect(module3.getByRole('button', { name: /See planned topics/ }).getAttribute('aria-expanded')).toBe('false');
+    expect(module3.getByText('Module 3')).toBeDefined();
+    expect(module3.getByRole('button', { name: /Hide topics/ }).getAttribute('aria-expanded')).toBe('true');
+    for (const title of ['Building Triads', 'Inversions and String Sets', 'Triad Arpeggios', 'Triads in Progressions']) {
+      const topic = within(module3.getByRole('article', { name: title }));
+      expect(topic.getByRole('button', { name: /Learn/ })).toBeDefined();
+      expect(topic.getByRole('button', { name: /Practice/ })).toBeDefined();
+    }
+    expect(module3.queryByText('Coming next')).toBeNull();
   });
 });
