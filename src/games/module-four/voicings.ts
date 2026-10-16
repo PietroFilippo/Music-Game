@@ -1,6 +1,6 @@
 import { shuffle } from '../../music/theory';
 import type { Copy } from '../fretboard/model';
-import { baseQuestion, board, chordKey, degreeChoices, hiddenBoard, notesOf, qualityChoices, rootedBoard, shapeKey, symbol, VOICING_EXAMPLES, type SeventhQuestion } from './common';
+import { baseQuestion, board, chordKey, degreeChoices, hiddenBoard, markedBoard, notesOf, qualityChoices, rootedBoard, shapeKey, symbol, VOICING_EXAMPLES, type SeventhQuestion } from './common';
 
 const ORDERS = ['1–7–3–5', '1–5–7–3', '1–3–5–7', '1–3–7–5'];
 export function voicingQuestions(c: Copy): SeventhQuestion[][] {
@@ -19,7 +19,7 @@ export function voicingQuestions(c: Copy): SeventhQuestion[][] {
     return {
       ...baseQuestion(c, e), id: `degree-${chordKey(e)}-${shapeKey(e.shape)}-${target.toneIndex}`,
       prompt: text(`Qual grau está marcado em ${symbol(c, e)}?`, `Which degree is marked in ${symbol(c, e)}?`),
-      answer: { kind: 'choice', visual: { kind: 'board', board: board(e.shape.map(t => ({ ...t.position, label: t === target ? '?' : c.shortSpelled(notesOf(e)[t.toneIndex]), tone: t === target ? 'accent' : 'plain' }))) }, choices: degreeChoices(target.degree), correct: target.degree },
+      answer: { kind: 'choice', visual: { kind: 'board', board: markedBoard(e.shape, target) }, choices: degreeChoices(e.quality), correct: target.degree },
       explanation: `${baseQuestion(c, e).explanation} ${c.spelled(notesOf(e)[target.toneIndex])} = ${target.degree}, ${c.where(target.position)}.`,
     };
   });

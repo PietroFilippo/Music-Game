@@ -27,6 +27,21 @@ describe('module 4 banks', () => {
           expect(chordPitches).toContain(pitchClassAt(p));
         };
         expect(q.reveal.markers!.length).toBeGreaterThan(0);
+        if (q.id.startsWith('guide-')) {
+          // The previous chord's seventh and every place its resolution sounds; Listen plays the motion.
+          const [source, ...resolutions] = q.reveal.markers!;
+          expect(source.label).toBe('♭7');
+          if (q.answer.kind !== 'board') throw new Error('expected a board answer');
+          expect(resolutions.map(m => `${m.string}:${m.fret}`)).toEqual(q.answer.accepts.map(m => `${m.string}:${m.fret}`));
+          resolutions.forEach(m => {
+            checkPosition(m);
+            expect(m.label).toBe(quality.tones[1].degree);
+            expect(soundingMidi(source) - soundingMidi(m)).toBeGreaterThanOrEqual(1);
+            expect(soundingMidi(source) - soundingMidi(m)).toBeLessThanOrEqual(2);
+          });
+          expect(q.sound!.notes).toEqual([soundingMidi(source), soundingMidi(resolutions[0])]);
+          continue;
+        }
         for (const marker of q.reveal.markers!) {
           checkPosition(marker);
           const i = chordPitches.indexOf(pitchClassAt(marker));
@@ -45,7 +60,8 @@ describe('module 4 banks', () => {
           expect(new Set(choices.map(o => o.value)).size).toBe(4);
           expect(new Set(choices.map(o => o.label)).size).toBe(4);
           expect(choices.filter(o => o.value === correct)).toHaveLength(1);
-          if (choices.every(o => /^[A-G][#b]?$/.test(o.value)) && correct.length > 1) {
+          // Closest-tone choices are the next chord's own four tones, spelled as the key requires.
+          if (!q.id.startsWith('closest-') && choices.every(o => /^[A-G][#b]?$/.test(o.value)) && correct.length > 1) {
             expect(choices.some(o => o.value !== correct && o.value.length > 1)).toBe(true);
           }
         } else {
@@ -121,7 +137,8 @@ describe('module 4 banks', () => {
         const markers = q.answer.visual.board.markers!;
         if (q.id.startsWith('degree-')) {
           expect(markers.filter(m => m.label === '?')).toHaveLength(1);
-          expect(markers.filter(m => m.label !== '?').every(m => /^[A-G][♯♭]?$/.test(m.label!))).toBe(true);
+          // The other positions stay unlabeled, so the degree cannot be found by elimination.
+          expect(markers.filter(m => m.label !== '?').every(m => m.label === '')).toBe(true);
         }
         if (q.id.startsWith('quality-')) {
           const roots = markers.filter(m => m.label === 'R');
@@ -194,4 +211,32 @@ describe('module 4 banks', () => {
       }
     }
   });
+
+  it('asks for the closest tone among the next chord tones, and degrees among the chord degrees', () => {
+    const pool = createQuestionPool('tetrades-aplicacao', 'en', 'letter');
+    for (const q of pool.filter(q => q.id.startsWith('closest-'))) {
+      if (q.answer.kind !== 'choice') throw new Error('expected choices');
+      const pc = spelledPitchClass(q.chord.root);
+      const tones = SEVENTHS[q.chord.quality].tones.map(t => (pc + t.semitones) % 12);
+      const values = q.answer.choices.map(o => spelledPitchClass({ letter: o.value[0] as never, accidental: (o.value[1] ?? '') as never }));
+      expect(values.sort()).toEqual([...tones].sort());
+    }
+    for (const q of pool.filter(q => q.id.startsWith('degree-'))) {
+      if (q.answer.kind !== 'choice') throw new Error('expected choices');
+      // The numeral gives the quality, so every choice shares the answer's suffix.
+      const suffix = (label: string) => label.replace(/^[A-G][♯♭]?/, '');
+      const { choices, correct } = q.answer;
+      const right = suffix(choices.find(o => o.value === correct)!.label);
+      expect(choices.every(o => suffix(o.label) === right)).toBe(true);
+    }
+  });
+
+  it('includes the same letter with another accidental among spelling distractors', () => {
+    for (const q of createQuestionPool('tetrades', 'en', 'letter').filter(q => q.id.startsWith('spell-'))) {
+      if (q.answer.kind !== 'choice') throw new Error('expected choices');
+      const letter = q.answer.correct[0];
+      expect(q.answer.choices.filter(o => o.value[0] === letter).length).toBeGreaterThan(1);
+    }
+  });
 });
+

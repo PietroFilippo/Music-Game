@@ -4,7 +4,7 @@ import { OPEN_STRING_MIDI, soundingMidi, type FretPosition } from '../../music/g
 import { spell, spelledPitchClass } from '../../music/notes';
 import { shuffle } from '../../music/theory';
 import { STRINGS, type Copy } from '../fretboard/model';
-import { baseQuestion, board, chordKey, describeChord, notesOf, qualityChoices, ROOTS, shapeKey, symbol, type TriadExample, type TriadQuestion } from './common';
+import { baseQuestion, board, chordKey, describeChord, markedBoard, notesOf, qualityChoices, ROOTS, shapeKey, symbol, type TriadExample, type TriadQuestion } from './common';
 
 /** Shapes for a first course: no skipped strings and at most a three-fret stretch. */
 export function beginnerArpeggios(root: FretPosition, quality: 'major' | 'minor'): ShapeTone[][] {
@@ -43,7 +43,7 @@ export function arpeggioQuestions(c: Copy): TriadQuestion[][] {
       ...base(e),
       id: `degree-${chordKey(e)}-${shapeKey(e.shape)}`,
       prompt: text(`Qual grau está marcado no arpejo de ${symbol(c, e)}?`, `Which degree is marked in the ${symbol(c, e)} arpeggio?`),
-      answer: { kind: 'choice', visual: { kind: 'board', board: board(e.shape.map(t => ({ ...t.position, label: t === target ? '?' : c.shortSpelled(notesOf(e)[t.toneIndex]), tone: t === target ? 'accent' : 'plain' }))) },
+      answer: { kind: 'choice', visual: { kind: 'board', board: markedBoard(e.shape, target) },
         choices: shuffle(['R', '3', '♭3', '5']).map(value => ({ value, label: value })), correct: target.degree },
       explanation: `${describeChord(c, e)} ${c.spelled(notesOf(e)[target.toneIndex])} = ${target.degree} (${c.where(target.position)}).`,
     };

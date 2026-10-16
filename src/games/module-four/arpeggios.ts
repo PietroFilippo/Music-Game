@@ -3,7 +3,7 @@ import { SEVENTH_QUALITIES, SEVENTHS, spellsCleanly, type ChordQuality } from '.
 import { OPEN_STRING_MIDI, soundingMidi, type FretPosition } from '../../music/guitar';
 import { spell, spelledPitchClass } from '../../music/notes';
 import type { Copy } from '../fretboard/model';
-import { baseQuestion, board, chordKey, degreeChoices, describeChord, exactPositions, notesOf, qualityChoices, ROOTS, rootedBoard, shapeKey, symbol, type SeventhExample, type SeventhQuestion } from './common';
+import { baseQuestion, board, chordKey, degreeChoices, describeChord, exactPositions, markedBoard, notesOf, qualityChoices, ROOTS, rootedBoard, shapeKey, symbol, type SeventhExample, type SeventhQuestion } from './common';
 
 /** Adjacent-string movement avoids teaching jumps over unplayed strings. */
 export function beginnerArpeggios(root: FretPosition, quality: ChordQuality): ShapeTone[][] {
@@ -36,7 +36,7 @@ export function arpeggioQuestions(c: Copy): SeventhQuestion[][] {
     return {
       ...base(e), id: `degree-${chordKey(e)}-${shapeKey(e.shape)}`,
       prompt: text(`Qual grau está marcado no arpejo de ${symbol(c, e)}?`, `Which degree is marked in the ${symbol(c, e)} arpeggio?`),
-      answer: { kind: 'choice', visual: { kind: 'board', board: board(e.shape.map(t => ({ ...t.position, label: t === target ? '?' : c.shortSpelled(notesOf(e)[t.toneIndex]), tone: t === target ? 'accent' : 'plain' }))) }, choices: degreeChoices(target.degree), correct: target.degree },
+      answer: { kind: 'choice', visual: { kind: 'board', board: markedBoard(e.shape, target) }, choices: degreeChoices(e.quality), correct: target.degree },
       explanation: `${describeChord(c, e)} ${c.spelled(notesOf(e)[target.toneIndex])} = ${target.degree} (${c.where(target.position)}).`,
     };
   });

@@ -2,7 +2,7 @@ import { inversionOf } from '../../music/chord-shapes';
 import { TRIADS } from '../../music/chords';
 import { shuffle } from '../../music/theory';
 import type { Copy } from '../fretboard/model';
-import { baseQuestion, board, chordKey, hiddenBoard, namedBoard, notesOf, positionsOf, shapeKey, symbol, symbolChoices, VOICING_EXAMPLES, type TriadQuestion } from './common';
+import { baseQuestion, chordKey, hiddenBoard, markedBoard, namedBoard, notesOf, positionsOf, shapeKey, symbol, symbolChoices, VOICING_EXAMPLES, type TriadQuestion } from './common';
 
 export function voicingQuestions(c: Copy): TriadQuestion[][] {
   const { text } = c;
@@ -25,7 +25,7 @@ export function voicingQuestions(c: Copy): TriadQuestion[][] {
       ...baseQuestion(c, e),
       id: `degree-${chordKey(e)}-${shapeKey(e.shape)}-${index % 3}`,
       prompt: text(`Qual é o grau da nota marcada em ${symbol(c, e)}?`, `What is the degree of the marked note in ${symbol(c, e)}?`),
-      answer: { kind: 'choice', visual: { kind: 'board', board: board(e.shape.map(t => ({ ...t.position, label: t === target ? '?' : c.shortSpelled(notesOf(e)[t.toneIndex]), tone: t === target ? 'accent' : 'plain' }))) },
+      answer: { kind: 'choice', visual: { kind: 'board', board: markedBoard(e.shape, target) },
         choices: shuffle(['R', '3', '♭3', '5']).map(value => ({ value, label: value })), correct: target.degree },
       explanation: `${baseQuestion(c, e).explanation} ${c.spelled(notesOf(e)[target.toneIndex])} = ${target.degree} (${c.where(target.position)}).`,
     };

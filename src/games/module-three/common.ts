@@ -40,24 +40,36 @@ export const describeChord = (c: Copy, e: Pick<TriadExample, 'root' | 'quality'>
   `${symbol(c, e)}: ${notesOf(e).map((n, i) => `${c.spelled(n)} (${i === 0 ? 'R' : TRIADS[e.quality].tones[i].degree})`).join(' · ')}.`;
 // E♯, B♯, F♭ and C♭ would be odd distractors in a course that never uses them.
 const RARE = new Set(['E#', 'B#', 'Fb', 'Cb']);
-/** The note plus three neighbors by letter, mixing natural and altered spellings so no choice stands out. */
+/**
+ * The note plus three distractors: the same letter with another accidental
+ * (E against E♭ tests the quality, not just the letter count), and neighbors by
+ * letter, mixing natural and altered spellings so no choice stands out.
+ */
 export const noteChoices = (c: Copy, note: SpelledNote): Choice[] => {
   const index = LETTERS.indexOf(note.letter);
-  const pool = shuffle([-1, 0, 1].flatMap(d => (['', '#', 'b'] as const)
+  const near = (offsets: number[]) => shuffle(offsets.flatMap(d => (['', '#', 'b'] as const)
     .map((accidental): SpelledNote => ({ letter: LETTERS[(index + d + 7) % 7], accidental })))
     .filter(n => !RARE.has(noteKey(n))));
   const used = new Set([spelledPitchClass(note)]);
   const picked: SpelledNote[] = [];
+  const free = (n: SpelledNote) => !used.has(spelledPitchClass(n));
   const take = (n: SpelledNote | undefined) => {
-    if (!n || used.has(spelledPitchClass(n)) || picked.length === 3) return;
+    if (!n || !free(n) || picked.length === 3) return;
     used.add(spelledPitchClass(n));
     picked.push(n);
   };
-  take(pool.find(n => n.accidental && !used.has(spelledPitchClass(n))));
-  take(pool.find(n => !n.accidental && !used.has(spelledPitchClass(n))));
-  pool.forEach(take);
+  const sameLetter = near([0]);
+  take(sameLetter.find(n => free(n) && !n.accidental !== !note.accidental) ?? sameLetter.find(free));
+  const neighbors = near([-1, 1]);
+  take(neighbors.find(n => free(n) && n.accidental));
+  take(neighbors.find(n => free(n) && !n.accidental));
+  neighbors.forEach(take);
   return shuffle([note, ...picked]).map(n => ({ value: noteKey(n), label: c.spelled(n) }));
 };
+/** A shape with only the asked position marked "?", so its degree cannot be found by elimination. */
+export const markedBoard = (shape: ShapeTone[], target: ShapeTone): BoardView => board(shape.map(t => ({
+  ...t.position, label: t === target ? '?' : '', tone: t === target ? 'accent' : 'plain',
+})));
 export const qualityChoices = (c: Copy) => shuffle(TRIAD_QUALITIES).map(value => ({ value, label: TRIADS[value].name[c.language] }));
 export const symbolChoices = (c: Copy, root: SpelledNote) => shuffle(TRIAD_QUALITIES).map(value => ({
   value, label: chordSymbol(root, TRIADS[value], c.language),
