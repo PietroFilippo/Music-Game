@@ -117,7 +117,7 @@ The installer is about 1.4 MB. It installs per user, without administrator right
 
 All settings live in one sheet, opened from the gear icon on the home screen or during a quiz.
 
-- Portuguese or English; letter names, solfege, or both.
+- English (the default) or Portuguese; letter names, solfege, or both.
 - Fixed note-name mapping: C = Dó/Do and B = Si (PT) / Ti (EN). Alphabetical Notation uses the question's requested format so the answer is not revealed by the notation preference.
 - Automatic advance with a configurable 0.5–2 second delay, or manual Continue.
 - Untimed practice, or 15-second Easy, 8-second Medium, and 4-second Hard rounds. Difficulty changes the time limit, not the question bank. A timeout counts as incorrect and the next round receives a fresh timer. Rounds count down to a deadline, so a busy or throttled page cannot stretch them.
