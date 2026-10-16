@@ -240,6 +240,10 @@ const pt: Dict = {
   'prompts.pauta-ii.down': 'Conte {n} para BAIXO. Qual é a nota?',
   'prompts.claves': 'Qual nota esta clave fixa na pauta?',
   'prompts.clave-sol': 'Qual nota está na pauta?',
+  // Redesign: lessons and settings
+  'lesson.steps': 'Passos',
+  'lesson.stepN': 'Passo {n}',
+  'lesson.done': 'concluído',
 };
 
 const en: Dict = {
@@ -459,9 +463,9 @@ const en: Dict = {
   'stats.cancel': 'Cancel',
   'stats.delete': 'Delete',
   'settings.language': 'Language',
-  'settings.notation': 'Note names',
+  'settings.notation': 'Notation',
   'settings.advance': 'After answer',
-  'settings.autoDelay': 'Delay',
+  'settings.autoDelay': 'Wait',
   'notation.letter': 'Letter names (C-D-E)',
   'notation.solfege': 'Solfege (Do-Re-Mi)',
   'notation.both': 'Letters + solfege',
@@ -480,6 +484,10 @@ const en: Dict = {
   'prompts.pauta-ii.down': 'Count {n} DOWN. What is the note?',
   'prompts.claves': 'Which note does this clef anchor?',
   'prompts.clave-sol': 'Which note is on the staff?',
+  // Redesign: lessons and settings
+  'lesson.steps': 'Steps',
+  'lesson.stepN': 'Step {n}',
+  'lesson.done': 'done',
 };
 
 const DICTS: Record<Language, Dict> = { pt, en };
