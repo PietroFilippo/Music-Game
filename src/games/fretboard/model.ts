@@ -23,7 +23,8 @@ export type QuestionVisual =
   | { kind: 'board'; board: BoardView }
   | { kind: 'tab'; position: FretPosition }
   | { kind: 'staff'; vexKey: string }
-  | { kind: 'measure'; notes: MeasureNote[]; label: string }
+  /** `highlight`: the index of the note the question asks about. */
+  | { kind: 'measure'; notes: MeasureNote[]; label: string; highlight?: number }
   | { kind: 'text'; text: string };
 
 export interface Choice {

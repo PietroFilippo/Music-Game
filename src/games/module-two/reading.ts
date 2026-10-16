@@ -76,7 +76,7 @@ export function readingQuestions(c: Copy): ModuleTwoQuestion[][] {
         `How long does tab note ${index + 1} last? In 4/4, the quarter note gets one beat.`),
       answer: {
         kind: 'choice',
-        visual: { kind: 'measure', notes, label: text('Compasso em 4/4: pauta e tablatura com ritmo', '4/4 measure: staff and rhythmic tab') },
+        visual: { kind: 'measure', notes, label: text('Compasso em 4/4: pauta e tablatura com ritmo', '4/4 measure: staff and rhythmic tab'), highlight: index },
         choices: shuffle([4, 2, 1, 0.5]).map(n => ({ value: String(n), label: beatLabel(n, c.language) })),
         correct: String(beats),
       },
