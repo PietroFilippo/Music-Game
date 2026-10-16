@@ -47,7 +47,7 @@ export function StaffDiagram({
 
     // Line and space numbers are smaller than the 10-unit gap between lines,
     // so neighbouring numbers never touch.
-    ctx.setFont(READOUT_FONT, 9.5, 700);
+    ctx.setFont(READOUT_FONT, 8.5, 700);
     ctx.setFillStyle(INK.muted);
     if (numberLines) {
       for (let n = 1; n <= 5; n++) ctx.fillText(String(n), staveX - 15, stave.getYForLine(5 - n) + 3.5);

@@ -10,6 +10,15 @@
 @media (min-width: 1600px) {
   .notation-pair { --notation-scale: 1.3; }
 }
+/* Lessons: one column gives staves a little more size; the two-pane visual
+   panel about twice today's, with the explorer's tab and staff in between. */
+.lesson-body { --notation-scale: 1.1; }
+@media (min-width: 600px) {
+  .lesson-body { --notation-scale: 1.4; }
+  .lesson-body .notation-pair { --notation-scale: 1.2; }
+}
+.lesson-panel { --notation-scale: 2; }
+.lesson-panel .notation-pair { --notation-scale: 1.6; }
 .fret-cell { fill: transparent; cursor: pointer; outline: none; }
 .fret-cell:hover { fill: var(--accent-soft); }
 .fretboard[aria-disabled='true'] .fret-cell { cursor: default; }
