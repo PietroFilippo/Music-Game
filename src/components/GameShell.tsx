@@ -8,7 +8,7 @@ import { SettingsSheet } from './SettingsSheet';
 interface Props {
   title: string;
   onExit: () => void;
-  quiz: Pick<QuizRound<unknown>, 'progress' | 'expired' | 'answered' | 'correct' | 'seconds' | 'timerFraction' | 'reviews' | 'next'>;
+  quiz: Pick<QuizRound<unknown>, 'progress' | 'expired' | 'answered' | 'correct' | 'seconds' | 'timerFraction' | 'reviews' | 'setPaused' | 'next'>;
   /** Explanation and visuals shown in the feedback sheet after an answer. */
   feedback?: ReactNode;
   children: ReactNode;
@@ -35,6 +35,11 @@ export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
   const { settings, setSound } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { progress } = quiz;
+  // The sheet covers the quiz, so a round must not time out or advance behind it.
+  const showSettings = (open: boolean) => {
+    setSettingsOpen(open);
+    quiz.setPaused(open);
+  };
 
   const topbar = (
     <header className="topbar">
@@ -44,12 +49,12 @@ export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
         onClick={() => setSound(!settings.sound)}>
         <Icon name={settings.sound ? 'sound' : 'mute'} />
       </button>
-      <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => setSettingsOpen(true)}>
+      <button type="button" className="ibtn" aria-label={t('settings.title')} onClick={() => showSettings(true)}>
         <Icon name="settings" />
       </button>
     </header>
   );
-  const settingsSheet = settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />;
+  const settingsSheet = settingsOpen && <SettingsSheet onClose={() => showSettings(false)} />;
 
   if (progress.done) {
     const pct = Math.round((progress.correctCount / progress.totalRounds) * 100);
