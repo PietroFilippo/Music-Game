@@ -39,11 +39,11 @@ describe('settings and storage', () => {
 });
 
 describe('menu', () => {
-  it('lists module 2 topics alongside the topics still to come', () => {
+  it('lists all seven playable module 2 topics and keeps module 3 planned', () => {
     localStorage.setItem('musicgame.settings', JSON.stringify({ language: 'en' }));
     render(<App />);
     const module2 = within(screen.getByRole('region', { name: 'Guitar fretboard and intervals' }));
-    expect(module2.getByText('Module 2 · in progress')).toBeDefined();
+    expect(module2.getByText('Module 2')).toBeDefined();
     expect(module2.getByRole('button', { name: /Hide topics/ }).getAttribute('aria-expanded')).toBe('true');
     const section = within(document.getElementById('module-content-fretboard')!);
     expect(section.getByRole('article', { name: 'Strings and Tuning' })).toBeDefined();
@@ -52,8 +52,10 @@ describe('menu', () => {
     expect(section.getByRole('article', { name: 'Octaves on the Neck' })).toBeDefined();
     expect(section.getByRole('article', { name: 'Intervals' })).toBeDefined();
     expect(section.getByRole('article', { name: 'Major and Minor Scales' })).toBeDefined();
-    expect(section.getByRole('heading', { name: 'Coming next' })).toBeDefined();
-    expect(section.getByText('Connections between staff, tablature, fretboard and rhythm')).toBeDefined();
+    const reading = within(section.getByRole('article', { name: 'Staff, Tab and Rhythm' }));
+    expect(reading.getByRole('button', { name: 'Learn' })).toBeDefined();
+    expect(reading.getByRole('button', { name: 'Practice' })).toBeDefined();
+    expect(section.queryByRole('heading', { name: 'Coming next' })).toBeNull();
     const module3 = within(screen.getByRole('region', { name: 'Triads, chords and arpeggios' }));
     expect(module3.getByText('Module 3 · planned')).toBeDefined();
     expect(module3.getByRole('button', { name: /See planned topics/ }).getAttribute('aria-expanded')).toBe('false');

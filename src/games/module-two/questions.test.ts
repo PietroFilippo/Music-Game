@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fretsForVexKey, naturalAt, pitchClassAt, soundingMidi } from '../../music/guitar';
+import { fretsForVexKey, naturalAt, parsePositionKey, pitchClassAt, soundingMidi, vexKeyToMidi, writtenVexKey } from '../../music/guitar';
+import { DURATION_BEATS } from '../../music/measure';
+import { READING_MEASURES } from './reading';
 import { relationOf } from './octaves';
 import { SCALES, scaleNotes } from '../../music/scales';
 import { spelledPitchClass, type Accidental, type LetterNote } from '../../music/notes';
@@ -249,5 +251,64 @@ describe('scales question bank', () => {
     expect(pool.find(q => q.id === 'which-C-major')!.answer).toMatchObject({ correct: 'C-major' });
     const choices = (pool.find(q => q.id === 'which-C-major')!.answer as { choices: { value: string }[] }).choices.map(c => c.value).sort();
     expect(choices).toEqual(['A-major', 'A-minor', 'C-major', 'C-minor']);
+  });
+});
+
+describe('reading question bank', () => {
+  const pool = createQuestionPool('leitura-braco', 'en', 'letter');
+
+  it('keeps IDs stable across languages and notation settings', () => {
+    for (const language of ['pt', 'en'] as const) {
+      for (const notation of ['letter', 'solfege', 'both'] as const) {
+        expect(createQuestionPool('leitura-braco', language, notation).map(q => q.id)).toEqual(pool.map(q => q.id));
+      }
+    }
+  });
+
+  it('accepts every exact written pitch through fret 12, including ledger-line notes', () => {
+    for (const q of pool) {
+      if (q.answer.kind !== 'board' || q.answer.visual?.kind !== 'staff') continue;
+      const key = q.answer.visual.vexKey;
+      expect(q.answer.accepts).toEqual(fretsForVexKey(key, 12));
+      expect(q.reveal.markers?.map(({ string, fret }) => ({ string, fret }))).toEqual(q.answer.accepts);
+      for (const p of q.answer.accepts) expect(soundingMidi(p)).toBe(vexKeyToMidi(key) - 12);
+    }
+    expect(pool.find(q => q.id === 'staff-position-e/3')!.answer).toMatchObject({ accepts: [{ string: 5, fret: 0 }] });
+    expect(pool.find(q => q.id === 'staff-position-e/4')!.answer).toMatchObject({
+      accepts: [{ string: 3, fret: 2 }, { string: 4, fret: 7 }, { string: 5, fret: 12 }],
+    });
+  });
+
+  it('offers exactly one tab position matching the written pitch and octave', () => {
+    for (const q of pool) {
+      if (q.answer.kind !== 'choice' || q.answer.visual.kind !== 'staff') continue;
+      const key = q.answer.visual.vexKey;
+      const matches = q.answer.choices.filter(c => writtenVexKey(parsePositionKey(c.value)) === key);
+      expect(matches.map(c => c.value)).toEqual([q.answer.correct]);
+    }
+  });
+
+  it('fills each measure with four quarter-note beats and aligns tab pitches with written guitar notes', () => {
+    const durations = new Set<string>();
+    for (const { id, notes } of READING_MEASURES) {
+      expect(notes.reduce((total, n) => total + DURATION_BEATS[n.duration], 0)).toBe(4);
+      const q = pool.find(q => q.id === `duration-${id}`)!;
+      expect(q.answer).toMatchObject({ visual: { kind: 'measure', notes } });
+      const target = notes[notes.length > 2 ? 2 : 0];
+      expect(q.answer).toMatchObject({ correct: String(DURATION_BEATS[target.duration]) });
+      expect(q.sound!.notes).toEqual(notes.map(n => soundingMidi(n.position)));
+      const even = notes.every(n => n.duration === notes[0].duration);
+      expect(q.sound!.spacing).toBe(even ? DURATION_BEATS[notes[0].duration] * 0.6 : 0.6);
+      if (!even) expect(q.explanation).toContain('evenly spaced');
+      for (const n of notes) {
+        durations.add(n.duration);
+        expect(vexKeyToMidi(writtenVexKey(n.position))).toBe(soundingMidi(n.position) + 12);
+        expect(n.position.fret).toBeGreaterThanOrEqual(0);
+        expect(n.position.fret).toBeLessThanOrEqual(12);
+      }
+    }
+    expect([...durations].sort()).toEqual(['8', 'h', 'q', 'w']);
+    expect(READING_MEASURES[2].notes.map(n => writtenVexKey(n.position))).toEqual(['g/5', 'a/5', 'b/5', 'a/5']);
+    expect(READING_MEASURES[2].notes.map(n => n.position.fret)).toEqual([3, 5, 7, 5]);
   });
 });
