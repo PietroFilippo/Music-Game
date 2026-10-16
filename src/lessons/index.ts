@@ -1,6 +1,7 @@
 import { createElement, lazy, type ComponentType } from 'react';
 import type { ModuleOneId } from '../games/module-one/questions';
 import type { ModuleTwoId } from '../games/module-two/questions';
+import type { ModuleThreeId } from '../games/module-three/questions';
 import type { GameId } from '../types';
 
 export interface LessonProps {
@@ -26,6 +27,10 @@ export const LESSONS: Record<GameId, ComponentType<LessonProps>> = {
   oitavas: moduleTwoLesson('oitavas'),
   intervalos: moduleTwoLesson('intervalos'),
   escalas: moduleTwoLesson('escalas'),
+  triades: moduleThreeLesson('triades'),
+  'inversoes-triades': moduleThreeLesson('inversoes-triades'),
+  'arpejos-triades': moduleThreeLesson('arpejos-triades'),
+  'triades-progressoes': moduleThreeLesson('triades-progressoes'),
 };
 
 function moduleLesson(id: ModuleOneId) {
@@ -37,5 +42,11 @@ function moduleLesson(id: ModuleOneId) {
 function moduleTwoLesson(id: ModuleTwoId) {
   return lazy(() => import('./module-two').then(m => ({
     default: (props: LessonProps) => createElement(m.ModuleTwoLesson, { ...props, id }),
+  })));
+}
+
+function moduleThreeLesson(id: ModuleThreeId) {
+  return lazy(() => import('./module-three').then(m => ({
+    default: (props: LessonProps) => createElement(m.ModuleThreeLesson, { ...props, id }),
   })));
 }

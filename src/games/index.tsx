@@ -2,6 +2,7 @@ import { lazy, type ComponentType } from 'react';
 import type { GameId } from '../types';
 import type { ModuleOneId } from './module-one/questions';
 import type { ModuleTwoId } from './module-two/questions';
+import type { ModuleThreeId } from './module-three/questions';
 
 interface GameProps { onExit: () => void }
 
@@ -14,6 +15,12 @@ function moduleGame(id: ModuleOneId) {
 function moduleTwoGame(id: ModuleTwoId) {
   return lazy(() => import('./module-two/ModuleTwoGame').then(m => ({
     default: (props: GameProps) => <m.ModuleTwoGame {...props} id={id} />,
+  })));
+}
+
+function moduleThreeGame(id: ModuleThreeId) {
+  return lazy(() => import('./module-three/ModuleThreeGame').then(m => ({
+    default: (props: GameProps) => <m.ModuleThreeGame {...props} id={id} />,
   })));
 }
 
@@ -34,4 +41,8 @@ export const GAMES: Record<GameId, ComponentType<GameProps>> = {
   oitavas: moduleTwoGame('oitavas'),
   intervalos: moduleTwoGame('intervalos'),
   escalas: moduleTwoGame('escalas'),
+  triades: moduleThreeGame('triades'),
+  'inversoes-triades': moduleThreeGame('inversoes-triades'),
+  'arpejos-triades': moduleThreeGame('arpejos-triades'),
+  'triades-progressoes': moduleThreeGame('triades-progressoes'),
 };
