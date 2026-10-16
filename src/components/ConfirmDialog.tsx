@@ -48,8 +48,8 @@ export function ConfirmDialog({
         onClick={e => e.stopPropagation()}
         onKeyDown={onKeyDown}
         style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
+          background: 'var(--surface)',
+          border: '1px solid var(--line)',
           borderRadius: 12,
           padding: 24,
           maxWidth: 380,
@@ -57,7 +57,7 @@ export function ConfirmDialog({
         }}
       >
         <h2 id={`${id}-title`} style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{title}</h2>
-        <p id={`${id}-note`} style={{ color: 'var(--fg-muted)', fontSize: 14, margin: '10px 0 22px' }}>{note}</p>
+        <p id={`${id}-note`} style={{ color: 'var(--muted)', fontSize: 14, margin: '10px 0 22px' }}>{note}</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
           <button
             ref={cancel}
@@ -65,9 +65,9 @@ export function ConfirmDialog({
             onClick={onCancel}
             style={{
               padding: '10px 18px',
-              background: 'var(--bg-card-hover)',
+              background: 'var(--surface-hover)',
               color: 'var(--fg)',
-              border: '1px solid var(--border)',
+              border: '1px solid var(--line)',
               borderRadius: 8,
               fontSize: 14,
             }}

@@ -1,0 +1,11 @@
+/* Stats */
+.sumgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.sumgrid div { background: var(--bg-sunken); border-radius: 10px; padding: 10px 6px; }
+.sumgrid b { display: block; font-size: 20px; }
+.sumgrid span { font-size: 12px; color: var(--muted); }
+.srow { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); }
+.srow > div:first-child { flex: 1; min-width: 0; }
+.sname { font-weight: 600; font-size: 15px; }
+.snums { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; font-size: 13px; color: var(--muted); }
+.snums b { color: var(--fg); font-weight: 600; }
+.snums .low b { color: var(--amber); }

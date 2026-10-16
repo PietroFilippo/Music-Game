@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 
+/** Wide enough for the two-pane quiz, lesson and results layouts (REDESIGN.md, section 6). */
+export const TWO_PANE = '(min-width: 1000px)';
+
 // Whether a CSS media query matches; false where matchMedia is unavailable (tests, old browsers).
 export function useMediaQuery(query: string): boolean {
   const supported = typeof window !== 'undefined' && typeof window.matchMedia === 'function';

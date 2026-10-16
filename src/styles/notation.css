@@ -1,0 +1,18 @@
+/* Notation and fretboard */
+.vex-stave { display: inline-block; max-width: 100%; overflow-x: auto; padding: 8px 4px; border-radius: 8px; background: var(--paper); border: 1px solid #e5e5e5; line-height: 0; }
+.fret-cell { fill: transparent; cursor: pointer; outline: none; }
+.fret-cell:hover { fill: var(--accent-soft); }
+.fretboard[aria-disabled='true'] .fret-cell { cursor: default; }
+.fretboard[aria-disabled='true'] .fret-cell:hover { fill: transparent; }
+.fretboard-split { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.fretboard-range { align-self: flex-start; font-size: var(--t-1); font-weight: 500; color: var(--muted); }
+.notation-pair { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+.notation-pair figure { margin: 0; display: flex; flex-direction: column; align-items: center; }
+.notation-pair figcaption { font-size: var(--t-1); font-weight: 500; color: var(--muted); margin-top: auto; padding-top: 6px; }
+.explorer { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.explorer-toggles { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.toggle-chip { min-height: var(--tap-sm); padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 14px; }
+.toggle-chip[aria-pressed='true'] { background: var(--accent-strong); color: var(--on-accent); border-color: var(--accent-strong); font-weight: 600; }
+.explorer-readout { min-height: 52px; font-size: 15px; line-height: 1.5; }
+.explorer-readout strong { display: block; color: var(--accent); font-size: 22px; }
+.explorer-hint { color: var(--muted); font-size: 14px; }

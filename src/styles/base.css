@@ -1,0 +1,150 @@
+/* Tokens, global rules and shared parts. The palette, type scale and spacing
+   come from docs/design/REDESIGN.md, sections 4 to 6. */
+:root {
+  color-scheme: dark;
+  /* Greys carry a trace of green so the mint accent belongs to them. */
+  --bg: #151816;
+  --bg-sunken: #101312;
+  --surface: #1d211e;
+  --surface-hover: #232824;
+  --elevated: #262b27;
+  --fg: #f2f4f0;
+  --fg-2: #c9cec8;
+  --muted: #9aa39b;
+  --accent: #7fe0b4;
+  --accent-strong: #3ccf95;
+  --accent-soft: rgba(127, 224, 180, 0.14);
+  --on-accent: #0c1711;
+  --danger: #f08a7e;
+  --danger-soft: rgba(240, 138, 126, 0.14);
+  --amber: #f2b84b;
+  --line: #2d332e;
+  --line-strong: #3a423b;
+  --outline: #5a655d;
+  --focus: #9cf0cc;
+  --paper: #f4f3ee;
+  --ink: #1b1e1b;
+
+  /* Segoe UI Variable and Bahnschrift ship with Windows; elsewhere the system face. */
+  --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --font-readout: 'Bahnschrift', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --t-1: 13px;
+  --t0: clamp(15px, 14px + 0.2vw, 17px);
+  --t1: clamp(16px, 15px + 0.25vw, 18px);
+  --t2: clamp(19px, 17px + 0.5vw, 24px);
+  --t3: clamp(22px, 19px + 0.8vw, 30px);
+  --t4: clamp(44px, 32px + 2.6vw, 76px);
+  --t-answer: clamp(18px, 16px + 0.4vw, 22px);
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --gutter: clamp(16px, 2vw, 40px);
+  --r-card: 16px;
+  --r-ctl: 12px;
+  --radius: var(--r-card);
+  --tap: 52px;
+  --tap-sm: 44px;
+  /* The widest a fretboard is drawn; screens with room for a bigger neck raise it. */
+  --neck-max: 560px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: var(--t0);
+  line-height: 1.5;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button { font-family: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+button:focus-visible, select:focus-visible, input:focus-visible, [role='dialog']:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--font-display); }
+.ic { flex: none; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+/* Small sentence-case labels: section names, captions, the module number. */
+.label { font-size: var(--t-1); font-weight: 500; color: var(--muted); }
+/* Numbers that are read like a display: scores, counts, timers, cents, Hz. */
+.readout { font-family: var(--font-readout); font-variant-numeric: tabular-nums; }
+/* A keyboard key hint, shown only with a mouse or trackpad. */
+.kbd {
+  display: none; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 6px;
+  border: 1px solid var(--outline); color: var(--muted); background: var(--bg-sunken);
+  font: 600 12px/20px var(--font-readout); text-align: center;
+}
+@media (hover: hover) and (pointer: fine) {
+  .kbd { display: inline-block; }
+}
+
+/* Layout. Below the two-pane width (1000 px) content is one column of up to
+   880 px; screens with a two-pane layout lift the cap. */
+.page { min-height: 100vh; display: flex; flex-direction: column; width: 100%; }
+.page-main {
+  flex: 1; display: flex; flex-direction: column; gap: 14px;
+  width: 100%; max-width: 880px; margin: 0 auto; padding: 4px var(--gutter) 24px;
+}
+.topbar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 6px; min-height: 56px;
+  padding: 6px max(6px, calc(var(--gutter) - 12px));
+  background: var(--bg);
+}
+.topbar-title { flex: 1; font-size: var(--t1); font-weight: 600; letter-spacing: -0.2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wordmark { flex: 1; font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; padding-left: 6px; }
+.ibtn {
+  width: var(--tap-sm); height: var(--tap-sm); flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: var(--r-ctl); background: transparent; color: var(--fg);
+}
+.ibtn:hover:not(:disabled) { background: var(--elevated); }
+.ibtn:disabled { opacity: 0.3; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); }
+.hero { background: linear-gradient(180deg, #1f3a2f 0%, var(--surface) 100%); border-color: #2d5a48; }
+.eyebrow { font-size: var(--t-1); font-weight: 500; color: var(--muted); margin: 0 0 6px; }
+.card h2 { font-size: 22px; letter-spacing: -0.2px; margin-bottom: 6px; }
+.card h3 { font-size: var(--t1); font-weight: 600; }
+
+/* Buttons */
+.btn {
+  min-height: var(--tap); padding: 10px 18px; border-radius: var(--r-ctl);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1px solid transparent; font-size: 16px; font-weight: 600; text-align: center;
+}
+.btn.sm { min-height: var(--tap-sm); padding: 6px 14px; font-size: 15px; border-radius: 10px; }
+.btn-primary { background: var(--accent-strong); color: var(--on-accent); }
+.btn-primary:hover:not(:disabled) { background: #4fdaa3; }
+.btn-secondary { background: var(--elevated); color: var(--fg); border-color: var(--outline); }
+.btn-secondary:hover:not(:disabled) { background: #2e342f; }
+.btn-ghost { background: transparent; color: var(--fg); font-weight: 500; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--outline); }
+.btn-danger { background: transparent; color: var(--danger); border-color: #6a3d37; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: 0.5; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.actions .btn { flex: 1; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: var(--t-1); color: var(--muted); border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px 10px; }
+.chip b { color: var(--fg); font-weight: 600; }
+.chip-accent { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin: 10px 0 8px; }
+.bar span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

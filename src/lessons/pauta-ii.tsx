@@ -101,10 +101,10 @@ function NoteCycle({ labelFor }: { labelFor: (l: LetterNote) => string }) {
           <span style={{ color: i === 0 || i === CYCLE.length - 1 ? 'var(--accent)' : 'var(--fg)' }}>
             {labelFor(l)}
           </span>
-          {i < CYCLE.length - 1 && <span style={{ color: 'var(--fg-muted)' }}>→</span>}
+          {i < CYCLE.length - 1 && <span style={{ color: 'var(--muted)' }}>→</span>}
         </span>
       ))}
-      <span style={{ color: 'var(--fg-muted)' }}>…</span>
+      <span style={{ color: 'var(--muted)' }}>…</span>
     </div>
   );
 }

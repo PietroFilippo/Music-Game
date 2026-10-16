@@ -1,0 +1,28 @@
+/* Lessons */
+.lesson-steps { display: flex; gap: 4px; padding: 0 16px 8px; }
+.lesson-steps button { flex: 1; padding: 8px 0; border: 0; background: transparent; }
+.lesson-steps button span { display: block; height: 5px; border-radius: 3px; background: var(--line); }
+.lesson-steps button.done span { background: var(--accent); }
+.lesson-steps button.cur span { background: var(--line); box-shadow: inset 0 0 0 2px var(--accent); }
+.lesson-body { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 4px 16px 16px; text-align: center; }
+.lesson-body h2 { font-size: 22px; letter-spacing: -0.2px; }
+.lesson-copy { max-width: 620px; margin: 0 auto; font-size: 16px; line-height: 1.6; color: var(--fg-2); }
+.lesson-visual { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 18px; }
+.bottombar {
+  position: sticky; bottom: 0; display: flex; gap: 10px; padding: 18px 16px 16px; margin-top: auto;
+  background: linear-gradient(180deg, rgba(21, 24, 22, 0), var(--bg) 30%);
+}
+.bottombar .btn { flex: 1; }
+.reference-card { padding: 14px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.reference-card strong { display: block; color: var(--accent); }
+.rhythm-reference { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rhythm-reference figure { margin: 0; width: 140px; }
+.rhythm-reference figcaption { font-size: 14px; line-height: 1.5; }
+.note-sequence { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-size: 23px; font-weight: 600; color: var(--accent); }
+.hear-button { min-height: var(--tap-sm); padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 15px; }
+.hear-button:hover { border-color: var(--accent); }
+.interval-table { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; width: 100%; max-width: 640px; }
+.interval-table .reference-card { padding: 10px 12px; font-size: 14px; }
+@media (max-width: 600px) {
+  .note-sequence { font-size: 18px; gap: 8px; }
+}

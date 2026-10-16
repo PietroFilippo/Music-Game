@@ -32,10 +32,10 @@ interface Props {
 }
 
 const TONES: Record<MarkerTone, { fill: string; stroke: string; text: string }> = {
-  accent: { fill: 'var(--accent)', stroke: 'var(--accent)', text: '#0f0f0f' },
-  plain: { fill: 'var(--bg-card)', stroke: 'var(--fg)', text: 'var(--fg)' },
-  root: { fill: 'var(--warn)', stroke: 'var(--warn)', text: '#0f0f0f' },
-  wrong: { fill: 'var(--danger)', stroke: 'var(--danger)', text: '#0f0f0f' },
+  accent: { fill: 'var(--accent)', stroke: 'var(--accent)', text: 'var(--on-accent)' },
+  plain: { fill: 'var(--surface)', stroke: 'var(--fg)', text: 'var(--fg)' },
+  root: { fill: 'var(--amber)', stroke: 'var(--amber)', text: 'var(--on-accent)' },
+  wrong: { fill: 'var(--danger)', stroke: 'var(--danger)', text: 'var(--on-accent)' },
 };
 
 const SINGLE_INLAYS = [3, 5, 7, 9, 15, 17, 19, 21];
@@ -154,35 +154,41 @@ export function Fretboard({
         role={interactive ? 'group' : 'img'}
         aria-label={boardLabel}
         aria-disabled={interactive ? disabled : undefined}
-        style={{ width: '100%', maxWidth: width, height: 'auto' }}
+        // The geometry is drawn at 560 units; CSS sets how wide it may grow
+        // (--neck-max), except for the phone halves, which stay at actual size.
+        style={{ width: '100%', maxWidth: width === WIDTH ? 'var(--neck-max)' : width, height: 'auto' }}
       >
+        {highlightStrings.map(s => (
+          <rect key={'lane' + s} x={labelW} y={y(s) - stringGap * 0.42} width={width - PAD_R - labelW + 4}
+            height={stringGap * 0.84} rx={stringGap / 4} fill="var(--accent)" fillOpacity={0.1} />
+        ))}
         {Array.from({ length: STRING_COUNT }, (_, s) => {
           const lit = highlightStrings.includes(s);
           return (
             <line key={'s' + s} x1={labelW + 4} x2={width - PAD_R} y1={y(s)} y2={y(s)}
-              stroke={lit ? 'var(--accent)' : 'var(--fg-muted)'} strokeWidth={lit ? 4 : 1 + s * 0.3} />
+              stroke={lit ? 'var(--accent)' : 'var(--muted)'} strokeWidth={lit ? 4 : 1 + s * 0.3} />
           );
         })}
         <line x1={startX} x2={startX} y1={PAD_T} y2={PAD_T + boardH}
-          stroke={withOpen ? 'var(--fg)' : 'var(--border)'} strokeWidth={withOpen ? 3 : 1} />
+          stroke={withOpen ? 'var(--fg)' : 'var(--line-strong)'} strokeWidth={withOpen ? 3 : 1} />
         {fretList.filter(f => f > 0).map(f => (
           <line key={'f' + f} x1={startX + (f - offset) * fretGap} x2={startX + (f - offset) * fretGap}
-            y1={PAD_T} y2={PAD_T + boardH} stroke="var(--border)" strokeWidth={1} />
+            y1={PAD_T} y2={PAD_T + boardH} stroke="var(--line-strong)" strokeWidth={1} />
         ))}
         {SINGLE_INLAYS.filter(inRange).map(f => (
-          <circle key={'m' + f} cx={x(f)} cy={PAD_T + boardH / 2} r={5} fill="var(--border)" />
+          <circle key={'m' + f} cx={x(f)} cy={PAD_T + boardH / 2} r={5} fill="var(--line-strong)" />
         ))}
         {DOUBLE_INLAYS.filter(inRange).flatMap(f => [1.5, 3.5].map(row => (
-          <circle key={`m${f}-${row}`} cx={x(f)} cy={PAD_T + stringGap * row} r={5} fill="var(--border)" />
+          <circle key={`m${f}-${row}`} cx={x(f)} cy={PAD_T + stringGap * row} r={5} fill="var(--line-strong)" />
         )))}
         {stringLabels !== 'none' && Array.from({ length: STRING_COUNT }, (_, s) => (
           <text key={'l' + s} x={labelW - 4} y={y(s) + 4} fontSize={12} textAnchor="end"
-            fill={highlightStrings.includes(s) ? 'var(--accent)' : 'var(--fg-muted)'}>
+            fill={highlightStrings.includes(s) ? 'var(--accent)' : 'var(--muted)'}>
             {stringLabel(s)}
           </text>
         ))}
         {showFretNumbers && fretList.map(f => (
-          <text key={'n' + f} x={x(f)} y={height - 6} fontSize={11} fill="var(--fg-muted)" textAnchor="middle">{f}</text>
+          <text key={'n' + f} x={x(f)} y={height - 6} fontSize={11} fill="var(--muted)" textAnchor="middle">{f}</text>
         ))}
         {allMarkers.filter(m => inRange(m.fret)).map((m, i) => {
           const tone = TONES[m.tone ?? 'plain'];
@@ -222,7 +228,7 @@ export function Fretboard({
         }))}
         {focusBox && (
           <rect x={focusBox.x + 1} y={focusBox.y + 1} width={focusBox.width - 2} height={focusBox.height - 2}
-            rx={6} fill="none" stroke="var(--accent)" strokeWidth={2} pointerEvents="none" />
+            rx={6} fill="none" stroke="var(--focus)" strokeWidth={2} pointerEvents="none" />
         )}
       </svg>
     );

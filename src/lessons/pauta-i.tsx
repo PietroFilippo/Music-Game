@@ -85,7 +85,7 @@ function Text({ children }: { children: ReactNode }) {
 }
 
 function Caption({ children }: { children: ReactNode }) {
-  return <p style={{ color: 'var(--fg-muted)', fontSize: 13, marginTop: 10 }}>{children}</p>;
+  return <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 10 }}>{children}</p>;
 }
 
 export function PautaILesson({ onExit, onPractice }: LessonProps) {
