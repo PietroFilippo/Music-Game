@@ -62,8 +62,9 @@ struct TrayState {
 }
 
 impl TrayState {
+  // English unless the app said Portuguese, matching the app's default language.
   fn text(&self, pt: &'static str, en: &'static str) -> &'static str {
-    if self.language == "en" { en } else { pt }
+    if self.language == "pt" { pt } else { en }
   }
 }
 

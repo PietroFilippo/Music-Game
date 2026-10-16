@@ -15,10 +15,10 @@ describe('settings and storage', () => {
       language: 'fr', notation: 'letter', advanceMode: 7, autoAdvanceDelayMs: 99999, difficulty: 'hard', sound: 'loud',
     }));
     expect(loadSettings()).toEqual({
-      language: 'pt', notation: 'letter', advanceMode: 'auto', autoAdvanceDelayMs: 900, difficulty: 'hard', sound: true,
+      language: 'en', notation: 'letter', advanceMode: 'auto', autoAdvanceDelayMs: 900, difficulty: 'hard', sound: true,
     });
     localStorage.setItem('musicgame.settings', 'not json');
-    expect(loadSettings().language).toBe('pt');
+    expect(loadSettings().language).toBe('en');
   });
 
   it('keeps working when browser storage is blocked', () => {
@@ -28,12 +28,13 @@ describe('settings and storage', () => {
     vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(blocked);
 
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-    fireEvent.click(screen.getByRole('button', { name: 'English' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-    expect(screen.getByText('Sight-reading practice — electric guitar')).toBeDefined();
-    const module1 = within(screen.getByRole('region', { name: 'Music-reading foundations' }));
-    const toggle = module1.getByRole('button', { name: /Hide topics/ });
+    // English is the default; switching languages works without storage.
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Português' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(screen.getByText('Treino de leitura — guitarra elétrica')).toBeDefined();
+    const module1 = within(screen.getByRole('region', { name: 'Fundamentos de leitura musical' }));
+    const toggle = module1.getByRole('button', { name: /Ocultar tópicos/ });
     fireEvent.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
 

@@ -9,7 +9,7 @@ export const AUTO_DELAY_MIN_MS = 500;
 export const AUTO_DELAY_MAX_MS = 2000;
 
 const DEFAULTS: Settings = {
-  language: 'pt',
+  language: 'en',
   notation: 'both',
   advanceMode: 'auto',
   autoAdvanceDelayMs: 900,
