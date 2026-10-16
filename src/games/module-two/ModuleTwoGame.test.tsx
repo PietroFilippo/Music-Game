@@ -11,6 +11,7 @@ import { createQuestionDeck, MODULE_TWO_IDS, type ModuleTwoQuestion } from './qu
 // Notation rendering is exercised in the browser; these tests cover gameplay.
 vi.mock('../../components/Staff', () => ({ Staff: () => <div>Staff diagram</div> }));
 vi.mock('../../components/GuitarTab', () => ({ GuitarTab: () => <div>Guitar tab</div> }));
+vi.mock('../../components/MeasureNotation', () => ({ MeasureNotation: () => <div>Measure notation</div> }));
 const playNotes = vi.fn();
 vi.mock('../../audio/sound', () => ({ playNotes: (...args: unknown[]) => playNotes(...args), playEffect: () => {} }));
 
@@ -86,5 +87,35 @@ describe('module 2 games', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Listen' }));
     expect(playNotes).toHaveBeenCalledWith(deck[0].sound!.notes, { spacing: 0.6 });
     expect(deck[0].sound!.notes).toHaveLength(2);
+  });
+
+  it('shows a staff above the answer board and accepts an alternate position', () => {
+    const deck = startGame('leitura-braco');
+    const index = deck.findIndex(q => q.answer.kind === 'board' && q.answer.accepts.length > 1);
+    expect(index).toBeGreaterThanOrEqual(0);
+    for (const question of deck.slice(0, index)) {
+      answerCorrectly(question);
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
+    expect(screen.getByText('Staff diagram')).toBeDefined();
+    const { answer } = deck[index];
+    if (answer.kind !== 'board') throw new Error('expected a board answer');
+    fireEvent.click(screen.getByRole('button', { name: cellName(answer.accepts[1]) }));
+    expect(screen.getByRole('status').textContent).toContain('Correct!');
+  });
+
+  it('renders a reading measure and plays its sounding pitches with the configured spacing', () => {
+    const deck = startGame('leitura-braco');
+    const index = deck.findIndex(q => q.answer.kind === 'choice' && q.answer.visual.kind === 'measure');
+    expect(index).toBeGreaterThanOrEqual(0);
+    for (const question of deck.slice(0, index)) {
+      answerCorrectly(question);
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
+    expect(screen.getByText('Measure notation')).toBeDefined();
+    answerCorrectly(deck[index]);
+    playNotes.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Listen' }));
+    expect(playNotes).toHaveBeenCalledWith(deck[index].sound!.notes, { spacing: deck[index].sound!.spacing });
   });
 });

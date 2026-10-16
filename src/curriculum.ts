@@ -8,8 +8,7 @@ interface CourseModule {
   topicKeys: readonly string[];
 }
 
-// Modules 2–4 follow the proposed guitar-focused roadmap. Module 2 has its first
-// two topics; the rest are previews, not playable content.
+// Modules 2–4 follow the proposed guitar-focused roadmap.
 // Keep each game in one module so the menu and future progress summaries agree.
 export const COURSE_MODULES: readonly CourseModule[] = [
   {
@@ -22,8 +21,8 @@ export const COURSE_MODULES: readonly CourseModule[] = [
     topicKeys: [],
   },
   {
-    id: 'fretboard', number: 2, games: ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois', 'oitavas', 'intervalos', 'escalas'],
-    topicKeys: ['fretboard.reading'],
+    id: 'fretboard', number: 2, games: ['cordas-afinacao', 'notas-braco', 'sustenidos-bemois', 'oitavas', 'intervalos', 'escalas', 'leitura-braco'],
+    topicKeys: [],
   },
   {
     id: 'triads', number: 3, games: [],
