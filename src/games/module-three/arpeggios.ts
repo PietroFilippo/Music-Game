@@ -1,16 +1,22 @@
-import { arpeggioShapes } from '../../music/chord-shapes';
+import { arpeggioShapes, type ShapeTone } from '../../music/chord-shapes';
 import { spellsCleanly, TRIADS } from '../../music/chords';
-import { OPEN_STRING_MIDI, soundingMidi } from '../../music/guitar';
+import { OPEN_STRING_MIDI, soundingMidi, type FretPosition } from '../../music/guitar';
 import { spell, spelledPitchClass } from '../../music/notes';
 import { shuffle } from '../../music/theory';
 import { STRINGS, type Copy } from '../fretboard/model';
 import { baseQuestion, board, chordKey, describeChord, notesOf, qualityChoices, ROOTS, shapeKey, symbol, type TriadExample, type TriadQuestion } from './common';
 
+/** Shapes for a first course: no skipped strings and at most a three-fret stretch. */
+export function beginnerArpeggios(root: FretPosition, quality: 'major' | 'minor'): ShapeTone[][] {
+  return arpeggioShapes(root, TRIADS[quality], { maxSpan: 3 })
+    .filter(shape => shape.every((t, i) => i === 0 || shape[i - 1].position.string - t.position.string <= 1));
+}
+
 export const ARPEGGIO_EXAMPLES: TriadExample[] = ROOTS.flatMap(root => (['major', 'minor'] as const)
   .filter(q => spellsCleanly(root, TRIADS[q]))
   .flatMap(quality => [5, 4, 3].flatMap(string => {
     const fret = (spelledPitchClass(root) - OPEN_STRING_MIDI[string] % 12 + 12) % 12;
-    return arpeggioShapes({ string, fret }, TRIADS[quality]).slice(0, 2).map(shape => ({ root, quality, shape }));
+    return beginnerArpeggios({ string, fret }, quality).slice(0, 2).map(shape => ({ root, quality, shape }));
   })));
 
 export function arpeggioQuestions(c: Copy): TriadQuestion[][] {

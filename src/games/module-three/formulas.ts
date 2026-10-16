@@ -1,4 +1,4 @@
-import { chordMidi, TRIADS } from '../../music/chords';
+import { TRIADS } from '../../music/chords';
 import { OPEN_STRING_MIDI, soundingMidi } from '../../music/guitar';
 import { spelledPitchClass } from '../../music/notes';
 import { noteKey, STRINGS, type Copy } from '../fretboard/model';
@@ -54,7 +54,7 @@ export function formulaQuestions(c: Copy): TriadQuestion[][] {
         `Tap the ${i === 1 ? 'third' : 'fifth'} (${degree}) of ${symbol(c, e)}, above ${c.spelled(e.root)} (R).`),
       answer: { kind: 'board', board: board([{ ...root, label: 'R', tone: 'root' }]), accepts },
       reveal: board([{ ...root, label: 'R', tone: 'root' }, ...accepts.map(p => ({ ...p, label: degree, tone: 'accent' as const }))]),
-      sound: { notes: chordMidi(soundingMidi(root), TRIADS[e.quality]), spacing: 0.03 },
+      sound: { notes: [soundingMidi(root), midi], spacing: 0.03 },
     };
   }));
   return [spellTone, quality, symbols, missing];

@@ -5,6 +5,7 @@ import { parsePositionKey, pitchClassAt, soundingMidi, type FretPosition } from 
 import { majorTriads } from '../../music/harmony';
 import { spelledPitchClass } from '../../music/notes';
 import { noteKey } from '../fretboard/model';
+import { ARPEGGIO_EXAMPLES } from './arpeggios';
 import { MAJOR_KEYS, PROGRESSIONS } from './progressions';
 import { createQuestionDeck, createQuestionGroups, createQuestionPool, MODULE_THREE_IDS } from './questions';
 
@@ -33,7 +34,8 @@ describe('module 3 banks', () => {
           const i = chordPitches.indexOf(pitchClassAt(marker));
           expect(marker.label).toBe(i === 0 ? 'R' : quality.tones[i].degree);
         }
-        expect(q.sound!.notes.length).toBeGreaterThanOrEqual(3);
+        // Missing-tone questions play the root and the requested tone; the rest play the whole chord.
+        expect(q.sound!.notes.length).toBeGreaterThanOrEqual(q.id.startsWith('missing-') ? 2 : 3);
         expect(q.sound!.spacing).toBe(id === 'arpejos-triades' ? 0.3 : 0.03);
         q.sound!.notes.forEach(m => {
           expect(Number.isFinite(m)).toBe(true);
@@ -177,6 +179,29 @@ describe('module 3 banks', () => {
       const roots = q.answer.visual.board.markers!.filter(m => m.label === 'R');
       expect(roots.length).toBe(2);
       expect(roots.every(m => pitchClassAt(m) === spelledPitchClass(q.chord.root))).toBe(true);
+    }
+  });
+
+  it('keeps every chord quality in wrong transpositions, so only the degrees decide', () => {
+    const qualities = (label: string) => label.split(' – ').map(symbol => symbol.replace(/^[A-G][♯♭]?/, ''));
+    const pool = createQuestionPool('triades-progressoes', 'en', 'letter').filter(q => q.id.startsWith('transpose-'));
+    expect(pool.length).toBeGreaterThan(0);
+    for (const q of pool) {
+      if (q.answer.kind !== 'choice') throw new Error('expected choices');
+      const { choices, correct } = q.answer;
+      const right = qualities(choices.find(o => o.value === correct)!.label);
+      for (const o of choices) expect(qualities(o.label)).toEqual(right);
+    }
+  });
+
+  it('uses beginner arpeggio shapes and plays only the shown tones for missing-tone questions', () => {
+    for (const e of ARPEGGIO_EXAMPLES) {
+      const frets = e.shape.map(t => t.position.fret);
+      expect(Math.max(...frets) - Math.min(...frets)).toBeLessThanOrEqual(3);
+      e.shape.slice(1).forEach((t, i) => expect(e.shape[i].position.string - t.position.string).toBeLessThanOrEqual(1));
+    }
+    for (const q of createQuestionPool('triades', 'en', 'letter').filter(q => q.id.startsWith('missing-'))) {
+      expect(q.sound!.notes).toHaveLength(2);
     }
   });
 });

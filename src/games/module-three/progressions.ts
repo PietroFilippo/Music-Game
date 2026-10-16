@@ -1,6 +1,6 @@
 import { closeVoicings, voiceLeadingDistance } from '../../music/chord-shapes';
 import { TRIADS } from '../../music/chords';
-import { majorTriads, MAJOR_ROMANS } from '../../music/harmony';
+import { majorTriads, MAJOR_ROMANS, type DiatonicTriad } from '../../music/harmony';
 import { soundingMidi } from '../../music/guitar';
 import { spelledPitchClass, type SpelledNote } from '../../music/notes';
 import { shuffle } from '../../music/theory';
@@ -36,9 +36,18 @@ export function progressionQuestions(c: Copy): TriadQuestion[][] {
     const targetKey = MAJOR_KEYS[(i + 1) % MAJOR_KEYS.length];
     const original = majorTriads(key);
     const destination = majorTriads(targetKey);
-    const options = [0, 1, 2, 3].map(shift => degrees.map(n => destination[(n - 1 + shift) % 7]));
+    const names = (chords: DiatonicTriad[]) => chords.map(o => symbol(c, o)).join(' – ');
+    const correct = degrees.map(n => destination[n - 1]);
+    // Wrong answers keep every chord's quality, so only the degrees tell them apart: the same
+    // degrees in another key, and the target key's other chords of matching qualities.
+    const otherKey = majorTriads(MAJOR_KEYS[(i + 2) % MAJOR_KEYS.length]);
+    const reordered = correct.reduce<DiatonicTriad[][]>((sequences, chord) => sequences.flatMap(sequence => destination
+      .filter(d => d.quality === chord.quality && !sequence.includes(d)).map(d => [...sequence, d])), [[]]);
+    const wrong = [degrees.map(n => otherKey[n - 1]), ...shuffle(reordered)]
+      .filter((sequence, j, all) => names(sequence) !== names(correct) && all.findIndex(o => names(o) === names(sequence)) === j)
+      .slice(0, 3);
+    const options = [correct, ...wrong];
     const e = example(options[0][0]);
-    const names = (chords: typeof original) => chords.map(o => symbol(c, o)).join(' – ');
     return {
       ...baseQuestion(c, e),
       id: `transpose-${noteKey(key)}-${noteKey(targetKey)}-${degrees.join('.')}`,

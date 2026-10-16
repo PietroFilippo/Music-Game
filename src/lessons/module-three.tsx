@@ -4,10 +4,11 @@ import { HearButton } from '../components/HearButton';
 import { LessonShell, type LessonStep } from '../components/LessonShell';
 import { StaffDiagram } from '../components/StaffDiagram';
 import { createCopy } from '../games/fretboard/model';
+import { beginnerArpeggios } from '../games/module-three/arpeggios';
 import { describeChord, positionsOf, shapeBoard, STRING_SETS, type TriadExample } from '../games/module-three/common';
 import type { ModuleThreeId } from '../games/module-three/questions';
 import { useI18n } from '../hooks/useI18n';
-import { arpeggioShapes, closeVoicings, voiceLeadingDistance } from '../music/chord-shapes';
+import { closeVoicings, voiceLeadingDistance } from '../music/chord-shapes';
 import { chordNotes, chordSymbol, TRIAD_QUALITIES, TRIADS, type TriadQuality } from '../music/chords';
 import { soundingMidi, writtenVexKey, type FretPosition } from '../music/guitar';
 import { majorTriads, MAJOR_ROMANS } from '../music/harmony';
@@ -32,7 +33,7 @@ export function ModuleThreeLesson({ id, onExit, onPractice }: LessonProps & { id
     root, quality, shape: closeVoicings(root, TRIADS[quality], strings).find(s => s[0].toneIndex === inversion)!,
   });
   const arpeggio = (root: SpelledNote, position: FretPosition, quality: 'major' | 'minor'): TriadExample => ({
-    root, quality, shape: arpeggioShapes(position, TRIADS[quality])[0],
+    root, quality, shape: beginnerArpeggios(position, quality)[0],
   });
   const panel = (e: TriadExample, spacing = 0.03, heading?: string) => <div className="reference-card">
     {heading && <strong>{heading}</strong>}
@@ -88,8 +89,8 @@ export function ModuleThreeLesson({ id, onExit, onPractice }: LessonProps & { id
         'Use sets 1–2–3, 2–3–4, 3–4–5 and 4–5–6. Play only the three marked strings. Here each set shows C in root position; compare the frets while keeping track of R–3–5.',
         <>{STRING_SETS.map(strings => <div key={strings[0]}>{panel(voicing(C, 'major', 0, strings), 0.03, text(`Cordas ${strings.map(s => s + 1).join('–')}`, `Strings ${strings.map(s => s + 1).join('–')}`))}</div>)}</>),
       step('A diferença entre a 3ª e a 2ª corda', 'The offset between strings 3 and 2',
-        'As cordas vizinhas ficam a 5 semitons, exceto da 3ª para a 2ª: são 4. Ao transportar um desenho entre grupos, ajuste a nota que cruza essa região uma casa adiante. Não copie as casas sem conferir as notas.',
-        'Adjacent strings are 5 semitones apart, except strings 3 and 2: they are 4 apart. When moving a shape between sets, adjust the note crossing that boundary one fret higher. Check the notes instead of copying frets blindly.',
+        'As cordas vizinhas ficam a 5 semitons, exceto da 3ª para a 2ª: são 4. Ao mover um desenho em direção às cordas agudas, a nota que passa da 3ª para a 2ª corda avança uma casa; no sentido inverso, recua uma casa. Não copie as casas sem conferir as notas.',
+        'Adjacent strings are 5 semitones apart, except strings 3 and 2: they are 4 apart. When moving a shape toward the higher strings, the note that crosses from string 3 to string 2 moves one fret higher; in the other direction, it moves one fret lower. Check the notes instead of copying frets blindly.',
         <>{panel(voicing(C, 'major', 0, STRING_SETS[2]))}{panel(voicing(C, 'major', 0, STRING_SETS[1]))}</>),
       step('Menor também tem três posições', 'Minor has three positions too',
         'Na tríade menor, os graus são R–♭3–5. A regra do baixo continua: R = posição fundamental, ♭3 = 1ª inversão, 5 = 2ª inversão. Identifique a fundamental mesmo quando ela não é a nota mais grave.',
