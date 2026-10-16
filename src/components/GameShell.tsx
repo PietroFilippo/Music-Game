@@ -11,6 +11,12 @@ interface Props {
   quiz: Pick<QuizRound<unknown>, 'progress' | 'expired' | 'answered' | 'correct' | 'seconds' | 'timerFraction' | 'reviews' | 'setPaused' | 'next'>;
   /** Explanation and visuals shown in the feedback sheet after an answer. */
   feedback?: ReactNode;
+  /** An unscored review: its results have no best or last score to compare with. */
+  review?: boolean;
+  /** Offered with the missed rounds on the results screen, to replay just those. */
+  onReviewMisses?: () => void;
+  /** Replaces restarting the same quiz from the results screen. */
+  onPlayAgain?: () => void;
   children: ReactNode;
 }
 
@@ -30,7 +36,7 @@ function TimerRing({ fraction, seconds }: { fraction: number; seconds: number })
   );
 }
 
-export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
+export function GameShell({ title, onExit, quiz, feedback, review = false, onReviewMisses, onPlayAgain, children }: Props) {
   const { t } = useI18n();
   const { settings, setSound } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -65,11 +71,12 @@ export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
         {topbar}
         <main className="page-main results">
           <section className="card result-hero">
-            <h2 className="eyebrow">{t('common.complete')}</h2>
+            <h2 className="eyebrow">{t(review ? 'results.reviewComplete' : 'common.complete')}</h2>
             <div className="result-score">
               <span className="bignum">{pct}%</span>
               <span className="muted">{t('results.correctOf', { n: progress.correctCount, total: progress.totalRounds })}</span>
             </div>
+            {review && <p className="muted small">{t('results.reviewNote')}</p>}
             <div className="chips">
               {previousBest !== undefined && pct > previousBest && <span className="chip chip-accent">{t('results.newBest')}</span>}
               {previousBest !== undefined && <span className="chip">{t('results.best')} <b>{Math.max(pct, previousBest)}%</b></span>}
@@ -94,10 +101,15 @@ export function GameShell({ title, onExit, quiz, feedback, children }: Props) {
                   ))}
                 </ul>
               )}
+              {misses.length > 0 && onReviewMisses && (
+                <button type="button" className="btn btn-secondary btn-block" style={{ marginTop: 10 }} onClick={onReviewMisses}>
+                  <Icon name="retry" /> {t(misses.length === 1 ? 'results.reviewThis' : 'results.reviewThese', { n: misses.length })}
+                </button>
+              )}
             </section>
           )}
           <div className="actions">
-            <button type="button" className="btn btn-primary" onClick={progress.restart}>
+            <button type="button" className="btn btn-primary" onClick={onPlayAgain ?? progress.restart}>
               <Icon name="retry" /> {t('common.again')}
             </button>
             <button type="button" className="btn btn-secondary" onClick={onExit}>{t('results.backToCourse')}</button>
