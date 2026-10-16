@@ -80,14 +80,14 @@ export function naturalNoteQuestions(c: Copy): ModuleTwoQuestion[][] {
         `Find ${name(letter)} on string ${string + 1} (frets 0–12).`),
       answer: {
         kind: 'board',
-        board: { stringLabels: 'name', showFretNumbers: true },
+        board: { highlightStrings: [string], stringLabels: 'name', showFretNumbers: true },
         accepts: frets.map(fret => ({ string, fret })),
       },
       explanation: text(
         `${name(letter)} na ${string + 1}ª corda: ${frets.length > 1 ? 'casas' : 'casa'} ${list}. `,
         `${name(letter)} on string ${string + 1}: ${frets.length > 1 ? 'frets' : 'fret'} ${list}. `,
       ) + counting(first),
-      reveal: routeBoard(string, frets),
+      reveal: { ...routeBoard(string, frets), highlightStrings: [string] },
       notation: first,
     };
   }));

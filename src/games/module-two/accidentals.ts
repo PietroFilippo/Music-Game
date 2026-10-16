@@ -125,12 +125,12 @@ export function accidentalQuestions(c: Copy): ModuleTwoQuestion[][] {
     return {
       id: `find-${string}-${noteKey(note)}`,
       prompt: text(`Encontre ${c.spelled(note)} na ${string + 1}ª corda.`, `Find ${c.spelled(note)} on string ${string + 1}.`),
-      answer: { kind: 'board', board: { stringLabels: 'name', showFretNumbers: true }, accepts: [p] },
+      answer: { kind: 'board', board: { highlightStrings: [string], stringLabels: 'name', showFretNumbers: true }, accepts: [p] },
       explanation: text(
         `${c.dual(pc)} na ${string + 1}ª corda: casa ${fret}, ${between(pc)}.`,
         `${c.dual(pc)} on string ${string + 1}: fret ${fret}, ${between(pc)}.`,
       ),
-      reveal: neighborsBoard(p, note),
+      reveal: { ...neighborsBoard(p, note), highlightStrings: [string] },
       notation: { ...p, flat: note.accidental === 'b' },
     };
   }));

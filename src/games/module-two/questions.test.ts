@@ -57,6 +57,9 @@ describe('module 2 question banks', () => {
         const expected = Array.from({ length: NECK_FRETS + 1 }, (_, fret) => ({ string: Number(string), fret }))
           .filter(p => naturalAt(p) === letter);
         expect(question.answer.accepts).toEqual(expected);
+        // The prompt names the string, so the neck marks it too.
+        expect(question.answer.board.highlightStrings).toEqual([Number(string)]);
+        expect(question.reveal.highlightStrings).toEqual([Number(string)]);
       } else {
         expect(naturalAt(question.notation!)).toBe(question.answer.correct);
       }
@@ -135,6 +138,7 @@ describe('sharps and flats question bank', () => {
       expect(question.answer.accepts).toHaveLength(1);
       expect(p.string).toBe(Number(string));
       expect(pitchClassAt(p)).toBe(pitchOf(name));
+      expect(question.answer.board.highlightStrings).toEqual([p.string]);
     }
   });
 });
